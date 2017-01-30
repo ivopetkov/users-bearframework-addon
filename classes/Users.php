@@ -3,13 +3,14 @@
 /*
  * Users addon for Bear Framework
  * https://github.com/ivopetkov/users-bearframework-addon
- * Copyright (c) 2016 Ivo Petkov
+ * Copyright (c) 2016-2017 Ivo Petkov
  * Free to use under the MIT license.
  */
 
-namespace IvoPetkov\BearFramework\Addons;
+namespace IvoPetkov\BearFrameworkAddons;
 
 use BearFramework\App;
+use \IvoPetkov\BearFrameworkAddons\Users\User;
 
 /**
  * Users
@@ -17,24 +18,78 @@ use BearFramework\App;
 class Users
 {
 
-    function getUser($provider, $id)
+    private $providers = [];
+
+    function addProvider(string $id, string $class): void
+    {
+        $this->providers[$id] = $class;
+    }
+
+    function getProviders(): array
+    {
+        $result = [];
+        foreach ($this->providers as $id => $class) {
+            $result[] = [
+                'id' => $id,
+                'class' => $class,
+            ];
+        }
+        return $result;
+    }
+
+    function getProvider(string $id): \IvoPetkov\BearFrameworkAddons\Users\ILoginProvider
+    {
+        if (!isset($this->providers[$id])) {
+            throw new \Exception('Invalid provider id (' . $id . ')');
+        }
+        if (!class_exists($this->providers[$id])) {
+            throw new \Exception('Provider class (' . $this->providers[$id] . ') not found');
+        }
+        $class = $this->providers[$id];
+        return new $class();
+    }
+
+    function providerExists(string $id): bool
+    {
+        return isset($this->providers[$id]);
+    }
+
+    function make(): \IvoPetkov\BearFrameworkAddons\Users\User
+    {
+        return new User();
+    }
+
+    function getUser(string $provider, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
+    {
+        if ($this->providerExists($provider)) {
+            $provider = $this->getProvider($provider);
+            return $provider->makeUser($id);
+        }
+        $user = $this->make();
+        $user->provider = $provider;
+        $user->id = $id;
+        return $user;
+    }
+
+    public function enableUI(\BearFramework\App\Response $response): void
+    {
+        $response->enableIvoPetkovUsersUI = true;
+    }
+
+    function getUserData(string $provider, string $id): ?array
     {
         $app = App::get();
-        $result = $app->data->get([
-            'key' => 'users/' . md5($provider) . '/' . md5($id) . '.json',
-            'result' => ['body']
-        ]);
-        if (isset($result['body'])) {
-            $body = json_decode($result['body'], true);
-            $user = new \IvoPetkov\BearFramework\Addons\User();
-            $user->provider = $provider;
-            $user->id = $id;
-            $user->name = isset($body['name']) ? $body['name'] : '';
-            $user->url = isset($body['url']) ? $body['url'] : '';
-            $user->image = isset($body['image']) ? $body['image'] : '';
-            return $user;
+        $result = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
+        if ($result !== null) {
+            return json_decode($result, true);
         }
         return null;
+    }
+
+    function saveUserData(string $provider, string $id, array $data): void
+    {
+        $app = App::get();
+        $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($data)));
     }
 
 }

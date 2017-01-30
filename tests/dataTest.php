@@ -3,7 +3,7 @@
 /*
  * Users addon for Bear Framework
  * https://github.com/ivopetkov/users-bearframework-addon
- * Copyright (c) 2016 Ivo Petkov
+ * Copyright (c) 2016-2017 Ivo Petkov
  * Free to use under the MIT license.
  */
 
@@ -19,7 +19,7 @@ class DataTest extends BearFrameworkAddonTestCase
     public function testCreate()
     {
         $app = $this->getApp();
-        $user = new IvoPetkov\BearFramework\Addons\User();
+        $user = new IvoPetkov\BearFrameworkAddons\User();
         $user->provider = 'facebook';
         $user->id = '123123123';
         $user->name = 'John';
@@ -27,7 +27,7 @@ class DataTest extends BearFrameworkAddonTestCase
         $user->image = 'https://www.facebook.com/image/example';
         $user->save();
 
-        $users = new \IvoPetkov\BearFramework\Addons\Users();
+        $users = new \IvoPetkov\BearFrameworkAddons\Users();
 
         $user2 = $users->getUser('facebook', '123123123');
         $this->assertTrue($user2->provider === $user->provider);
