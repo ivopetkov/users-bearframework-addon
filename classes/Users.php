@@ -20,9 +20,10 @@ class Users
 
     private $providers = [];
 
-    function addProvider(string $id, string $class): void
+    function addProvider(string $id, string $class): \IvoPetkov\BearFrameworkAddons\Users
     {
         $this->providers[$id] = $class;
+        return $this;
     }
 
     function getProviders(): array

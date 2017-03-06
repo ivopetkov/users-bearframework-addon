@@ -20,7 +20,7 @@ class CurrentUser extends User
         return $this->provider !== null && $this->id !== null;
     }
 
-    function set(string $provider, string $id): void
+    function login(string $provider, string $id): void
     {
         $app = App::get();
         $providerObject = $app->users->getProvider($provider);
@@ -39,6 +39,11 @@ class CurrentUser extends User
         $this->name = null;
         $this->url = null;
         $this->image = null;
+    }
+
+    function logout(): void
+    {
+        $this->clear();
     }
 
 }

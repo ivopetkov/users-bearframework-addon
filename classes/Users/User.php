@@ -37,6 +37,12 @@ class User
 
     /**
      *
+     * @var string A description text for the user
+     */
+    public $description = null;
+
+    /**
+     *
      * @var string The profile URL of the user
      */
     public $url = null;

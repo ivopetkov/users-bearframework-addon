@@ -11,7 +11,7 @@ namespace IvoPetkov\BearFrameworkAddons\Users;
 
 use BearFramework\App;
 
-class AnonymousLoginProvider implements ILoginProvider
+class GuestLoginProvider implements ILoginProvider
 {
 
     public function hasLoginButton(): bool
@@ -22,9 +22,9 @@ class AnonymousLoginProvider implements ILoginProvider
     public function getLoginButtonText(): string
     {
         if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
-            return 'Продължи анонимно';
+            return 'Продължи като гост';
         } else {
-            return 'Continue anonymously';
+            return 'Continue as a guest';
         }
     }
 
@@ -37,7 +37,7 @@ class AnonymousLoginProvider implements ILoginProvider
     {
         $app = App::get();
         $id = md5(uniqid() . rand(0, 999999999));
-        $app->currentUser->login('anonymous', $id);
+        $app->currentUser->login('guest', $id);
         return new \IvoPetkov\BearFrameworkAddons\Users\LoginResponse();
     }
 
@@ -45,12 +45,26 @@ class AnonymousLoginProvider implements ILoginProvider
     {
         $app = App::get();
         $user = $app->users->make();
-        $user->provider = 'anonymous';
+        $user->provider = 'guest';
         $user->id = $id;
-        if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
-            $user->name = 'Анонимен';
+        $userData = $app->users->getUserData($user->provider, $user->id);
+        if (empty($userData)) {
+            $userData = [];
+        }
+        if (empty($userData['name'])) {
+            if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
+                $user->name = 'Гост';
+            } else {
+                $user->name = 'Guest';
+            }
         } else {
-            $user->name = 'Anonymous';
+            $user->name = $userData['name'];
+        }
+        if (!empty($userData['image'])) {
+            $user->image = $app->data->getFilename('users/' . md5('guest') . '-files/' . $userData['image']);
+        }
+        if (!empty($userData['website'])) {
+            $user->description = $userData['website'];
         }
         return $user;
     }

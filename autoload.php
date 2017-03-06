@@ -7,9 +7,11 @@
  * Free to use under the MIT license.
  */
 
-BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__ , [
+BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__, [
     'require' => [
         'ivopetkov/js-lightbox-bearframework-addon',
-        'ivopetkov/server-requests-bearframework-addon'
+        'ivopetkov/server-requests-bearframework-addon',
+        'ivopetkov/form-bearframework-addon',
+        'ivopetkov/html-server-components-bearframework-addon',
     ]
 ]);

@@ -19,6 +19,7 @@ $context->classes
         ->add('IvoPetkov\BearFrameworkAddons\CurrentUser', 'classes/CurrentUser.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users', 'classes/Users.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\AnonymousLoginProvider', 'classes/Users/AnonymousLoginProvider.php')
+        ->add('IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider', 'classes/Users/GuestLoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\ILoginProvider', 'classes/Users/ILoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\LoginContext', 'classes/Users/LoginContext.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\LoginResponse', 'classes/Users/LoginResponse.php')
@@ -125,11 +126,37 @@ $app->hooks
             }
         });
 
+
+$getCurrentCookieUserData = function() use ($app): ?array {
+    $cookieKey = $app->request->cookies->getValue('ip-users-cuk');
+    if (strlen($cookieKey) > 0) {
+        $result = $app->data->getValue('.temp/users/keys/' . md5($cookieKey));
+        if ($result !== null) {
+            $value = json_decode($result, true);
+            if (is_array($value)) {
+                return $value;
+            }
+        }
+    }
+    return null;
+};
+
+$app->users
+        ->addProvider('anonymous', 'IvoPetkov\BearFrameworkAddons\Users\AnonymousLoginProvider')
+        ->addProvider('guest', 'IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider');
+
+$currentCookieUserData = $getCurrentCookieUserData();
+if ($currentCookieUserData !== null) {
+    $app->currentUser->provider = $currentCookieUserData['provider'];
+    $app->currentUser->id = $currentCookieUserData['id'];
+    $app->currentUser->name = $currentCookieUserData['name'];
+    $app->currentUser->description = $currentCookieUserData['description'];
+    $app->currentUser->url = $currentCookieUserData['url'];
+    $app->currentUser->image = $currentCookieUserData['image'];
+}
+
 $app->hooks
-        ->add('initialized', function() use ($app, $context) {
-
-            $app->users->addProvider('anonymous', 'IvoPetkov\BearFrameworkAddons\Users\AnonymousLoginProvider');
-
+        ->add('initialized', function() use ($app, $context, $getCurrentCookieUserData) {
             $providers = $app->users->getProviders();
 
             $providersPublicData = [];
@@ -137,23 +164,10 @@ $app->hooks
                 $provider = $app->users->getProvider($providerData['id']);
                 $providersPublicData[] = [
                     'id' => $providerData['id'],
-                    'buttonText' => $provider->getLoginButtonText()
+                    'hasLoginButton' => $provider->hasLoginButton(),
+                    'loginButtonText' => $provider->getLoginButtonText()
                 ];
             }
-
-            $getCurrentCookieUserData = function() use ($app): ?array {
-                $cookieKey = $app->request->cookies->getValue('ip-users-cuk');
-                if (strlen($cookieKey) > 0) {
-                    $result = $app->data->getValue('.temp/users/keys/' . md5($cookieKey));
-                    if ($result !== null) {
-                        $value = json_decode($result, true);
-                        if (is_array($value)) {
-                            return $value;
-                        }
-                    }
-                }
-                return null;
-            };
 
             $getCurrentUserCookieData = function() use ($app): ?array {
                 if ($app->currentUser->exists()) {
@@ -161,6 +175,7 @@ $app->hooks
                     $data['provider'] = $app->currentUser->provider;
                     $data['id'] = $app->currentUser->id;
                     $data['name'] = $app->currentUser->name;
+                    $data['description'] = $app->currentUser->description;
                     $data['url'] = $app->currentUser->url;
                     $data['image'] = $app->currentUser->image;
                     return $data;
@@ -174,21 +189,13 @@ $app->hooks
                     return [
                         'imageLarge' => (string) $app->currentUser->getImageUrl(500),
                         'name' => (string) $app->currentUser->name,
-                        'descriptionHTML' => (string) $provider->getDescriptionHTML(),
-                        'hasLogout' => (int) $provider->hasLogout(),
+                        'description' => (string) $app->currentUser->description,
+                        'hasLogoutButton' => (int) $provider->hasLogoutButton(),
+                        'hasSettingsButton' => $app->currentUser->provider === 'guest',
                     ];
                 }
                 return null;
             };
-
-            $currentCookieUserData = $getCurrentCookieUserData();
-            if ($currentCookieUserData !== null) {
-                $app->currentUser->provider = $currentCookieUserData['provider'];
-                $app->currentUser->id = $currentCookieUserData['id'];
-                $app->currentUser->name = $currentCookieUserData['name'];
-                $app->currentUser->url = $currentCookieUserData['url'];
-                $app->currentUser->image = $currentCookieUserData['image'];
-            }
 
             $app->serverRequests->add('ivopetkov-users-login', function($data) use ($app, $context, $getCurrentUserPublicData) {
                 $providerID = isset($data['type']) ? $data['type'] : null;
@@ -204,6 +211,9 @@ $app->hooks
                 $result = [
                     'status' => '1'
                 ];
+                if (strlen($loginResponse->jsCode) > 0) {
+                    $result['jsCode'] = $loginResponse->jsCode;
+                }
                 if (strlen($loginResponse->redirectUrl) > 0) {
                     $result['redirectUrl'] = $loginResponse->redirectUrl;
                 } else {
@@ -214,8 +224,14 @@ $app->hooks
             });
 
             $app->serverRequests->add('ivopetkov-users-logout', function() use ($app) {
-                $app->currentUser->clear();
+                $app->currentUser->logout();
                 $result = ['status' => '1'];
+                return json_encode($result);
+            });
+
+            $app->serverRequests->add('ivopetkov-guest-settings-form', function() use ($app, $context) {
+                $html = $app->components->process('<component src="form" filename="' . $context->dir . '/components/guestSettingsForm.php"/>');
+                $result = ['html' => $html];
                 return json_encode($result);
             });
 
@@ -236,12 +252,15 @@ $app->hooks
                         };
                         $cookieKey = $generateCookieKey();
                         $app->data->set($app->data->make('.temp/users/keys/' . md5($cookieKey), json_encode($currentUserCookieData)));
-                        $response->cookies->set($response->cookies->make('ip-users-cuk', $cookieKey));
+                        $cookie = $response->cookies->make('ip-users-cuk', $cookieKey);
+                        $cookie->httpOnly = true;
+                        $response->cookies->set($cookie);
                     }
                 } else {
                     if ($app->request->cookies->exists('ip-users-cuk')) {
                         $cookie = $response->cookies->make('ip-users-cuk', '');
                         $cookie->expire = 0;
+                        $cookie->httpOnly = true;
                         $response->cookies->set($cookie);
                     }
                 }
@@ -252,35 +271,37 @@ $app->hooks
                     if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
                         $logoutButtonText = 'Изход';
                         $pleaseWaitText = 'Моля, изчакайте ...';
+                        $editSettingsText = 'Настройки на профила';
                     } else {
                         $logoutButtonText = 'Log out';
                         $pleaseWaitText = 'Please wait ...';
+                        $editSettingsText = 'Profile settings';
                     }
                     $initializeData = [
                         'currentUser' => $getCurrentUserPublicData(),
                         'providers' => $providersPublicData,
                         'pleaseWaitText' => $pleaseWaitText,
-                        'logoutButtonText' => $logoutButtonText
+                        'logoutButtonText' => $logoutButtonText,
+                        'editSettingsText' => $editSettingsText
                     ];
                     $html = '<html>'
                             . '<head>'
                             . '<style>'
                             . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
-                            . '.ivopetkov-users-window{text-align:center;}'
+                            . '.ivopetkov-users-window{text-align:center;height:100%;overflow:auto;padding:0 10px;display:flex;align-items:center;}'
                             . '.ivopetkov-users-login-option-button{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#000;background-color:#fff;border-radius:2px;margin-bottom:15px;padding:16px 14px;display:block;cursor:pointer;min-width:200px;text-align:center;}'
                             . '.ivopetkov-users-login-option-button:hover{background-color:#f5f5f5}'
                             . '.ivopetkov-users-login-option-button:active{background-color:#eeeeee}'
                             . '.ivopetkov-users-loading{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;}'
-                            //. '.ivopetkov-users-account-image{}'
+                            . '.ivopetkov-users-account-image{border-radius:2px;background-color:#000;width:250px;height:250px;background-size:cover;background-repeat:no-repeat;background-position:center center;}'
                             . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;}'
                             . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;}'
-                            . '.ivopetkov-users-account-logout-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
-                            . '.ivopetkov-users-account-logout-button:hover{background-color:rgba(255,255,255,0.1);};'
-                            . '.ivopetkov-users-account-logout-button:active{background-color:rgba(255,255,255,0.2);};'
+                            . '.ivopetkov-users-account-logout-button, .ivopetkov-guest-settings-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
+                            . '.ivopetkov-users-account-logout-button:hover, .ivopetkov-guest-settings-button:hover{color:#000;background-color:#f5f5f5;};'
+                            . '.ivopetkov-users-account-logout-button:active, .ivopetkov-guest-settings-button:active{color:#000;background-color:#eeeeee;};'
                             . '<style>'
                             . '</head>'
                             . '<body>'
-                            . '<component src="js-lightbox"/>'
                             . '<script src="' . $context->assets->getUrl('assets/users.js', ['cacheMaxAge' => 9999999, 'robotsNoIndex' => true]) . '"/>'
                             . '<script>ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');</script>';
 
@@ -292,6 +313,7 @@ $app->hooks
                             . '</html>';
                     $dom = new IvoPetkov\HTML5DOMDocument();
                     $dom->loadHTML($response->content);
+                    $dom->insertHTML($app->components->process('<component src="js-lightbox"/>'));
                     $dom->insertHTML($app->components->process($html));
                     $response->content = $dom->saveHTML();
                 }

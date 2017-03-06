@@ -13,5 +13,6 @@ class LoginResponse
 {
 
     public $redirectUrl = null;
+    public $jsCode = null;
 
 }
