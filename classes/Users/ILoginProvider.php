@@ -12,11 +12,11 @@ namespace IvoPetkov\BearFrameworkAddons\Users;
 interface ILoginProvider
 {
 
+    public function hasLoginButton(): bool;
+
     public function getLoginButtonText(): string;
-    
-    public function getDescriptionHTML(): string;
-    
-    public function hasLogout(): bool;
+
+    public function hasLogoutButton(): bool;
 
     public function login(\IvoPetkov\BearFrameworkAddons\Users\LoginContext $context): \IvoPetkov\BearFrameworkAddons\Users\LoginResponse;
 
