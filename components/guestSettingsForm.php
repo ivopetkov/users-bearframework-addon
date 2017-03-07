@@ -32,8 +32,8 @@ $getUserData = function() use ($app, $providerID, $userID) {
 
 $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserData, $getImageDataKey) {
     $data = $getUserData();
-    $data['name'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? (string) $values['ivopetkov-users-guest-settings-form-name'] : '';
-    $data['website'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? (string) $values['ivopetkov-users-guest-settings-form-website'] : '';
+    $data['name'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? trim((string) $values['ivopetkov-users-guest-settings-form-name']) : '';
+    $data['website'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? trim((string) $values['ivopetkov-users-guest-settings-form-website']) : '';
     $removeImage = isset($values['ivopetkov-users-guest-settings-form-image-removed']) && (int) $values['ivopetkov-users-guest-settings-form-image-removed'] === 1;
     $tempImageFilename = null;
     $newImageFilename = null;

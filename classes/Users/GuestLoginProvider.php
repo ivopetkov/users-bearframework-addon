@@ -37,24 +37,22 @@ class GuestLoginProvider implements ILoginProvider
         return new \IvoPetkov\BearFrameworkAddons\Users\LoginResponse();
     }
 
-    public function makeUser(string $id): \IvoPetkov\BearFrameworkAddons\Users\User
+    public function getUserProperties(string $id): array
     {
         $app = App::get();
-        $user = $app->users->make();
-        $user->provider = 'guest';
-        $user->id = $id;
-        $userData = $app->users->getUserData($user->provider, $user->id);
+        $properties = [];
+        $userData = $app->users->getUserData('guest', $id);
         if (empty($userData)) {
             $userData = [];
         }
-        $user->name = empty($userData['name']) ? __('ivopetkov.users.guest') : $userData['name'];
+        $properties['name'] = empty($userData['name']) ? __('ivopetkov.users.guest') : $userData['name'];
         if (!empty($userData['image'])) {
-            $user->image = $app->data->getFilename('users/' . md5('guest') . '-files/' . $userData['image']);
+            $properties['image'] = $app->data->getFilename('users/' . md5('guest') . '-files/' . $userData['image']);
         }
         if (!empty($userData['website'])) {
-            $user->url = $userData['website'];
+            $properties['url'] = $userData['website'];
         }
-        return $user;
+        return $properties;
     }
 
 }

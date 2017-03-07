@@ -19,6 +19,7 @@ class Users
 {
 
     private $providers = [];
+    private static $newUserCache = null;
 
     function addProvider(string $id, string $class): \IvoPetkov\BearFrameworkAddons\Users
     {
@@ -58,14 +59,16 @@ class Users
     function make(): \IvoPetkov\BearFrameworkAddons\Users\User
     {
         return new User();
+        // $this in defineProperty does not work well
+//        if (self::$newUserCache === null) {
+//            self::$newUserCache = new User();
+//        }
+//        $object = clone(self::$newUserCache);
+//        return $object;
     }
 
     function getUser(string $provider, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
     {
-        if ($this->providerExists($provider)) {
-            $provider = $this->getProvider($provider);
-            return $provider->makeUser($id);
-        }
         $user = $this->make();
         $user->provider = $provider;
         $user->id = $id;

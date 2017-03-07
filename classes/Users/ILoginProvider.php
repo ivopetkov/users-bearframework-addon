@@ -20,5 +20,5 @@ interface ILoginProvider
 
     public function login(\IvoPetkov\BearFrameworkAddons\Users\LoginContext $context): \IvoPetkov\BearFrameworkAddons\Users\LoginResponse;
 
-    public function makeUser(string $id): \IvoPetkov\BearFrameworkAddons\Users\User;
+    public function getUserProperties(string $id): array;
 }

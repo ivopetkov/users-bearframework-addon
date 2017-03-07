@@ -39,7 +39,6 @@ $app->localization
         ->addDictionary('bg', function() use ($context) {
             return include $context->dir . '/locales/bg.php';
         });
-$app->localization->setLocale('bg');
 
 $app->hooks
         ->add('assetPrepare', function($data) use ($app, $context) {
@@ -278,9 +277,9 @@ $app->hooks
                             . '.ivopetkov-users-login-option-button:active{background-color:#eeeeee}'
                             . '.ivopetkov-users-loading{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;}'
                             . '.ivopetkov-users-account-image{border-radius:2px;background-color:#000;width:250px;height:250px;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;}'
-                            . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;max-width:350px;}'
-                            . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;max-width:350px;}'
-                            . '.ivopetkov-users-account-url{margin-top:15px;max-width:350px;}'
+                            . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
+                            . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
+                            . '.ivopetkov-users-account-url{margin-top:15px;max-width:350px;word-break:break-all;}'
                             . '.ivopetkov-users-account-url a{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#fff;}'
                             . '.ivopetkov-users-account-logout-button, .ivopetkov-guest-settings-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
                             . '.ivopetkov-users-account-logout-button:hover, .ivopetkov-guest-settings-button:hover{color:#000;background-color:#f5f5f5;};'
