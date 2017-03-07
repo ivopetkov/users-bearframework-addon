@@ -54,7 +54,11 @@ class User
         };
         $this->defineProperty('name', [
             'get' => function() use (&$getUserData) {
-                return $getUserData('name');
+                $value = $getUserData('name');
+                if (strlen($value) === 0) {
+                    return __('ivopetkov.users.anonymous');
+                };
+                return $value;
             },
             'readonly' => true
         ]);

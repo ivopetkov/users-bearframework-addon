@@ -47,11 +47,7 @@ $app->hooks
                 $parts = explode(DIRECTORY_SEPARATOR, $data->filename);
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
-                if (!$app->users->providerExists($providerID)) {
-                    return;
-                }
                 $user = $app->users->getUser($providerID, $userID);
-
                 $filename = null;
                 if (strlen($user->image) > 0) {
                     if (strpos($user->image, 'https://') === 0 || strpos($user->image, 'http://') === 0) {

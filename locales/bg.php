@@ -6,6 +6,7 @@ return [
     'ivopetkov.users.profileSettings' => 'Настройки на профила',
     'ivopetkov.users.loginAsGuest' => 'Продължи като гост',
     'ivopetkov.users.guest' => 'Гост',
+    'ivopetkov.users.anonymous' => 'Анонимен',
     'ivopetkov.users.settings.name' => 'Име',
     'ivopetkov.users.settings.website' => 'Уебсайт',
     'ivopetkov.users.settings.save' => 'Запази промените',
