@@ -57,7 +57,7 @@ class User
     {
         $app = App::get();
         $context = $app->context->get(__FILE__);
-        return $context->assets->getUrl('assets/users/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 3600, 'robotsNoIndex' => true]);
+        return $context->assets->getUrl('assets/users/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 3600, 'robotsNoIndex' => true]) . '?v=' . md5($this->image);
     }
 
 }

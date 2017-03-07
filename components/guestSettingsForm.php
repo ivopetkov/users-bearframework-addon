@@ -160,19 +160,19 @@ $hasImage = !empty($image);
         . ' onrequestsent="document.querySelector(\'.ivopetkov-users-guest-settings-form-button\').style.display=\'none\';document.querySelector(\'.ivopetkov-users-guest-settings-form-button-waiting\').style.display=\'block\';"'
         . ' onresponsereceived="document.querySelector(\'.ivopetkov-users-guest-settings-form-button-waiting\').style.display=\'none\';document.querySelector(\'.ivopetkov-users-guest-settings-form-button\').style.display=\'block\';"'
         . '>';
-        echo '<label for="ivopetkov-users-guest-settings-form-image" class="ivopetkov-users-guest-settings-form-image-label">Image</label>';
+        echo '<label for="ivopetkov-users-guest-settings-form-image" class="ivopetkov-users-guest-settings-form-image-label">' . __('ivopetkov.users.settings.image') . '</label>';
         echo '<div class="ivopetkov-users-guest-settings-form-image-preview-container" style="' . ($hasImage ? '' : 'display:none;') . '">';
         echo '<input type="hidden" name="ivopetkov-users-guest-settings-form-image-removed"/>';
         echo '<div class="ivopetkov-users-guest-settings-form-image-preview"' . ($hasImage ? ' style="background-image:url(' . $image . ');"' : '') . '></div>';
-        echo '<span class="ivopetkov-users-guest-settings-form-remove-image-button" onclick="this.parentNode.firstChild.value=\'1\';this.parentNode.style.display=\'none\';this.parentNode.nextSibling.style.display=\'block\';">Remove selected image</span>';
+        echo '<span class="ivopetkov-users-guest-settings-form-remove-image-button" onclick="this.parentNode.firstChild.value=\'1\';this.parentNode.style.display=\'none\';this.parentNode.nextSibling.style.display=\'block\';">' . __('ivopetkov.users.settings.removeImage') . '</span>';
         echo '</div>';
-        echo '<label for="ivopetkov-users-guest-settings-form-image" class="ivopetkov-users-guest-settings-form-image" style="' . ($hasImage ? 'display:none;' : '') . '">Select image ...<input onchange="if(this.previousSibling === null){this.parentNode.insertBefore(document.createTextNode(\'\'),this);}this.previousSibling.textContent=(this.files.length === 1 ? \'1 file selected\' : (this.files.length === 0 ? \'Select file ...\' : this.files.length + \' files selected\'));" name="ivopetkov-users-guest-settings-form-image" id="ivopetkov-users-guest-settings-form-image" type="file"/></label>';
-        echo '<label for="ivopetkov-users-guest-settings-form-name" class="ivopetkov-users-guest-settings-form-name-label">Name</label>';
+        echo '<label for="ivopetkov-users-guest-settings-form-image" class="ivopetkov-users-guest-settings-form-image" style="' . ($hasImage ? 'display:none;' : '') . '">' . __('ivopetkov.users.settings.selectImage') . '<input onchange="if(this.previousSibling === null){this.parentNode.insertBefore(document.createTextNode(\'\'),this);}this.previousSibling.textContent=(this.files.length === 1 ? \'' . __('ivopetkov.users.settings.1fileSelected') . '\' : \'' . __('ivopetkov.users.settings.selectImage') . '\');" name="ivopetkov-users-guest-settings-form-image" id="ivopetkov-users-guest-settings-form-image" type="file"/></label>';
+        echo '<label for="ivopetkov-users-guest-settings-form-name" class="ivopetkov-users-guest-settings-form-name-label">' . __('ivopetkov.users.settings.name') . '</label>';
         echo '<input name="ivopetkov-users-guest-settings-form-name" class="ivopetkov-users-guest-settings-form-name" type="text" value="' . htmlentities($name) . '"/>';
-        echo '<label for="ivopetkov-users-guest-settings-form-website" class="ivopetkov-users-guest-settings-form-website-label">Website</label>';
+        echo '<label for="ivopetkov-users-guest-settings-form-website" class="ivopetkov-users-guest-settings-form-website-label">' . __('ivopetkov.users.settings.website') . '</label>';
         echo '<input name="ivopetkov-users-guest-settings-form-website" class="ivopetkov-users-guest-settings-form-website" type="text" value="' . htmlentities($website) . '"/>';
-        echo '<span class="ivopetkov-users-guest-settings-form-button" onclick="this.parentNode.submit();">Save changes</span>';
-        echo '<span class="ivopetkov-users-guest-settings-form-button-waiting" style="display:none;">Saving changes ...</span>';
+        echo '<span class="ivopetkov-users-guest-settings-form-button" onclick="this.parentNode.submit();">' . __('ivopetkov.users.settings.save') . '</span>';
+        echo '<span class="ivopetkov-users-guest-settings-form-button-waiting" style="display:none;">' . __('ivopetkov.users.settings.saving') . '</span>';
         echo '</form>';
         ?></body>
 </html>

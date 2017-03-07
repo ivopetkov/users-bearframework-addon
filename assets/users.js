@@ -15,14 +15,14 @@ ivoPetkov.bearFrameworkAddons.users = (function () {
     var providers = [];
     var pleaseWaitText = '';
     var logoutButtonText = '';
-    var editSettingsText = '';
+    var profileSettingsText = '';
 
     var initialize = function (data) {
         currentUser = data.currentUser;
         providers = data.providers;
         pleaseWaitText = data.pleaseWaitText;
         logoutButtonText = data.logoutButtonText;
-        editSettingsText = data.editSettingsText;
+        profileSettingsText = data.profileSettingsText;
     };
 
     var logoutClick = function () {
@@ -136,8 +136,8 @@ ivoPetkov.bearFrameworkAddons.users = (function () {
         };
 
         var html = '';
-        if (currentUser.imageLarge.length > 0) {
-            html += '<div><div class="ivopetkov-users-account-image" style="background-image:url(' + currentUser.imageLarge + ');"></div></div>';
+        if (currentUser.image.length > 0) {
+            html += '<div><div class="ivopetkov-users-account-image" style="background-image:url(' + currentUser.image + ');"></div></div>';
         }
         if (currentUser.name.length > 0) {
             html += '<div><div class="ivopetkov-users-account-name">' + escapeHTML(currentUser.name) + '</div></div>';
@@ -145,8 +145,11 @@ ivoPetkov.bearFrameworkAddons.users = (function () {
         if (currentUser.description.length > 0) {
             html += '<div><div class="ivopetkov-users-account-description">' + escapeHTML(currentUser.description) + '</div></div>';
         }
+        if (currentUser.url.length > 0) {
+            html += '<div><div class="ivopetkov-users-account-url"><a href="' + escapeHTML(currentUser.url) + '" target="_blank">' + escapeHTML(currentUser.url) + '</a></div></div>';
+        }
         if (currentUser.hasSettingsButton > 0) {
-            html += '<div><a class="ivopetkov-guest-settings-button" data-ivopetkov-users-type="guest-settings">' + editSettingsText + '</a></div>';
+            html += '<div><a class="ivopetkov-guest-settings-button" data-ivopetkov-users-type="guest-settings">' + profileSettingsText + '</a></div>';
         }
         if (currentUser.hasLogoutButton > 0) {
             html += '<div><a class="ivopetkov-users-account-logout-button" data-ivopetkov-users-type="logout"' + (currentUser.hasSettingsButton > 0 ? ' style="margin-top:0;"' : '') + '>' + logoutButtonText + '</a></div>';

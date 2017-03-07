@@ -21,11 +21,7 @@ class GuestLoginProvider implements ILoginProvider
 
     public function getLoginButtonText(): string
     {
-        if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
-            return 'Продължи като гост';
-        } else {
-            return 'Continue as a guest';
-        }
+        return __('ivopetkov.users.loginAsGuest');
     }
 
     public function hasLogoutButton(): bool
@@ -51,20 +47,12 @@ class GuestLoginProvider implements ILoginProvider
         if (empty($userData)) {
             $userData = [];
         }
-        if (empty($userData['name'])) {
-            if (_INTERNAL_IVOPETKOV_USERS_BEARFRAMEWORK_ADDON_LANGUAGE === 'bg') {
-                $user->name = 'Гост';
-            } else {
-                $user->name = 'Guest';
-            }
-        } else {
-            $user->name = $userData['name'];
-        }
+        $user->name = empty($userData['name']) ? __('ivopetkov.users.guest') : $userData['name'];
         if (!empty($userData['image'])) {
             $user->image = $app->data->getFilename('users/' . md5('guest') . '-files/' . $userData['image']);
         }
         if (!empty($userData['website'])) {
-            $user->description = $userData['website'];
+            $user->url = $userData['website'];
         }
         return $user;
     }

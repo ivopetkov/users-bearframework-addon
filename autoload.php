@@ -9,6 +9,7 @@
 
 BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__, [
     'require' => [
+        'bearframework/localization-addon',
         'ivopetkov/js-lightbox-bearframework-addon',
         'ivopetkov/server-requests-bearframework-addon',
         'ivopetkov/form-bearframework-addon',
