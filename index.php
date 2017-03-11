@@ -146,7 +146,7 @@ $app->users
 
 $currentCookieUserData = $getCurrentCookieUserData();
 if ($currentCookieUserData !== null) {
-    $app->currentUser->set($currentCookieUserData[0], $currentCookieUserData[1]);
+    $app->currentUser->login($currentCookieUserData[0], $currentCookieUserData[1]);
 }
 
 $app->hooks
@@ -179,7 +179,7 @@ $app->hooks
                         'description' => (string) $app->currentUser->description,
                         'url' => (string) $app->currentUser->url,
                         'hasLogoutButton' => (int) $provider->hasLogoutButton(),
-                        'hasSettingsButton' => $app->currentUser->provider === 'guest',
+                        'hasSettingsButton' => $provider instanceof \IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider,
                     ];
                 }
                 return null;

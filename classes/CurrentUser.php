@@ -19,26 +19,16 @@ class CurrentUser extends User
         return $this->provider !== null && $this->id !== null;
     }
 
-    function set(string $provider, string $id): void
+    function login(string $provider, string $id): void
     {
         $this->provider = $provider;
         $this->id = $id;
     }
 
-    function clear(): void
+    function logout(): void
     {
         $this->provider = null;
         $this->id = null;
-    }
-
-    function login(string $provider, string $id): void
-    {
-        $this->set($provider, $id);
-    }
-
-    function logout(): void
-    {
-        $this->clear();
     }
 
 }

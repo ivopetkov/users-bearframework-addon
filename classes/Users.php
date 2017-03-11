@@ -80,6 +80,13 @@ class Users
         $response->enableIvoPetkovUsersUI = true;
     }
 
+    public function disableUI(\BearFramework\App\Response $response): void
+    {
+        if (isset($response->enableIvoPetkovUsersUI)) {
+            unset($response->enableIvoPetkovUsersUI);
+        }
+    }
+
     function getUserData(string $provider, string $id): ?array
     {
         $app = App::get();
