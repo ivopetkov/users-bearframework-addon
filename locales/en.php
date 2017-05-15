@@ -9,6 +9,7 @@ return [
     'ivopetkov.users.anonymous' => 'Anonymous',
     'ivopetkov.users.settings.name' => 'Name',
     'ivopetkov.users.settings.website' => 'Website',
+    'ivopetkov.users.settings.description' => 'Description',
     'ivopetkov.users.settings.save' => 'Save changes',
     'ivopetkov.users.settings.saving' => 'Saving ...',
     'ivopetkov.users.settings.selectImage' => 'Select image ...',

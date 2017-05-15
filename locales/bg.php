@@ -9,6 +9,7 @@ return [
     'ivopetkov.users.anonymous' => 'Анонимен',
     'ivopetkov.users.settings.name' => 'Име',
     'ivopetkov.users.settings.website' => 'Уебсайт',
+    'ivopetkov.users.settings.description' => 'Описание',
     'ivopetkov.users.settings.save' => 'Запази промените',
     'ivopetkov.users.settings.saving' => 'Запазване ...',
     'ivopetkov.users.settings.selectImage' => 'Избери снимка ...',

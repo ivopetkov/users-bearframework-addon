@@ -52,6 +52,9 @@ class GuestLoginProvider implements ILoginProvider
         if (!empty($userData['website'])) {
             $properties['url'] = $userData['website'];
         }
+        if (!empty($userData['description'])) {
+            $properties['description'] = $userData['description'];
+        }
         return $properties;
     }
 

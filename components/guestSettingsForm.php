@@ -27,13 +27,17 @@ $getUserData = function() use ($app, $providerID, $userID) {
     if (!isset($data['website'])) {
         $data['website'] = '';
     }
+    if (!isset($data['description'])) {
+        $data['description'] = '';
+    }
     return $data;
 };
 
 $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserData, $getImageDataKey) {
     $data = $getUserData();
     $data['name'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? trim((string) $values['ivopetkov-users-guest-settings-form-name']) : '';
-    $data['website'] = isset($values['ivopetkov-users-guest-settings-form-name']) ? trim((string) $values['ivopetkov-users-guest-settings-form-website']) : '';
+    $data['website'] = isset($values['ivopetkov-users-guest-settings-form-website']) ? trim((string) $values['ivopetkov-users-guest-settings-form-website']) : '';
+    $data['description'] = isset($values['ivopetkov-users-guest-settings-form-description']) ? trim((string) $values['ivopetkov-users-guest-settings-form-description']) : '';
     $removeImage = isset($values['ivopetkov-users-guest-settings-form-image-removed']) && (int) $values['ivopetkov-users-guest-settings-form-image-removed'] === 1;
     $tempImageFilename = null;
     $newImageFilename = null;
@@ -71,6 +75,7 @@ $data = $getUserData();
 $image = strlen($data['image']) > 0 ? $app->assets->getUrl($app->data->getFilename($getImageDataKey($data['image'])), ['width' => 500, 'height' => 500]) : '';
 $name = $data['name'];
 $website = $data['website'];
+$description = $data['description'];
 
 $hasImage = !empty($image);
 ?><html>
@@ -87,7 +92,7 @@ $hasImage = !empty($image);
                 position: absolute;
                 z-index: -1;
             }
-            .ivopetkov-users-guest-settings-form-name, .ivopetkov-users-guest-settings-form-image, .ivopetkov-users-guest-settings-form-website{
+            .ivopetkov-users-guest-settings-form-name, .ivopetkov-users-guest-settings-form-image, .ivopetkov-users-guest-settings-form-website, .ivopetkov-users-guest-settings-form-description{
                 width:250px;
                 font-size:15px;
                 padding:13px 15px;
@@ -99,13 +104,16 @@ $hasImage = !empty($image);
                 display:block;
                 margin-bottom: 21px;
             }
+            .ivopetkov-users-guest-settings-form-description{
+                height:100px;
+            }
             .ivopetkov-users-guest-settings-form-image-preview-container{
                 margin-bottom: 21px;
             }
             .ivopetkov-users-guest-settings-form-image{
                 cursor:pointer;
             }
-            .ivopetkov-users-guest-settings-form-image-label, .ivopetkov-users-guest-settings-form-name-label, .ivopetkov-users-guest-settings-form-website-label{
+            .ivopetkov-users-guest-settings-form-image-label, .ivopetkov-users-guest-settings-form-name-label, .ivopetkov-users-guest-settings-form-website-label, .ivopetkov-users-guest-settings-form-description-label{
                 font-family:Arial,Helvetica,sans-serif;
                 font-size:15px;
                 color:#fff;
@@ -171,6 +179,8 @@ $hasImage = !empty($image);
         echo '<input name="ivopetkov-users-guest-settings-form-name" class="ivopetkov-users-guest-settings-form-name" type="text" value="' . htmlentities($name) . '"/>';
         echo '<label for="ivopetkov-users-guest-settings-form-website" class="ivopetkov-users-guest-settings-form-website-label">' . __('ivopetkov.users.settings.website') . '</label>';
         echo '<input name="ivopetkov-users-guest-settings-form-website" class="ivopetkov-users-guest-settings-form-website" type="text" value="' . htmlentities($website) . '"/>';
+        echo '<label for="ivopetkov-users-guest-settings-form-description" class="ivopetkov-users-guest-settings-form-description-label">' . __('ivopetkov.users.settings.description') . '</label>';
+        echo '<textarea name="ivopetkov-users-guest-settings-form-description" class="ivopetkov-users-guest-settings-form-description" type="text">'. htmlspecialchars($description).'</textarea>';
         echo '<span class="ivopetkov-users-guest-settings-form-button" onclick="this.parentNode.submit();">' . __('ivopetkov.users.settings.save') . '</span>';
         echo '<span class="ivopetkov-users-guest-settings-form-button-waiting" style="display:none;">' . __('ivopetkov.users.settings.saving') . '</span>';
         echo '</form>';
