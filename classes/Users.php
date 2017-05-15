@@ -92,7 +92,10 @@ class Users
         $app = App::get();
         $result = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
         if ($result !== null) {
-            return json_decode($result, true);
+            $data = json_decode($result, true);
+            if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $provider && $data['id'] === $id) {
+                return $data['data'];
+            }
         }
         return null;
     }
@@ -100,7 +103,12 @@ class Users
     function saveUserData(string $provider, string $id, array $data): void
     {
         $app = App::get();
-        $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($data)));
+        $dataToSave = [
+            'provider' => $provider,
+            'id' => $id,
+            'data' => $data
+        ];
+        $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($dataToSave)));
     }
 
 }
