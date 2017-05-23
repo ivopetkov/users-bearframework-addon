@@ -126,14 +126,20 @@ $app->hooks
             }
         });
 
+$cookieKey = 'ip-users-cuk-' . md5($app->request->base);
 
-$getCurrentCookieUserData = function() use ($app): ?array {
-    $cookieKey = $app->request->cookies->getValue('ip-users-cuk');
-    if (strlen($cookieKey) > 0) {
+$localCache = [];
+$getCurrentCookieUserData = function() use ($app, $cookieKey, &$localCache): ?array {
+    $cookieValue = $app->request->cookies->getValue($cookieKey);
+    if (strlen($cookieValue) > 0) {
+        if (isset($localCache[$cookieValue])) {
+            return $localCache[$cookieValue];
+        }
         $result = $app->data->getValue('.temp/users/keys/' . md5($cookieKey));
         if ($result !== null) {
             $value = json_decode($result, true);
             if (is_array($value)) {
+                $localCache[$cookieValue] = $value;
                 return $value;
             }
         }
@@ -150,7 +156,7 @@ if ($currentCookieUserData !== null) {
 }
 
 $app->hooks
-        ->add('initialized', function() use ($app, $context, $getCurrentCookieUserData) {
+        ->add('initialized', function() use ($app, $context, $getCurrentCookieUserData, $cookieKey) {
             $providers = $app->users->getProviders();
 
             $providersPublicData = [];
@@ -223,7 +229,7 @@ $app->hooks
                 return json_encode($result);
             });
 
-            $app->hooks->add('responseCreated', function($response) use ($app, $context, $getCurrentUserPublicData, $providersPublicData, $getCurrentCookieUserData, $getCurrentUserCookieData) {
+            $app->hooks->add('responseCreated', function($response) use ($app, $context, $getCurrentUserPublicData, $providersPublicData, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
                 if ($app->currentUser->exists()) {
                     $currentCookieUserData = $getCurrentCookieUserData();
                     $currentUserCookieData = $getCurrentUserCookieData();
@@ -238,15 +244,15 @@ $app->hooks
                             }
                             throw new Exception('Too many retries');
                         };
-                        $cookieKey = $generateCookieKey();
+                        $cookieKeyValue = $generateCookieKey();
                         $app->data->set($app->data->make('.temp/users/keys/' . md5($cookieKey), json_encode($currentUserCookieData)));
-                        $cookie = $response->cookies->make('ip-users-cuk', $cookieKey);
+                        $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
                         $cookie->httpOnly = true;
                         $response->cookies->set($cookie);
                     }
                 } else {
-                    if ($app->request->cookies->exists('ip-users-cuk')) {
-                        $cookie = $response->cookies->make('ip-users-cuk', '');
+                    if ($app->request->cookies->exists($cookieKey)) {
+                        $cookie = $response->cookies->make($cookieKey, '');
                         $cookie->expire = 0;
                         $cookie->httpOnly = true;
                         $response->cookies->set($cookie);
@@ -294,8 +300,8 @@ $app->hooks
                             . '</html>';
                     $dom = new IvoPetkov\HTML5DOMDocument();
                     $dom->loadHTML($response->content);
-                    $dom->insertHTML('<component src="js-lightbox"/>');//$app->components->process()
-                    $dom->insertHTML($html);//$app->components->process()
+                    $dom->insertHTML('<component src="js-lightbox"/>'); //$app->components->process()
+                    $dom->insertHTML($html); //$app->components->process()
                     $response->content = $dom->saveHTML();
                 }
             });
