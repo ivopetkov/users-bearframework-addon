@@ -300,7 +300,7 @@ $app->hooks
                             . '</html>';
                     $dom = new IvoPetkov\HTML5DOMDocument();
                     $dom->loadHTML($response->content);
-                    $dom->insertHTML('<component src="js-lightbox"/>'); //$app->components->process()
+                    $dom->insertHTML($app->components->process('<component src="js-lightbox"/>')); // must have process()
                     $dom->insertHTML($html); //$app->components->process()
                     $response->content = $dom->saveHTML();
                 }
