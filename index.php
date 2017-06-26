@@ -8,18 +8,23 @@
  */
 
 use BearFramework\App;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
 
 $app = App::get();
 $context = $app->context->get(__FILE__);
+$options = $app->addons->get('ivopetkov/users-bearframework-addon')->options;
 
 $context->classes
         ->add('IvoPetkov\BearFrameworkAddons\CurrentUser', 'classes/CurrentUser.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users', 'classes/Users.php')
+        ->add('IvoPetkov\BearFrameworkAddons\Users\Internal\Options', 'classes/Users/Internal/Options.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider', 'classes/Users/GuestLoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\ILoginProvider', 'classes/Users/ILoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\LoginContext', 'classes/Users/LoginContext.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\LoginResponse', 'classes/Users/LoginResponse.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\User', 'classes/Users/User.php');
+
+Options::set($options);
 
 $context->assets
         ->addDir('assets');

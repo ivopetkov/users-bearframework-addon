@@ -10,7 +10,8 @@
 namespace IvoPetkov\BearFrameworkAddons;
 
 use BearFramework\App;
-use \IvoPetkov\BearFrameworkAddons\Users\User;
+use IvoPetkov\BearFrameworkAddons\Users\User;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
 
 /**
  * Users
@@ -90,14 +91,29 @@ class Users
     function getUserData(string $provider, string $id): ?array
     {
         $app = App::get();
-        $result = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
-        if ($result !== null) {
-            $data = json_decode($result, true);
+        $rawUserData = null;
+        if (Options::$useDataCache) {
+            $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+            $rawUserData = $app->cache->getValue($cacheKey);
+            if ($rawUserData === '-1') {
+                return null;
+            }
+            $foundInCache = $rawUserData !== null;
+        }
+        if ($rawUserData === null) {
+            $rawUserData = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
+        }
+        $result = null;
+        if ($rawUserData !== null) {
+            $data = json_decode($rawUserData, true);
             if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $provider && $data['id'] === $id) {
-                return $data['data'];
+                $result = $data['data'];
             }
         }
-        return null;
+        if (Options::$useDataCache && !$foundInCache) {
+            $app->cache->set($app->cache->make($cacheKey, $rawUserData === null ? '-1' : $rawUserData));
+        }
+        return $result;
     }
 
     function saveUserData(string $provider, string $id, array $data): void
@@ -109,6 +125,10 @@ class Users
             'data' => $data
         ];
         $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($dataToSave)));
+        if (Options::$useDataCache) {
+            $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+            $app->cache->delete($cacheKey);
+        }
     }
 
 }
