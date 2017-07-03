@@ -103,6 +103,7 @@ $hasImage = !empty($image);
                 box-sizing: border-box;
                 display:block;
                 margin-bottom: 21px;
+                border:0;
             }
             .ivopetkov-users-guest-settings-form-description{
                 height:100px;
