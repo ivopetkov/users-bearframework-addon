@@ -311,8 +311,11 @@ $app->hooks
                             . '</html>';
                     $dom = new IvoPetkov\HTML5DOMDocument();
                     $dom->loadHTML($response->content);
-                    $dom->insertHTML($app->components->process('<component src="js-lightbox"/>')); // must have process()
-                    $dom->insertHTML($html); //$app->components->process()
+                    $htmlToInsert = [
+                        ['source' => $app->components->process('<component src="js-lightbox"/>')], // must have process()
+                        ['source' => $html]
+                    ];
+                    $dom->insertHTMLMulti($htmlToInsert);
                     $response->content = $dom->saveHTML();
                 }
             });
