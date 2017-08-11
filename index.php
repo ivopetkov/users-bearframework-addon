@@ -297,7 +297,7 @@ $app->hooks
                             . '<style>'
                             . '</head>'
                             . '<body>'
-                            . '<script src="' . $context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 9999999, 'robotsNoIndex' => true]) . '" async/>'
+                            . '<script src="' . $context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'robotsNoIndex' => true]) . '" async/>'
                             . '<script>'
                             . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
                             . 'checkAndExecute(function(){return typeof ivoPetkov!=="undefined" && typeof ivoPetkov.bearFrameworkAddons!=="undefined" && typeof ivoPetkov.bearFrameworkAddons.users!=="undefined"},function(){ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');});'
