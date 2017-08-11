@@ -65,7 +65,7 @@ $app->hooks
                         $tempFilename = null;
                         if ($tempFileData !== null) {
                             $tempFileData = json_decode($tempFileData, true);
-                            if ((int) $tempFileData['lastUpdateTime'] + 3600 < time()) { // is expired
+                            if ((int) $tempFileData['lastUpdateTime'] + 86400 < time()) { // is expired
                                 $download = true;
                             } else {
                                 if ($tempFileData['status'] !== 'empty') { // the url returns a valid image

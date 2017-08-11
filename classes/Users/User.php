@@ -87,7 +87,7 @@ class User
         $app = App::get();
         $context = $app->context->get(__FILE__);
         $addVersion = true;
-        return $context->assets->getUrl('assets/users/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 3600, 'robotsNoIndex' => true]) . ($addVersion ? '?v=' . md5($this->image) : '');
+        return $context->assets->getUrl('assets/users/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 86400, 'robotsNoIndex' => true]) . ($addVersion ? '?v=' . md5($this->image) : '');
     }
 
 }
