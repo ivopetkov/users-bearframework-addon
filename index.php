@@ -49,10 +49,11 @@ $app->localization
         });
 
 $app->hooks
-        ->add('assetPrepare', function($data) use ($app, $context) {
+        ->add('assetPrepare', function($filename, $options, &$returnValue, &$preventDefault) use ($app, $context) {
             $matchingDir = $context->dir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR;
-            if (strpos($data->filename, $matchingDir) === 0) {
-                $parts = explode(DIRECTORY_SEPARATOR, $data->filename);
+            if (strpos($filename, $matchingDir) === 0) {
+                $preventDefault = true;
+                $parts = explode(DIRECTORY_SEPARATOR, $filename);
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
@@ -130,7 +131,7 @@ $app->hooks
                 if ($filename === null) {
                     $filename = $context->dir . '/assets/profile.png';
                 }
-                $data->filename = $filename;
+                $returnValue = $filename;
             }
         });
 
@@ -280,7 +281,7 @@ $app->hooks
                     $html = '<html>'
                             . '<head>'
                             . '<style>'
-                            . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
+                            . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;z-index:1000000;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
                             . '.ivopetkov-users-window{text-align:center;height:100%;overflow:auto;padding:0 10px;display:flex;align-items:center;}'
                             . '.ivopetkov-users-login-option-button{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#000;background-color:#fff;border-radius:2px;margin-bottom:15px;padding:16px 14px;display:block;cursor:pointer;min-width:200px;text-align:center;}'
                             . '.ivopetkov-users-login-option-button:hover{background-color:#f5f5f5}'
