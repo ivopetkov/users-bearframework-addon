@@ -144,7 +144,8 @@ $getCurrentCookieUserData = function() use ($app, $cookieKey, &$localCache): ?ar
         if (isset($localCache[$cookieValue])) {
             return $localCache[$cookieValue];
         }
-        $result = $app->data->getValue('.temp/users/keys/' . md5($cookieKey));
+        $cookieValueMD5 = md5($cookieValue);
+        $result = $app->data->getValue('.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4));
         if ($result !== null) {
             $value = json_decode($result, true);
             if (is_array($value)) {
@@ -243,18 +244,22 @@ $app->hooks
                     $currentCookieUserData = $getCurrentCookieUserData();
                     $currentUserCookieData = $getCurrentUserCookieData();
                     if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                        $generateCookieKey = function() use ($app) {
+                        $generateCookieKeyValue = function() use ($app) {
                             for ($i = 0; $i < 100; $i++) {
-                                $cookieKey = md5(uniqid() . $app->request->base . 'salt');
-                                $result = $app->data->getValue('.temp/users/keys/' . md5($cookieKey));
+                                $cookieValue = md5(uniqid() . $app->request->base . 'salt');
+                                $cookieValueMD5 = md5($cookieValue);
+                                $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
+                                $result = $app->data->getValue($dataKey);
                                 if ($result === null) {
-                                    return $cookieKey;
+                                    return $cookieValue;
                                 }
                             }
                             throw new Exception('Too many retries');
                         };
-                        $cookieKeyValue = $generateCookieKey();
-                        $app->data->set($app->data->make('.temp/users/keys/' . md5($cookieKey), json_encode($currentUserCookieData)));
+                        $cookieKeyValue = $generateCookieKeyValue();
+                        $cookieKeyValueMD5 = md5($cookieKeyValue);
+                        $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
+                        $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
                         $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
                         $cookie->httpOnly = true;
                         $response->cookies->set($cookie);
