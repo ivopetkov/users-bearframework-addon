@@ -310,7 +310,7 @@ $app->hooks
                             . '</script>';
 
                     if ($app->currentUser->exists()) {
-                        $html .= '<component src="file:' . $context->dir . '/components/userBadge.php"/>';
+                        $html .= $app->components->process('<component src="file:' . $context->dir . '/components/userBadge.php"/>');
                     }
 
                     $html .= '</body>'
