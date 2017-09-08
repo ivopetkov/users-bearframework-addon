@@ -49,7 +49,7 @@ $app->localization
         });
 
 $app->hooks
-        ->add('assetPrepare', function($filename, $options, &$returnValue, &$preventDefault) use ($app, $context) {
+        ->add('assetPrepare', function(&$filename, $options, $returnValue, $preventDefault) use ($app, $context) {
             $matchingDir = $context->dir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR;
             if (strpos($filename, $matchingDir) === 0) {
                 $preventDefault = true;
@@ -57,7 +57,7 @@ $app->hooks
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
-                $filename = null;
+                $newFilename = null;
                 if (strlen($user->image) > 0) {
                     if (strpos($user->image, 'https://') === 0 || strpos($user->image, 'http://') === 0) {
                         $download = false;
@@ -119,19 +119,19 @@ $app->hooks
                             }
                         }
                         if ($tempFilename !== null && is_file($tempFilename)) {
-                            $filename = $tempFilename;
+                            $newFilename = $tempFilename;
                         }
                     } else {
                         $tempFilename = realpath($user->image);
                         if ($tempFilename !== false) {
-                            $filename = $tempFilename;
+                            $newFilename = $tempFilename;
                         }
                     }
                 }
-                if ($filename === null) {
-                    $filename = $context->dir . '/assets/profile.png';
+                if ($newFilename === null) {
+                    $newFilename = $context->dir . '/assets/profile.png';
                 }
-                $returnValue = $filename;
+                $filename = $newFilename;
             }
         });
 
