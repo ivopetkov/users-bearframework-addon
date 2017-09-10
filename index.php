@@ -9,6 +9,7 @@
 
 use BearFramework\App;
 use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 $app = App::get();
 $context = $app->context->get(__FILE__);
@@ -18,6 +19,7 @@ $context->classes
         ->add('IvoPetkov\BearFrameworkAddons\CurrentUser', 'classes/CurrentUser.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users', 'classes/Users.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\Internal\Options', 'classes/Users/Internal/Options.php')
+        ->add('IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities', 'classes/Users/Internal/Utilities.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider', 'classes/Users/GuestLoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\ILoginProvider', 'classes/Users/ILoginProvider.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users\LoginContext', 'classes/Users/LoginContext.php')
@@ -135,6 +137,9 @@ $app->hooks
             }
         });
 
+$app->users
+        ->addProvider('guest', 'IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider');
+
 $cookieKey = 'ip-users-cuk-' . md5($app->request->base);
 
 $localCache = [];
@@ -157,172 +162,86 @@ $getCurrentCookieUserData = function() use ($app, $cookieKey, &$localCache): ?ar
     return null;
 };
 
-$app->users
-        ->addProvider('guest', 'IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider');
-
 $currentCookieUserData = $getCurrentCookieUserData();
 if ($currentCookieUserData !== null) {
     $app->currentUser->login($currentCookieUserData[0], $currentCookieUserData[1]);
 }
 
-$app->hooks
-        ->add('initialized', function() use ($app, $context, $getCurrentCookieUserData, $cookieKey) {
-            $providers = $app->users->getProviders();
+$getCurrentUserCookieData = function() use ($app): ?array {
+    if ($app->currentUser->exists()) {
+        return [$app->currentUser->provider, $app->currentUser->id];
+    }
+    return null;
+};
 
-            $providersPublicData = [];
-            foreach ($providers as $providerData) {
-                $provider = $app->users->getProvider($providerData['id']);
-                $providersPublicData[] = [
-                    'id' => $providerData['id'],
-                    'hasLoginButton' => $provider->hasLoginButton(),
-                    'loginButtonText' => $provider->getLoginButtonText()
-                ];
+$app->serverRequests
+        ->add('ivopetkov-users-login', function($data) use ($app, $context) {
+            $providerID = isset($data['type']) ? $data['type'] : null;
+            if (!$app->users->providerExists($providerID)) {
+                return;
             }
+            $location = isset($data['location']) ? $data['location'] : null;
 
-            $getCurrentUserCookieData = function() use ($app): ?array {
-                if ($app->currentUser->exists()) {
-                    return [$app->currentUser->provider, $app->currentUser->id];
-                }
-                return null;
-            };
-
-            $getCurrentUserPublicData = function() use ($app): ?array {
-                if ($app->currentUser->exists()) {
-                    $provider = $app->users->getProvider($app->currentUser->provider);
-                    return [
-                        'image' => (string) $app->currentUser->getImageUrl(500),
-                        'name' => (string) $app->currentUser->name,
-                        'description' => (string) $app->currentUser->description,
-                        'url' => (string) $app->currentUser->url,
-                        'hasLogoutButton' => (int) $provider->hasLogoutButton(),
-                        'hasSettingsButton' => $provider instanceof \IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider,
-                    ];
-                }
-                return null;
-            };
-
-            $app->serverRequests->add('ivopetkov-users-login', function($data) use ($app, $context, $getCurrentUserPublicData) {
-                $providerID = isset($data['type']) ? $data['type'] : null;
-                if (!$app->users->providerExists($providerID)) {
-                    return;
-                }
-                $location = isset($data['location']) ? $data['location'] : null;
-
-                $provider = $app->users->getProvider($providerID);
-                $loginContext = new \IvoPetkov\BearFrameworkAddons\Users\LoginContext();
-                $loginContext->locationUrl = $location;
-                $loginResponse = $provider->login($loginContext);
-                $result = [
-                    'status' => '1'
-                ];
-                if (strlen($loginResponse->jsCode) > 0) {
-                    $result['jsCode'] = $loginResponse->jsCode;
-                }
-                if (strlen($loginResponse->redirectUrl) > 0) {
-                    $result['redirectUrl'] = $loginResponse->redirectUrl;
-                } else {
-                    $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/userBadge.php"/>');
-                    $result['currentUser'] = $getCurrentUserPublicData();
-                }
-                return json_encode($result);
-            });
-
-            $app->serverRequests->add('ivopetkov-users-logout', function() use ($app) {
-                $app->currentUser->logout();
-                $result = ['status' => '1'];
-                return json_encode($result);
-            });
-
-            $app->serverRequests->add('ivopetkov-guest-settings-form', function() use ($app, $context) {
-                $html = $app->components->process('<component src="form" filename="' . $context->dir . '/components/guestSettingsForm.php"/>');
-                $result = ['html' => $html];
-                return json_encode($result);
-            });
-
-            $app->hooks->add('responseCreated', function($response) use ($app, $context, $getCurrentUserPublicData, $providersPublicData, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
-                if ($app->currentUser->exists()) {
-                    $currentCookieUserData = $getCurrentCookieUserData();
-                    $currentUserCookieData = $getCurrentUserCookieData();
-                    if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                        $generateCookieKeyValue = function() use ($app) {
-                            for ($i = 0; $i < 100; $i++) {
-                                $cookieValue = md5(uniqid() . $app->request->base . 'salt');
-                                $cookieValueMD5 = md5($cookieValue);
-                                $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
-                                $result = $app->data->getValue($dataKey);
-                                if ($result === null) {
-                                    return $cookieValue;
-                                }
-                            }
-                            throw new Exception('Too many retries');
-                        };
-                        $cookieKeyValue = $generateCookieKeyValue();
-                        $cookieKeyValueMD5 = md5($cookieKeyValue);
-                        $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
-                        $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
-                        $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
-                        $cookie->httpOnly = true;
-                        $response->cookies->set($cookie);
-                    }
-                } else {
-                    if ($app->request->cookies->exists($cookieKey)) {
-                        $cookie = $response->cookies->make($cookieKey, '');
-                        $cookie->expire = 0;
-                        $cookie->httpOnly = true;
-                        $response->cookies->set($cookie);
-                    }
-                }
-                if (!isset($response->enableIvoPetkovUsersUI)) {
-                    return;
-                }
-                if ($response instanceof App\Response\HTML) {
-                    $initializeData = [
-                        'currentUser' => $getCurrentUserPublicData(),
-                        'providers' => $providersPublicData,
-                        'pleaseWaitText' => __('ivopetkov.users.pleaseWait'),
-                        'logoutButtonText' => __('ivopetkov.users.logoutButton'),
-                        'profileSettingsText' => __('ivopetkov.users.profileSettings')
-                    ];
-                    $html = '<html>'
-                            . '<head>'
-                            . '<style>'
-                            . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;z-index:1000000;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
-                            . '.ivopetkov-users-window{text-align:center;height:100%;overflow:auto;padding:0 10px;display:flex;align-items:center;}'
-                            . '.ivopetkov-users-login-option-button{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#000;background-color:#fff;border-radius:2px;margin-bottom:15px;padding:16px 14px;display:block;cursor:pointer;min-width:200px;text-align:center;}'
-                            . '.ivopetkov-users-login-option-button:hover{background-color:#f5f5f5}'
-                            . '.ivopetkov-users-login-option-button:active{background-color:#eeeeee}'
-                            . '.ivopetkov-users-loading{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;}'
-                            . '.ivopetkov-users-account-image{border-radius:2px;background-color:#000;width:250px;height:250px;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;}'
-                            . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
-                            . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
-                            . '.ivopetkov-users-account-url{margin-top:15px;max-width:350px;word-break:break-all;}'
-                            . '.ivopetkov-users-account-url a{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#fff;}'
-                            . '.ivopetkov-users-account-logout-button, .ivopetkov-guest-settings-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
-                            . '.ivopetkov-users-account-logout-button:hover, .ivopetkov-guest-settings-button:hover{color:#000;background-color:#f5f5f5;};'
-                            . '.ivopetkov-users-account-logout-button:active, .ivopetkov-guest-settings-button:active{color:#000;background-color:#eeeeee;};'
-                            . '<style>'
-                            . '</head>'
-                            . '<body>'
-                            . '<script src="' . $context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'robotsNoIndex' => true]) . '" async/>'
-                            . '<script>'
-                            . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
-                            . 'checkAndExecute(function(){return typeof ivoPetkov!=="undefined" && typeof ivoPetkov.bearFrameworkAddons!=="undefined" && typeof ivoPetkov.bearFrameworkAddons.users!=="undefined"},function(){ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');});'
-                            . '</script>';
-
-                    if ($app->currentUser->exists()) {
-                        $html .= $app->components->process('<component src="file:' . $context->dir . '/components/userBadge.php"/>');
-                    }
-
-                    $html .= '</body>'
-                            . '</html>';
-                    $dom = new IvoPetkov\HTML5DOMDocument();
-                    $dom->loadHTML($response->content);
-                    $htmlToInsert = [
-                        ['source' => $app->components->process('<component src="js-lightbox"/>')], // must have process()
-                        ['source' => $html]
-                    ];
-                    $dom->insertHTMLMulti($htmlToInsert);
-                    $response->content = $dom->saveHTML();
-                }
-            });
+            $provider = $app->users->getProvider($providerID);
+            $loginContext = new \IvoPetkov\BearFrameworkAddons\Users\LoginContext();
+            $loginContext->locationUrl = $location;
+            $loginResponse = $provider->login($loginContext);
+            $result = [
+                'status' => '1'
+            ];
+            if (strlen($loginResponse->jsCode) > 0) {
+                $result['jsCode'] = $loginResponse->jsCode;
+            }
+            if (strlen($loginResponse->redirectUrl) > 0) {
+                $result['redirectUrl'] = $loginResponse->redirectUrl;
+            } else {
+                $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/userBadge.php"/>');
+                $result['currentUser'] = Utilities::getCurrentUserPublicData();
+            }
+            return json_encode($result);
+        })
+        ->add('ivopetkov-users-logout', function() use ($app) {
+            $app->currentUser->logout();
+            $result = ['status' => '1'];
+            return json_encode($result);
+        })
+        ->add('ivopetkov-guest-settings-form', function() use ($app, $context) {
+            $html = $app->components->process('<component src="form" filename="' . $context->dir . '/components/guestSettingsForm.php"/>');
+            $result = ['html' => $html];
+            return json_encode($result);
         });
+
+$app->hooks->add('responseCreated', function($response) use ($app, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
+    if ($app->currentUser->exists()) {
+        $currentCookieUserData = $getCurrentCookieUserData();
+        $currentUserCookieData = $getCurrentUserCookieData();
+        if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
+            $generateCookieKeyValue = function() use ($app) {
+                for ($i = 0; $i < 100; $i++) {
+                    $cookieValue = md5(uniqid() . $app->request->base . 'salt');
+                    $cookieValueMD5 = md5($cookieValue);
+                    $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
+                    $result = $app->data->getValue($dataKey);
+                    if ($result === null) {
+                        return $cookieValue;
+                    }
+                }
+                throw new Exception('Too many retries');
+            };
+            $cookieKeyValue = $generateCookieKeyValue();
+            $cookieKeyValueMD5 = md5($cookieKeyValue);
+            $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
+            $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
+            $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
+            $cookie->httpOnly = true;
+            $response->cookies->set($cookie);
+        }
+    } else {
+        if ($app->request->cookies->exists($cookieKey)) {
+            $cookie = $response->cookies->make($cookieKey, '');
+            $cookie->expire = 0;
+            $cookie->httpOnly = true;
+            $response->cookies->set($cookie);
+        }
+    }
+});

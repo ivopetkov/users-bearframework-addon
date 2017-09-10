@@ -12,6 +12,7 @@ namespace IvoPetkov\BearFrameworkAddons;
 use BearFramework\App;
 use IvoPetkov\BearFrameworkAddons\Users\User;
 use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 /**
  * Users
@@ -20,7 +21,8 @@ class Users
 {
 
     private $providers = [];
-    private static $newUserCache = null;
+
+    //private static $newUserCache = null;
 
     function addProvider(string $id, string $class): \IvoPetkov\BearFrameworkAddons\Users
     {
@@ -76,18 +78,6 @@ class Users
         return $user;
     }
 
-    public function enableUI(\BearFramework\App\Response $response): void
-    {
-        $response->enableIvoPetkovUsersUI = true;
-    }
-
-    public function disableUI(\BearFramework\App\Response $response): void
-    {
-        if (isset($response->enableIvoPetkovUsersUI)) {
-            unset($response->enableIvoPetkovUsersUI);
-        }
-    }
-
     function getUserData(string $provider, string $id): ?array
     {
         $app = App::get();
@@ -129,6 +119,79 @@ class Users
             $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
             $app->cache->delete($cacheKey);
         }
+    }
+
+    public function applyUI(\BearFramework\App\Response $response): void
+    {
+        $app = App::get();
+
+        if ($app->hooks->exists('usersApplyUI')) {
+            $preventDefault = false;
+            $app->hooks->execute('usersApplyUI', $response, $preventDefault);
+            if ($preventDefault) {
+                return;
+            }
+        }
+
+        $context = $app->context->get(__FILE__);
+        $providers = $app->users->getProviders();
+
+        $providersPublicData = [];
+        foreach ($providers as $providerData) {
+            $provider = $app->users->getProvider($providerData['id']);
+            $providersPublicData[] = [
+                'id' => $providerData['id'],
+                'hasLoginButton' => $provider->hasLoginButton(),
+                'loginButtonText' => $provider->getLoginButtonText()
+            ];
+        }
+
+        $initializeData = [
+            'currentUser' => Utilities::getCurrentUserPublicData(),
+            'providers' => $providersPublicData,
+            'pleaseWaitText' => __('ivopetkov.users.pleaseWait'),
+            'logoutButtonText' => __('ivopetkov.users.logoutButton'),
+            'profileSettingsText' => __('ivopetkov.users.profileSettings')
+        ];
+        $html = '<html>'
+                . '<head>'
+                . '<style>'
+                . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;z-index:1000000;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
+                . '.ivopetkov-users-window{text-align:center;height:100%;overflow:auto;padding:0 10px;display:flex;align-items:center;}'
+                . '.ivopetkov-users-login-option-button{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#000;background-color:#fff;border-radius:2px;margin-bottom:15px;padding:16px 14px;display:block;cursor:pointer;min-width:200px;text-align:center;}'
+                . '.ivopetkov-users-login-option-button:hover{background-color:#f5f5f5}'
+                . '.ivopetkov-users-login-option-button:active{background-color:#eeeeee}'
+                . '.ivopetkov-users-loading{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;}'
+                . '.ivopetkov-users-account-image{border-radius:2px;background-color:#000;width:250px;height:250px;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;}'
+                . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
+                . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
+                . '.ivopetkov-users-account-url{margin-top:15px;max-width:350px;word-break:break-all;}'
+                . '.ivopetkov-users-account-url a{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#fff;}'
+                . '.ivopetkov-users-account-logout-button, .ivopetkov-guest-settings-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
+                . '.ivopetkov-users-account-logout-button:hover, .ivopetkov-guest-settings-button:hover{color:#000;background-color:#f5f5f5;};'
+                . '.ivopetkov-users-account-logout-button:active, .ivopetkov-guest-settings-button:active{color:#000;background-color:#eeeeee;};'
+                . '<style>'
+                . '</head>'
+                . '<body>'
+                . '<component src="js-lightbox"/>'
+                . '<script src="' . $context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'robotsNoIndex' => true]) . '" async/>'
+                . '<script>'
+                . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
+                . 'checkAndExecute(function(){return typeof ivoPetkov!=="undefined" && typeof ivoPetkov.bearFrameworkAddons!=="undefined" && typeof ivoPetkov.bearFrameworkAddons.users!=="undefined"},function(){ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');});'
+                . '</script>';
+
+        if ($app->currentUser->exists()) {
+            $html .= '<component src="file:' . $context->dir . '/components/userBadge.php"/>';
+        }
+
+        $html .= '</body>'
+                . '</html>';
+        $dom = new \IvoPetkov\HTML5DOMDocument();
+        $dom->loadHTML($response->content);
+        $dom->insertHTML($app->components->process($html));
+        $response->content = $dom->saveHTML();
+
+        $app->hooks->execute('usersApplyUIDone', $response);
     }
 
 }
