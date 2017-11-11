@@ -51,10 +51,9 @@ $app->localization
         });
 
 $app->hooks
-        ->add('assetPrepare', function(&$filename, $options, $returnValue, $preventDefault) use ($app, $context) {
+        ->add('assetPrepare', function(&$filename, $options) use ($app, $context) {
             $matchingDir = $context->dir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR;
             if (strpos($filename, $matchingDir) === 0) {
-                $preventDefault = true;
                 $parts = explode(DIRECTORY_SEPARATOR, $filename);
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
