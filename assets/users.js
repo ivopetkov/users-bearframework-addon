@@ -147,7 +147,7 @@ if (typeof ivoPetkov.bearFrameworkAddons.users === 'undefined') {
                 html += '<div><div class="ivopetkov-users-account-description">' + escapeHTML(currentUser.description) + '</div></div>';
             }
             if (currentUser.url.length > 0) {
-                html += '<div><div class="ivopetkov-users-account-url"><a href="' + escapeHTML(currentUser.url) + '" target="_blank">' + escapeHTML(currentUser.url) + '</a></div></div>';
+                html += '<div><div class="ivopetkov-users-account-url"><a href="' + escapeHTML(currentUser.url) + '" target="_blank" rel="noopener">' + escapeHTML(currentUser.url) + '</a></div></div>';
             }
             if (currentUser.hasSettingsButton > 0) {
                 html += '<div><a class="ivopetkov-guest-settings-button" data-ivopetkov-users-type="guest-settings">' + profileSettingsText + '</a></div>';
