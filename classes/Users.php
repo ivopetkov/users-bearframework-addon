@@ -174,7 +174,7 @@ class Users
                 . '</head>'
                 . '<body>'
                 . '<component src="js-lightbox"/>'
-                . '<script src="' . htmlentities($context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true])) . '" async/>'
+                . '<script src="' . htmlentities($context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 2, 'robotsNoIndex' => true])) . '" async/>'
                 . '<script src="' . htmlentities($context->assets->getUrl('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true])) . '" async/>'
                 . '<script>'
                 . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
