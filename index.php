@@ -214,26 +214,28 @@ $app->hooks->add('responseCreated', function($response) use ($app, $getCurrentCo
     if ($app->currentUser->exists()) {
         $currentCookieUserData = $getCurrentCookieUserData();
         $currentUserCookieData = $getCurrentUserCookieData();
-        if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-            $generateCookieKeyValue = function() use ($app) {
-                for ($i = 0; $i < 100; $i++) {
-                    $cookieValue = md5(uniqid() . $app->request->base . 'salt');
-                    $cookieValueMD5 = md5($cookieValue);
-                    $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
-                    $result = $app->data->getValue($dataKey);
-                    if ($result === null) {
-                        return $cookieValue;
+        if (strpos((string) $app->request->path, $app->config->assetsPathPrefix) !== 0) {
+            if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
+                $generateCookieKeyValue = function() use ($app) {
+                    for ($i = 0; $i < 100; $i++) {
+                        $cookieValue = md5(uniqid() . $app->request->base . 'salt');
+                        $cookieValueMD5 = md5($cookieValue);
+                        $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
+                        $result = $app->data->getValue($dataKey);
+                        if ($result === null) {
+                            return $cookieValue;
+                        }
                     }
-                }
-                throw new Exception('Too many retries');
-            };
-            $cookieKeyValue = $generateCookieKeyValue();
-            $cookieKeyValueMD5 = md5($cookieKeyValue);
-            $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
-            $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
-            $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
-            $cookie->httpOnly = true;
-            $response->cookies->set($cookie);
+                    throw new Exception('Too many retries');
+                };
+                $cookieKeyValue = $generateCookieKeyValue();
+                $cookieKeyValueMD5 = md5($cookieKeyValue);
+                $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
+                $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
+                $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
+                $cookie->httpOnly = true;
+                $response->cookies->set($cookie);
+            }
         }
     } else {
         if ($app->request->cookies->exists($cookieKey)) {
