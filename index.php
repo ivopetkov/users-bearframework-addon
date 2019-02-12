@@ -8,25 +8,14 @@
  */
 
 use BearFramework\App;
-use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
 use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 $app = App::get();
-$context = $app->context->get(__FILE__);
-$options = $app->addons->get('ivopetkov/users-bearframework-addon')->options;
+$context = $app->contexts->get(__FILE__);
 
 $context->classes
-        ->add('IvoPetkov\BearFrameworkAddons\CurrentUser', 'classes/CurrentUser.php')
         ->add('IvoPetkov\BearFrameworkAddons\Users', 'classes/Users.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\Internal\Options', 'classes/Users/Internal/Options.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities', 'classes/Users/Internal/Utilities.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider', 'classes/Users/GuestLoginProvider.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\ILoginProvider', 'classes/Users/ILoginProvider.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\LoginContext', 'classes/Users/LoginContext.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\LoginResponse', 'classes/Users/LoginResponse.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Users\User', 'classes/Users/User.php');
-
-Options::set($options);
+        ->add('IvoPetkov\BearFrameworkAddons\Users\*', 'classes/Users/*.php');
 
 $context->assets
         ->addDir('assets');
@@ -36,7 +25,7 @@ $app->shortcuts
             return new IvoPetkov\BearFrameworkAddons\Users();
         })
         ->add('currentUser', function() {
-            return new IvoPetkov\BearFrameworkAddons\CurrentUser();
+            return new IvoPetkov\BearFrameworkAddons\Users\CurrentUser();
         });
 
 $app->localization
@@ -50,11 +39,11 @@ $app->localization
             return include $context->dir . '/locales/ru.php';
         });
 
-$app->hooks
-        ->add('assetPrepare', function(&$filename, $options) use ($app, $context) {
-            $matchingDir = $context->dir . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR;
-            if (strpos($filename, $matchingDir) === 0) {
-                $parts = explode(DIRECTORY_SEPARATOR, $filename);
+$app->assets
+        ->addEventListener('beforePrepare', function(\BearFramework\App\Assets\BeforePrepareEventDetails $event) use ($app, $context) {
+            $matchingDir = $context->dir . '/assets/u/';
+            if (strpos($event->filename, $matchingDir) === 0) {
+                $parts = explode('/', $event->filename);
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
@@ -132,7 +121,7 @@ $app->hooks
                 if ($newFilename === null) {
                     $newFilename = $context->dir . '/assets/profile.png';
                 }
-                $filename = $newFilename;
+                $event->filename = $newFilename;
             }
         });
 
@@ -210,39 +199,41 @@ $app->serverRequests
             return json_encode($result);
         });
 
-$app->hooks->add('responseCreated', function($response) use ($app, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
-    if ($app->currentUser->exists()) {
-        $currentCookieUserData = $getCurrentCookieUserData();
-        $currentUserCookieData = $getCurrentUserCookieData();
-        if (strpos((string) $app->request->path, $app->config->assetsPathPrefix) !== 0) {
-            if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                $generateCookieKeyValue = function() use ($app) {
-                    for ($i = 0; $i < 100; $i++) {
-                        $cookieValue = md5(uniqid() . $app->request->base . 'salt');
-                        $cookieValueMD5 = md5($cookieValue);
-                        $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
-                        $result = $app->data->getValue($dataKey);
-                        if ($result === null) {
-                            return $cookieValue;
-                        }
+$app
+        ->addEventListener('beforeSendResponse', function(\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
+            $response = $details->response;
+            if ($app->currentUser->exists()) {
+                $currentCookieUserData = $getCurrentCookieUserData();
+                $currentUserCookieData = $getCurrentUserCookieData();
+                if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) {
+                    if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
+                        $generateCookieKeyValue = function() use ($app) {
+                            for ($i = 0; $i < 100; $i++) {
+                                $cookieValue = md5(uniqid() . $app->request->base . 'salt');
+                                $cookieValueMD5 = md5($cookieValue);
+                                $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
+                                $result = $app->data->getValue($dataKey);
+                                if ($result === null) {
+                                    return $cookieValue;
+                                }
+                            }
+                            throw new Exception('Too many retries');
+                        };
+                        $cookieKeyValue = $generateCookieKeyValue();
+                        $cookieKeyValueMD5 = md5($cookieKeyValue);
+                        $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
+                        $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
+                        $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
+                        $cookie->httpOnly = true;
+                        $response->cookies->set($cookie);
                     }
-                    throw new Exception('Too many retries');
-                };
-                $cookieKeyValue = $generateCookieKeyValue();
-                $cookieKeyValueMD5 = md5($cookieKeyValue);
-                $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
-                $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
-                $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
-                $cookie->httpOnly = true;
-                $response->cookies->set($cookie);
+                }
+            } else {
+                if ($app->request->cookies->exists($cookieKey)) {
+                    $cookie = $response->cookies->make($cookieKey, '');
+                    $cookie->expire = 0;
+                    $cookie->httpOnly = true;
+                    $response->cookies->set($cookie);
+                }
             }
-        }
-    } else {
-        if ($app->request->cookies->exists($cookieKey)) {
-            $cookie = $response->cookies->make($cookieKey, '');
-            $cookie->expire = 0;
-            $cookie->httpOnly = true;
-            $response->cookies->set($cookie);
-        }
-    }
-});
+        });

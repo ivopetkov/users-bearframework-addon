@@ -72,7 +72,7 @@ $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserDat
 };
 
 $data = $getUserData();
-$image = strlen($data['image']) > 0 ? $app->assets->getUrl($app->data->getFilename($getImageDataKey($data['image'])), ['width' => 500, 'height' => 500]) : '';
+$image = strlen($data['image']) > 0 ? $app->assets->getURL($app->data->getFilename($getImageDataKey($data['image'])), ['width' => 500, 'height' => 500]) : '';
 $name = $data['name'];
 $website = $data['website'];
 $description = $data['description'];

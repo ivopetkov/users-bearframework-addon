@@ -7,10 +7,13 @@
  * Free to use under the MIT license.
  */
 
-namespace IvoPetkov\BearFrameworkAddons;
+namespace IvoPetkov\BearFrameworkAddons\Users;
 
 use IvoPetkov\BearFrameworkAddons\Users\User;
 
+/**
+ * 
+ */
 class CurrentUser extends User
 {
 

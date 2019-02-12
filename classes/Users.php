@@ -11,14 +11,16 @@ namespace IvoPetkov\BearFrameworkAddons;
 
 use BearFramework\App;
 use IvoPetkov\BearFrameworkAddons\Users\User;
-use IvoPetkov\BearFrameworkAddons\Users\Internal\Options;
 use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
+use IvoPetkov\HTML5DOMDocument;
 
 /**
  * Users
  */
 class Users
 {
+
+    use \BearFramework\App\EventsTrait;
 
     private $providers = [];
 
@@ -82,14 +84,12 @@ class Users
     {
         $app = App::get();
         $rawUserData = null;
-        if (Options::$useDataCache) {
-            $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
-            $rawUserData = $app->cache->getValue($cacheKey);
-            if ($rawUserData === '-1') {
-                return null;
-            }
-            $foundInCache = $rawUserData !== null;
+        $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+        $rawUserData = $app->cache->getValue($cacheKey);
+        if ($rawUserData === '-1') {
+            return null;
         }
+        $foundInCache = $rawUserData !== null;
         if ($rawUserData === null) {
             $rawUserData = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
         }
@@ -100,7 +100,7 @@ class Users
                 $result = $data['data'];
             }
         }
-        if (Options::$useDataCache && !$foundInCache) {
+        if (!$foundInCache) {
             $app->cache->set($app->cache->make($cacheKey, $rawUserData === null ? '-1' : $rawUserData));
         }
         return $result;
@@ -115,25 +115,23 @@ class Users
             'data' => $data
         ];
         $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($dataToSave)));
-        if (Options::$useDataCache) {
-            $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
-            $app->cache->delete($cacheKey);
-        }
+        $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+        $app->cache->delete($cacheKey);
     }
 
     public function applyUI(\BearFramework\App\Response $response): void
     {
         $app = App::get();
 
-        if ($app->hooks->exists('usersApplyUI')) {
-            $preventDefault = false;
-            $app->hooks->execute('usersApplyUI', $response, $preventDefault);
-            if ($preventDefault) {
+        if ($this->hasEventListeners('beforeApplyUI')) {
+            $eventDetails = new \IvoPetkov\BearFrameworkAddons\Users\BeforeApplyUIEventDetails($response);
+            $this->dispatchEvent('beforeApplyUI', $eventDetails);
+            if ($eventDetails->preventDefault) {
                 return;
             }
         }
 
-        $context = $app->context->get(__FILE__);
+        $context = $app->contexts->get(__FILE__);
         $providers = $app->users->getProviders();
 
         $providersPublicData = [];
@@ -174,8 +172,8 @@ class Users
                 . '</head>'
                 . '<body>'
                 . '<component src="js-lightbox"/>'
-                . '<script src="' . htmlentities($context->assets->getUrl('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 2, 'robotsNoIndex' => true])) . '" async/>'
-                . '<script src="' . htmlentities($context->assets->getUrl('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true])) . '" async/>'
+                . '<script src="' . htmlentities($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 2, 'robotsNoIndex' => true])) . '" async/>'
+                . '<script src="' . htmlentities($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true])) . '" async/>'
                 . '<script>'
                 . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
                 . 'checkAndExecute(function(){return typeof ivoPetkov!=="undefined" && typeof ivoPetkov.bearFrameworkAddons!=="undefined" && typeof ivoPetkov.bearFrameworkAddons.users!=="undefined"},function(){ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');});'
@@ -187,12 +185,10 @@ class Users
 
         $html .= '</body>'
                 . '</html>';
-        $dom = new \IvoPetkov\HTML5DOMDocument();
-        $dom->loadHTML($response->content);
+        $dom = new HTML5DOMDocument();
+        $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
         $dom->insertHTML($app->components->process($html));
         $response->content = $dom->saveHTML();
-
-        $app->hooks->execute('usersApplyUIDone', $response);
     }
 
 }
