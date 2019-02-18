@@ -40,10 +40,10 @@ $app->localization
         });
 
 $app->assets
-        ->addEventListener('beforePrepare', function(\BearFramework\App\Assets\BeforePrepareEventDetails $event) use ($app, $context) {
+        ->addEventListener('beforePrepare', function(\BearFramework\App\Assets\BeforePrepareEventDetails $eventDetails) use ($app, $context) {
             $matchingDir = $context->dir . '/assets/u/';
-            if (strpos($event->filename, $matchingDir) === 0) {
-                $parts = explode('/', $event->filename);
+            if (strpos($eventDetails->filename, $matchingDir) === 0) {
+                $parts = explode('/', $eventDetails->filename);
                 $providerID = $parts[sizeof($parts) - 2];
                 $userID = $parts[sizeof($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
@@ -121,7 +121,7 @@ $app->assets
                 if ($newFilename === null) {
                     $newFilename = $context->dir . '/assets/profile.png';
                 }
-                $event->filename = $newFilename;
+                $eventDetails->filename = $newFilename;
             }
         });
 
