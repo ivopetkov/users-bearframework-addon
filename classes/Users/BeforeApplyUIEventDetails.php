@@ -29,7 +29,7 @@ class BeforeApplyUIEventDetails
                     'type' => \BearFramework\App\Response::class
                 ])
                 ->defineProperty('preventDefault', [
-                    'type' => bool,
+                    'type' => 'bool',
                     'init' => function() {
                         return false;
                     }
