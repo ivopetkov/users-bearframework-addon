@@ -112,9 +112,8 @@ $app->assets
                             $newFilename = $tempFilename;
                         }
                     } else {
-                        $tempFilename = realpath($user->image);
-                        if ($tempFilename !== false) {
-                            $newFilename = $tempFilename;
+                        if (is_file($user->image)) {
+                            $newFilename = $user->image;
                         }
                     }
                 }
