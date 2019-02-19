@@ -57,7 +57,6 @@ $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserDat
         $imageDataKey = $getImageDataKey($newImageFilename);
         $dataItem = $app->data->make($imageDataKey, file_get_contents($tempImageFilename));
         $app->data->set($dataItem);
-        $app->data->makePublic($imageDataKey);
         $imageToRemove = $data['image'];
         $data['image'] = $newImageFilename;
     } elseif ($removeImage) {
