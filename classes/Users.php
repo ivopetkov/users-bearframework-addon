@@ -20,7 +20,7 @@ use IvoPetkov\HTML5DOMDocument;
 class Users
 {
 
-    use \BearFramework\App\EventsTrait;
+    use \BearFramework\EventsTrait;
 
     private $providers = [];
 
