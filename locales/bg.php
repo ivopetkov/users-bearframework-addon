@@ -1,19 +1,22 @@
 <?php
 
+/*
+ * Users addon for Bear Framework
+ * https://github.com/ivopetkov/users-bearframework-addon
+ * Copyright (c) Ivo Petkov
+ * Free to use under the MIT license.
+ */
+
 return [
     'ivopetkov.users.logoutButton' => 'Изход',
-    'ivopetkov.users.pleaseWait' => 'Моля, изчакайте ...',
     'ivopetkov.users.profileSettings' => 'Настройки на профила',
     'ivopetkov.users.loginAsGuest' => 'Продължи като гост',
     'ivopetkov.users.guest' => 'Гост',
     'ivopetkov.users.anonymous' => 'Анонимен',
-    'ivopetkov.users.settings.name' => 'Име',
-    'ivopetkov.users.settings.website' => 'Уебсайт',
-    'ivopetkov.users.settings.description' => 'Описание',
-    'ivopetkov.users.settings.save' => 'Запази промените',
-    'ivopetkov.users.settings.saving' => 'Запазване ...',
-    'ivopetkov.users.settings.selectImage' => 'Избери снимка ...',
-    'ivopetkov.users.settings.1fileSelected' => '1 файл е избран',
-    'ivopetkov.users.settings.removeImage' => 'Премахни избраната снимка',
-    'ivopetkov.users.settings.image' => 'Снимка',
+    'ivopetkov.users.guest.settings.name' => 'Име',
+    'ivopetkov.users.guest.settings.website' => 'Уебсайт',
+    'ivopetkov.users.guest.settings.description' => 'Описание',
+    'ivopetkov.users.guest.settings.save' => 'Запази промените',
+    'ivopetkov.users.guest.settings.saving' => 'Запазване ...',
+    'ivopetkov.users.guest.settings.image' => 'Снимка',
 ];

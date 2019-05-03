@@ -9,9 +9,16 @@
 
 namespace IvoPetkov\BearFrameworkAddons\Users;
 
+/**
+ * 
+ */
 class LoginContext
 {
 
+    /**
+     *
+     * @var string|null 
+     */
     public $locationUrl = null;
 
 }

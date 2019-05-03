@@ -9,10 +9,22 @@
 
 namespace IvoPetkov\BearFrameworkAddons\Users;
 
+/**
+ * 
+ */
 class LoginResponse
 {
 
+    /**
+     *
+     * @var string|null 
+     */
     public $redirectUrl = null;
+
+    /**
+     *
+     * @var string|null 
+     */
     public $jsCode = null;
 
 }

@@ -11,7 +11,6 @@ namespace IvoPetkov\BearFrameworkAddons;
 
 use BearFramework\App;
 use IvoPetkov\BearFrameworkAddons\Users\User;
-use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 use IvoPetkov\HTML5DOMDocument;
 
 /**
@@ -22,17 +21,29 @@ class Users
 
     use \BearFramework\EventsTrait;
 
+    /**
+     *
+     * @var array 
+     */
     private $providers = [];
 
-    //private static $newUserCache = null;
-
-    function addProvider(string $id, string $class): \IvoPetkov\BearFrameworkAddons\Users
+    /**
+     * 
+     * @param string $id
+     * @param string $class
+     * @return self
+     */
+    public function addProvider(string $id, string $class): self
     {
         $this->providers[$id] = $class;
         return $this;
     }
 
-    function getProviders(): array
+    /**
+     * 
+     * @return array
+     */
+    public function getProviders(): array
     {
         $result = [];
         foreach ($this->providers as $id => $class) {
@@ -44,24 +55,38 @@ class Users
         return $result;
     }
 
-    function getProvider(string $id): \IvoPetkov\BearFrameworkAddons\Users\ILoginProvider
+    /**
+     * 
+     * @param string $id
+     * @return \IvoPetkov\BearFrameworkAddons\Users\LoginProvider|null
+     */
+    public function getProvider(string $id): ?\IvoPetkov\BearFrameworkAddons\Users\LoginProvider
     {
         if (!isset($this->providers[$id])) {
-            throw new \Exception('Invalid provider id (' . $id . ')');
+            return null;
         }
         if (!class_exists($this->providers[$id])) {
-            throw new \Exception('Provider class (' . $this->providers[$id] . ') not found');
+            return null;
         }
         $class = $this->providers[$id];
         return new $class();
     }
 
-    function providerExists(string $id): bool
+    /**
+     * 
+     * @param string $id
+     * @return bool
+     */
+    public function providerExists(string $id): bool
     {
         return isset($this->providers[$id]);
     }
 
-    function make(): \IvoPetkov\BearFrameworkAddons\Users\User
+    /**
+     * 
+     * @return \IvoPetkov\BearFrameworkAddons\Users\User
+     */
+    public function make(): \IvoPetkov\BearFrameworkAddons\Users\User
     {
         return new User();
         // $this in defineProperty does not work well
@@ -72,7 +97,13 @@ class Users
 //        return $object;
     }
 
-    function getUser(string $provider, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
+    /**
+     * 
+     * @param string $provider
+     * @param string $id
+     * @return \IvoPetkov\BearFrameworkAddons\Users\User
+     */
+    public function getUser(string $provider, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
     {
         $user = $this->make();
         $user->provider = $provider;
@@ -80,7 +111,13 @@ class Users
         return $user;
     }
 
-    function getUserData(string $provider, string $id): ?array
+    /**
+     * 
+     * @param string $provider
+     * @param string $id
+     * @return array|null
+     */
+    public function getUserData(string $provider, string $id): ?array
     {
         $app = App::get();
         $rawUserData = null;
@@ -106,7 +143,14 @@ class Users
         return $result;
     }
 
-    function saveUserData(string $provider, string $id, array $data): void
+    /**
+     * 
+     * @param string $provider
+     * @param string $id
+     * @param array $data
+     * @return void
+     */
+    public function saveUserData(string $provider, string $id, array $data): void
     {
         $app = App::get();
         $dataToSave = [
@@ -119,6 +163,51 @@ class Users
         $app->cache->delete($cacheKey);
     }
 
+    /**
+     * 
+     * @param string $provider
+     * @param string $sourceFileName
+     * @param string $extension
+     * @return string
+     */
+    public function saveUserFile(string $provider, string $sourceFileName, string $extension): string
+    {
+        $app = App::get();
+        $key = md5(uniqid() . $sourceFileName) . '.' . $extension;
+        $dataItem = $app->data->make('users/' . md5($provider) . '-files/' . $key, file_get_contents($sourceFileName));
+        $app->data->set($dataItem);
+        return $key;
+    }
+
+    /**
+     * 
+     * @param string $provider
+     * @param string $key
+     * @return void
+     */
+    public function deleteUserFile(string $provider, string $key): void
+    {
+        $app = App::get();
+        $app->data->delete('users/' . md5($provider) . '-files/' . $key);
+    }
+
+    /**
+     * 
+     * @param string $provider
+     * @param string $key
+     * @return string
+     */
+    public function getUserFilePath(string $provider, string $key): string
+    {
+        $app = App::get();
+        return $app->data->getFilename('users/' . md5($provider) . '-files/' . $key);
+    }
+
+    /**
+     * 
+     * @param \BearFramework\App\Response $response
+     * @return void
+     */
     public function applyUI(\BearFramework\App\Response $response): void
     {
         $app = App::get();
@@ -131,64 +220,21 @@ class Users
             }
         }
 
-        $context = $app->contexts->get(__FILE__);
-        $providers = $app->users->getProviders();
-
-        $providersPublicData = [];
-        foreach ($providers as $providerData) {
-            $provider = $app->users->getProvider($providerData['id']);
-            $providersPublicData[] = [
-                'id' => $providerData['id'],
-                'hasLoginButton' => $provider->hasLoginButton(),
-                'loginButtonText' => $provider->getLoginButtonText()
-            ];
-        }
-
-        $initializeData = [
-            'currentUser' => Utilities::getCurrentUserPublicData(),
-            'providers' => $providersPublicData,
-            'pleaseWaitText' => __('ivopetkov.users.pleaseWait'),
-            'logoutButtonText' => __('ivopetkov.users.logoutButton'),
-            'profileSettingsText' => __('ivopetkov.users.profileSettings')
-        ];
-        $html = '<html>'
-                . '<head>'
-                . '<style>'
-                . '.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;position:fixed;z-index:1000000;top:14px;right:14px;border-radius:2px;background-color:black;box-shadow:0 1px 2px 0px rgba(0,0,0,0.2);background-size:cover;background-position:center center;}'
-                . '.ivopetkov-users-window{text-align:center;height:100%;overflow:auto;padding:0 10px;display:flex;align-items:center;}'
-                . '.ivopetkov-users-login-option-button{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#000;background-color:#fff;border-radius:2px;margin-bottom:15px;padding:16px 14px;display:block;cursor:pointer;min-width:200px;text-align:center;}'
-                . '.ivopetkov-users-login-option-button:hover{background-color:#f5f5f5}'
-                . '.ivopetkov-users-login-option-button:active{background-color:#eeeeee}'
-                . '.ivopetkov-users-loading{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;}'
-                . '.ivopetkov-users-account-image{border-radius:2px;background-color:#000;width:250px;height:250px;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;}'
-                . '.ivopetkov-users-account-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
-                . '.ivopetkov-users-account-description{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#fff;margin-top:15px;max-width:350px;word-break:break-all;}'
-                . '.ivopetkov-users-account-url{margin-top:15px;max-width:350px;word-break:break-all;}'
-                . '.ivopetkov-users-account-url a{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#fff;}'
-                . '.ivopetkov-users-account-logout-button, .ivopetkov-guest-settings-button{cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:15px;border-radius:2px;padding:13px 15px;color:#fff;margin-top:25px;display:inline-block;}'
-                . '.ivopetkov-users-account-logout-button:hover, .ivopetkov-guest-settings-button:hover{color:#000;background-color:#f5f5f5;};'
-                . '.ivopetkov-users-account-logout-button:active, .ivopetkov-guest-settings-button:active{color:#000;background-color:#eeeeee;};'
-                . '<style>'
-                . '</head>'
-                . '<body>'
-                . '<component src="js-lightbox"/>'
-                . '<script src="' . htmlentities($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 2, 'robotsNoIndex' => true])) . '" async/>'
-                . '<script src="' . htmlentities($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true])) . '" async/>'
-                . '<script>'
-                . 'var checkAndExecute=function(b,c){if(b())c();else{var a=function(){b()?(window.clearTimeout(a),c()):window.setTimeout(a,16)};window.setTimeout(a,16)}};'
-                . 'checkAndExecute(function(){return typeof ivoPetkov!=="undefined" && typeof ivoPetkov.bearFrameworkAddons!=="undefined" && typeof ivoPetkov.bearFrameworkAddons.users!=="undefined"},function(){ivoPetkov.bearFrameworkAddons.users.initialize(' . json_encode($initializeData) . ');});'
-                . '</script>';
-
         if ($app->currentUser->exists()) {
-            $html .= '<component src="file:' . $context->dir . '/components/userBadge.php"/>';
+            $context = $app->contexts->get(__FILE__);
+            $html = '<html>'
+                    . '<head>'
+                    . '<link rel="client-shortcuts">'
+                    . '</head>'
+                    . '<body>'
+                    . '<component src="file:' . $context->dir . '/components/user-badge.php"/>'
+                    . '</body>'
+                    . '</html>';
+            $dom = new HTML5DOMDocument();
+            $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
+            $dom->insertHTML($app->components->process($html), 'afterBodyBegin');
+            $response->content = $dom->saveHTML();
         }
-
-        $html .= '</body>'
-                . '</html>';
-        $dom = new HTML5DOMDocument();
-        $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-        $dom->insertHTML($app->components->process($html));
-        $response->content = $dom->saveHTML();
     }
 
 }

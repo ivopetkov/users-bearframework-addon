@@ -17,18 +17,32 @@ use IvoPetkov\BearFrameworkAddons\Users\User;
 class CurrentUser extends User
 {
 
-    function exists(): bool
+    /**
+     * 
+     * @return bool
+     */
+    public function exists(): bool
     {
         return $this->provider !== null && $this->id !== null;
     }
 
-    function login(string $provider, string $id): void
+    /**
+     * 
+     * @param string $provider
+     * @param string $id
+     * @return void
+     */
+    public function login(string $provider, string $id): void
     {
         $this->provider = $provider;
         $this->id = $id;
     }
 
-    function logout(): void
+    /**
+     * 
+     * @return void
+     */
+    public function logout(): void
     {
         $this->provider = null;
         $this->id = null;

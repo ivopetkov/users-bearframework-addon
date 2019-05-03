@@ -34,7 +34,10 @@ class User
      */
     public $id = null;
 
-    function __construct()
+    /**
+     * 
+     */
+    public function __construct()
     {
         $cache = [];
         $getUserData = function($property) use (&$cache) {
@@ -84,7 +87,12 @@ class User
         ;
     }
 
-    function getImageUrl(int $size)
+    /**
+     * 
+     * @param int $size
+     * @return string
+     */
+    public function getImageUrl(int $size): string
     {
         $app = App::get();
         $context = $app->contexts->get(__FILE__);

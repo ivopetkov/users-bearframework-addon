@@ -7,170 +7,126 @@
 
 var ivoPetkov = ivoPetkov || {};
 ivoPetkov.bearFrameworkAddons = ivoPetkov.bearFrameworkAddons || {};
+ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (function () {
 
-if (typeof ivoPetkov.bearFrameworkAddons.users === 'undefined') {
-    ivoPetkov.bearFrameworkAddons.users = (function () {
+    var hasCurrentUser = false;
 
-        var jsLightbox = null;
-        var currentUser = null;
-        var providers = [];
-        var pleaseWaitText = '';
-        var logoutButtonText = '';
-        var profileSettingsText = '';
+    var initialize = function (currentUserExists) {
+        hasCurrentUser = typeof currentUserExists !== 'undefined' ? currentUserExists > 0 : false;
+    };
 
-        var initialize = function (data) {
-            currentUser = data.currentUser;
-            providers = data.providers;
-            pleaseWaitText = data.pleaseWaitText;
-            logoutButtonText = data.logoutButtonText;
-            profileSettingsText = data.profileSettingsText;
-        };
-
-        var logoutClick = function () {
-            showLoading();
-            ivoPetkov.bearFrameworkAddons.serverRequests.send('ivopetkov-users-logout', {}, function (responseText) {
-                var result = JSON.parse(responseText);
-                if (result.status === '1') {
-                    var badgeElement = document.querySelector('.ivopetkov-users-badge');
-                    if (badgeElement) {
-                        currentUser = null;
-                        badgeElement.parentNode.removeChild(badgeElement);
-                        closeWindow();
-                    }
-                }
-            });
-        };
-
-        var attachClickHandler = function (code, handler) {
-            var element = document.querySelector('.ivopetkov-users-window').querySelector('[data-ivopetkov-users-type="' + code + '"]');
-            if (element !== null) {
-                element.addEventListener('click', handler);
-            }
-        };
-
-        var providerClick = function (providerID) {
-            var data = {
-                'type': providerID,
-                'location': window.location.toString()
-            };
-            showLoading();
-            ivoPetkov.bearFrameworkAddons.serverRequests.send('ivopetkov-users-login', data, function (responseText) {
-                var result = JSON.parse(responseText);
-                if (result.status === '1') {
-                    if (typeof result.jsCode !== 'undefined') {
-                        (new Function(result.jsCode))();
-                    }
-                    if (typeof result.redirectUrl !== 'undefined') {
-                        window.location = result.redirectUrl;
-                    } else {
-                        html5DOMDocument.insert(result.badgeHTML);
-                        currentUser = result.currentUser;
-                        closeWindow();
-                    }
-                }
-            });
-        };
-
-        var guestSettingsClick = function () {
-            ivoPetkov.bearFrameworkAddons.serverRequests.send('ivopetkov-guest-settings-form', {}, function (responseText) {
-                var result = JSON.parse(responseText);
-                openWindow('<div id="ivopetkov-users-guest-settings-form"></div>');
-                html5DOMDocument.insert(result.html, [document.getElementById('ivopetkov-users-guest-settings-form')]);
-                //ivopetkov-users-guest-settings-form
-            });
-        };
-
-        var openWindow = function (html) {
-            closeWindow();
-            jsLightbox = new ivoPetkov.bearFrameworkAddons.jsLightbox({
-                'images': [
-                    {'html': '<div class="ivopetkov-users-window"><div>' + html + '</div></div>'}
-                ]
-            });
-            jsLightbox.open(0);
-            for (var i in providers) {
-                var provider = providers[i];
-                attachClickHandler(provider.id, (function (providerID) {
-                    return function () {
-                        providerClick(providerID);
-                    }
-                })(provider.id));
-            }
-            attachClickHandler('logout', logoutClick);
-            attachClickHandler('guest-settings', guestSettingsClick);
-        };
-
-        var showLoading = function () {
-            var html = '';
-            html += '<div class="ivopetkov-users-loading">' + pleaseWaitText + '</div>';
-            openWindow(html);
-        };
-
-        var closeWindow = function () {
-            if (jsLightbox !== null) {
-                jsLightbox.close();
-                jsLightbox = null;
-            }
-        };
-
-        var showLogin = function () {
-            var html = '';
-            for (var i in providers) {
-                var provider = providers[i];
-                if (provider.hasLoginButton) {
-                    html += '<div><a class="ivopetkov-users-login-option-button" data-ivopetkov-users-type="' + provider.id + '">' + provider.loginButtonText + '</a></div>';
-                }
-            }
-            openWindow(html);
-        };
-
-        var showAccount = function () {
-            if (currentUser === null) {
-                return;
-            }
-
-            var escapeHTML = function (text)
-            {
-                return text.replace(/[<>\&\"\']/g, function (c) {
-                    return '&#' + c.charCodeAt(0) + ';';
+    var logout = function () {
+        clientShortcuts.get('lightbox').then(function (lightbox) {
+            lightbox.wait(function (context) {
+                clientShortcuts.get('serverRequests').then(function (serverRequests) {
+                    serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (result.status === '1') {
+                            hasCurrentUser = false;
+                            var badgeElement = document.querySelector('.ivopetkov-users-badge');
+                            if (badgeElement) {
+                                badgeElement.parentNode.removeChild(badgeElement);
+                            }
+                            context.close();
+                        }
+                    });
                 });
-            };
+            });
+        });
+    };
 
-            var html = '';
-            if (currentUser.image.length > 0) {
-                html += '<div><div class="ivopetkov-users-account-image" style="background-image:url(' + currentUser.image + ');"></div></div>';
-            }
-            if (currentUser.name.length > 0) {
-                html += '<div><div class="ivopetkov-users-account-name">' + escapeHTML(currentUser.name) + '</div></div>';
-            }
-            if (currentUser.description.length > 0) {
-                html += '<div><div class="ivopetkov-users-account-description">' + escapeHTML(currentUser.description) + '</div></div>';
-            }
-            if (currentUser.url.length > 0) {
-                html += '<div><div class="ivopetkov-users-account-url"><a href="' + escapeHTML(currentUser.url) + '" target="_blank" rel="noopener">' + escapeHTML(currentUser.url) + '</a></div></div>';
-            }
-            if (currentUser.hasSettingsButton > 0) {
-                html += '<div><a class="ivopetkov-guest-settings-button" data-ivopetkov-users-type="guest-settings">' + profileSettingsText + '</a></div>';
-            }
-            if (currentUser.hasLogoutButton > 0) {
-                html += '<div><a class="ivopetkov-users-account-logout-button" data-ivopetkov-users-type="logout"' + (currentUser.hasSettingsButton > 0 ? ' style="margin-top:0;"' : '') + '>' + logoutButtonText + '</a></div>';
-            }
-            openWindow(html);
-        };
+    var login = function (providerID) {
+        clientShortcuts.get('lightbox').then(function (lightbox) {
+            lightbox.wait(function (context) {
+                clientShortcuts.get('serverRequests').then(function (serverRequests) {
+                    var data = {
+                        'provider': providerID,
+                        'location': window.location.toString()
+                    };
+                    serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (result.status === '1') {
+                            hasCurrentUser = true;
+                            if (typeof result.jsCode !== 'undefined') {
+                                (new Function(result.jsCode))();
+                            }
+                            if (typeof result.redirectUrl !== 'undefined') {
+                                window.location = result.redirectUrl;
+                            } else {
+                                html5DOMDocument.insert(result.badgeHTML);
+                                context.close();
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    };
 
-        var currentUserExists = function () {
-            return currentUser !== null;
-        };
+    var openSettings = function () {
+        clientShortcuts.get('lightbox').then(function (lightbox) {
+            lightbox.wait(function (context) {
+                clientShortcuts.get('serverRequests').then(function (serverRequests) {
+                    serverRequests.send('ivopetkov-users-settings-window').then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (typeof result.html !== 'undefined') {
+                            context.open(result.html);
+                        }
+                    });
+                });
+            });
+        });
+    };
 
-        return {
-            'currentUser': {
-                'exists': currentUserExists
-            },
-            'initialize': initialize,
-            'showLogin': showLogin,
-            'showAccount': showAccount
-        };
+    var openLogin = function () {
+        clientShortcuts.get('lightbox').then(function (lightbox) {
+            lightbox.wait(function (context) {
+                clientShortcuts.get('serverRequests').then(function (serverRequests) {
+                    serverRequests.send('ivopetkov-users-login-screen').then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (typeof result.html !== 'undefined') {
+                            context.open(result.html);
+                        }
+                    });
+                });
+            });
+        });
+    };
 
-    }());
-}
-;
+    var openPreview = function (provider, id) {
+        if (typeof provider === "undefined" || typeof id === "undefined") {
+            return;
+        }
+        clientShortcuts.get('lightbox').then(function (lightbox) {
+            lightbox.wait(function (context) {
+                var data = {
+                    'provider': provider,
+                    'id': id
+                };
+                clientShortcuts.get('serverRequests').then(function (serverRequests) {
+                    serverRequests.send('ivopetkov-users-preview-window', data).then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (typeof result.html !== 'undefined') {
+                            context.open(result.html);
+                        }
+                    });
+                });
+            });
+        });
+    };
+
+    return {
+        'currentUser': {
+            'exists': function () {
+                return hasCurrentUser;
+            }
+        },
+        'initialize': initialize,
+        'login': login,
+        'logout': logout,
+        'openLogin': openLogin,
+        'openSettings': openSettings,
+        'openPreview': openPreview
+    };
+
+}());

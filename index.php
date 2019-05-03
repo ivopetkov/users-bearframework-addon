@@ -8,7 +8,7 @@
  */
 
 use BearFramework\App;
-use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
+use IvoPetkov\HTML5DOMDocument;
 
 $app = App::get();
 $context = $app->contexts->get(__FILE__);
@@ -163,7 +163,7 @@ $getCurrentUserCookieData = function() use ($app): ?array {
 
 $app->serverRequests
         ->add('ivopetkov-users-login', function($data) use ($app, $context) {
-            $providerID = isset($data['type']) ? $data['type'] : null;
+            $providerID = isset($data['provider']) ? $data['provider'] : null;
             if (!$app->users->providerExists($providerID)) {
                 return;
             }
@@ -182,20 +182,98 @@ $app->serverRequests
             if (strlen($loginResponse->redirectUrl) > 0) {
                 $result['redirectUrl'] = $loginResponse->redirectUrl;
             } else {
-                $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/userBadge.php"/>');
-                $result['currentUser'] = Utilities::getCurrentUserPublicData();
+                $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>');
             }
             return json_encode($result);
         })
         ->add('ivopetkov-users-logout', function() use ($app) {
             $app->currentUser->logout();
-            $result = ['status' => '1'];
-            return json_encode($result);
+            return json_encode(['status' => '1']);
         })
-        ->add('ivopetkov-guest-settings-form', function() use ($app, $context) {
-            $html = $app->components->process('<component src="form" filename="' . $context->dir . '/components/guestSettingsForm.php"/>');
-            $result = ['html' => $html];
-            return json_encode($result);
+        ->add('ivopetkov-users-settings-window', function() use ($app) {
+            if ($app->currentUser->exists()) {
+                $provider = $app->users->getProvider($app->currentUser->provider);
+                if ($provider !== null) {
+                    if ($provider->hasSettings) {
+                        $template = '<html><head>
+        <style>
+            .ivopetkov-form-elements-textbox-element-input, .ivopetkov-form-elements-textarea-element-textarea{
+                width:250px;
+                font-size:15px;
+                padding:13px 15px;
+                font-family:Arial,Helvetica,sans-serif;
+                background-color:#eee;
+                border-radius:2px;
+                color:#000;
+                box-sizing: border-box;
+                display:block;
+                margin-bottom: 21px;
+                border:0;
+            }
+            .ivopetkov-form-elements-textarea-element-textarea{
+                height:100px;
+            }
+            .ivopetkov-form-elements-element-label{
+                font-family:Arial,Helvetica,sans-serif;
+                font-size:15px;
+                color:#fff;
+                padding-bottom: 9px;
+                cursor: default;
+                display:block;
+            }
+            .ivopetkov-form-elements-image-element-button{
+                width:250px;
+                height:250px;
+                border-radius:2px;
+                background-color:#fff;
+                color:#000;
+                font-family:Arial,Helvetica,sans-serif;
+                font-size:15px;
+                margin-bottom: 21px;
+            }
+            .ivopetkov-form-elements-submit-button-element-button{
+                box-sizing: border-box;
+                width:250px;
+                font-family:Arial,Helvetica,sans-serif;
+                background-color:#fff;
+                font-size:15px;
+                border-radius:2px;
+                padding:13px 15px;
+                color:#000;
+                margin-top:25px;
+                display:block;
+                text-align:center;
+            }
+            .ivopetkov-form-elements-submit-button-element-button[disabled]{
+                background-color:#ddd;
+            }
+            .ivopetkov-form-elements-submit-button-element-button:not([disabled]):hover{
+                background-color:#f5f5f5;
+            }
+            .ivopetkov-form-elements-submit-button-element-button:not([disabled]):active{
+                background-color:#eeeeee;
+            }
+        </style>
+    </head><body></body></html>';
+                        $dom = new HTML5DOMDocument();
+                        $dom->loadHTML($template);
+                        $html = $provider->getSettingsForm();
+                        $dom->insertHTML($html);
+                        return json_encode(['html' => $dom->saveHTML()]);
+                    }
+                }
+            }
+            return '0';
+        })
+        ->add('ivopetkov-users-login-screen', function() use ($app, $context) {
+            $html = $app->components->process('<component src="file:' . $context->dir . '/components/login-screen.php"/>');
+            return json_encode(['html' => $html]);
+        })
+        ->add('ivopetkov-users-preview-window', function($data) use ($app, $context) {
+            $provider = isset($data['provider']) ? (string) $data['provider'] : '';
+            $id = isset($data['id']) ? (string) $data['id'] : '';
+            $html = $app->components->process('<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($provider) . '" id="' . htmlentities($id) . '"/>');
+            return json_encode(['html' => $html]);
         });
 
 $app
@@ -235,4 +313,20 @@ $app
                     $response->cookies->set($cookie);
                 }
             }
+        });
+
+$app->clientShortcuts
+        ->add('users', function(IvoPetkov\BearFrameworkAddons\ClientShortcut $shortcut) use ($app, $context) {
+            $shortcut->requirements[] = [
+                'type' => 'file',
+                'url' => $context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 3, 'robotsNoIndex' => true]),
+                'mimeType' => 'text/javascript'
+            ];
+            $shortcut->requirements[] = [
+                'type' => 'file',
+                'url' => $context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]),
+                'mimeType' => 'text/javascript'
+            ];
+            $shortcut->init = 'ivoPetkov.bearFrameworkAddons.users.initialize(' . (int) $app->currentUser->exists() . ');';
+            $shortcut->get = 'return ivoPetkov.bearFrameworkAddons.users;';
         });

@@ -14,5 +14,7 @@ BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__, [
         'ivopetkov/server-requests-bearframework-addon',
         'ivopetkov/form-bearframework-addon',
         'ivopetkov/html-server-components-bearframework-addon',
+        'ivopetkov/client-shortcuts-bearframework-addon',
+        'ivopetkov/form-elements-bearframework-addon'
     ]
 ]);
