@@ -103,14 +103,20 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                     'provider': provider,
                     'id': id
                 };
-                clientShortcuts.get('serverRequests').then(function (serverRequests) {
-                    serverRequests.send('ivopetkov-users-preview-window', data).then(function (responseText) {
-                        var result = JSON.parse(responseText);
-                        if (typeof result.html !== 'undefined') {
-                            context.open(result.html);
-                        }
-                    });
-                });
+                clientShortcuts.get('serverRequests')
+                        .then(function (serverRequests) {
+                            serverRequests.send('ivopetkov-users-preview-window', data)
+                                    .then(function (responseText) {
+                                        var result = JSON.parse(responseText);
+                                        if (typeof result.html !== 'undefined') {
+                                            context.open(result.html);
+                                        }
+                                    })
+                                    .catch(function () {
+                                        context.close();
+                                    });
+                        });
+
             });
         });
     };

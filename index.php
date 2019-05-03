@@ -319,7 +319,7 @@ $app->clientShortcuts
         ->add('users', function(IvoPetkov\BearFrameworkAddons\ClientShortcut $shortcut) use ($app, $context) {
             $shortcut->requirements[] = [
                 'type' => 'file',
-                'url' => $context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 3, 'robotsNoIndex' => true]),
+                'url' => $context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 4, 'robotsNoIndex' => true]),
                 'mimeType' => 'text/javascript'
             ];
             $shortcut->requirements[] = [
