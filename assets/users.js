@@ -11,8 +11,54 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var hasCurrentUser = false;
 
+    EventTarget = window.EventTarget || function () {
+        var listeners = {};
+        this.addEventListener = function (type, callback) {
+            if (typeof listeners[type] === 'undefined') {
+                listeners[type] = [];
+            }
+            listeners[type].push(callback);
+        };
+        this.removeEventListener = function (type, callback) {
+            if (typeof listeners[type] === 'undefined') {
+                return;
+            }
+            var callbacks = listeners[type];
+            for (var i = 0; i < callbacks.length; i++) {
+                if (callbacks[i] === callback) {
+                    callbacks.splice(i, 1);
+                    return;
+                }
+            }
+        };
+        this.dispatchEvent = function (event) {
+            if (typeof listeners[event.type] === 'undefined') {
+                return true;
+            }
+            var callbacks = listeners[event.type];
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i].call(this, event);
+            }
+            return !event.defaultPrevented;
+        };
+    };
+
     var initialize = function (currentUserExists) {
         hasCurrentUser = typeof currentUserExists !== 'undefined' ? currentUserExists > 0 : false;
+    };
+
+    var makeEvent = function (name) {
+        if (typeof Event === 'function') {
+            return new Event(name);
+        } else {
+            var event = document.createEvent('Event');
+            event.initEvent(name, false, false);
+            return event;
+        }
+    };
+
+    var onCurrentUserChange = function () {
+        currentUserEventTarget.dispatchEvent(makeEvent('change'));
     };
 
     var logout = function () {
@@ -23,11 +69,9 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                         var result = JSON.parse(responseText);
                         if (result.status === '1') {
                             hasCurrentUser = false;
-                            var badgeElement = document.querySelector('.ivopetkov-users-badge');
-                            if (badgeElement) {
-                                badgeElement.parentNode.removeChild(badgeElement);
-                            }
+                            removeBadge('');
                             context.close();
+                            onCurrentUserChange();
                         }
                     });
                 });
@@ -53,12 +97,38 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                             if (typeof result.redirectUrl !== 'undefined') {
                                 window.location = result.redirectUrl;
                             } else {
-                                html5DOMDocument.insert(result.badgeHTML);
+                                addBadge(result.badgeHTML);
                                 context.close();
+                                onCurrentUserChange();
                             }
                         }
                     });
                 });
+            });
+        });
+    };
+
+    var removeBadge = function () {
+        var badgeElement = document.querySelector('.ivopetkov-users-badge');
+        if (badgeElement) {
+            badgeElement.parentNode.removeChild(badgeElement);
+        }
+    };
+
+    var addBadge = function (html) {
+        html5DOMDocument.insert(html);
+    };
+
+    var updateBadge = function () {
+        clientShortcuts.get('serverRequests').then(function (serverRequests) {
+            serverRequests.send('ivopetkov-users-badge').then(function (responseText) {
+                var result = JSON.parse(responseText);
+                if (typeof result.html !== 'undefined') {
+                    removeBadge();
+                    if (result.html !== '') {
+                        addBadge(result.html);
+                    }
+                }
             });
         });
     };
@@ -121,10 +191,18 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         });
     };
 
+    var currentUserEventTarget = new EventTarget();
+
     return {
         'currentUser': {
             'exists': function () {
                 return hasCurrentUser;
+            },
+            'addEventListener': function (type, listener) {
+                currentUserEventTarget.addEventListener(type, listener);
+            },
+            'removeEventListener': function (type, listener) {
+                currentUserEventTarget.removeEventListener(type, listener);
             }
         },
         'initialize': initialize,
@@ -132,7 +210,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         'logout': logout,
         'openLogin': openLogin,
         'openSettings': openSettings,
-        'openPreview': openPreview
+        'openPreview': openPreview,
+        '_updateBadge': updateBadge
     };
 
 }());

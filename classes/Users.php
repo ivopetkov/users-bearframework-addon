@@ -222,17 +222,9 @@ class Users
 
         if ($app->currentUser->exists()) {
             $context = $app->contexts->get(__FILE__);
-            $html = '<html>'
-                    . '<head>'
-                    . '<link rel="client-shortcuts">'
-                    . '</head>'
-                    . '<body>'
-                    . '<component src="file:' . $context->dir . '/components/user-badge.php"/>'
-                    . '</body>'
-                    . '</html>';
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-            $dom->insertHTML($app->components->process($html), 'afterBodyBegin');
+            $dom->insertHTML($app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>'), 'afterBodyBegin');
             $response->content = $dom->saveHTML();
         }
     }

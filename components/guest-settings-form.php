@@ -55,7 +55,7 @@ $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserDat
 
 $data = $getUserData();
 
-echo '<form onsubmitsuccess="window.location.reload();">';
+echo '<form>';
 echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.guest.settings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'image.jpg' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageUrl(500) : '') . '" />';
 echo '<form-element-textbox name="name" label="' . htmlentities(__('ivopetkov.users.guest.settings.name')) . '" value="' . htmlentities($data['name']) . '" />';
 echo '<form-element-textbox name="website" label="' . htmlentities(__('ivopetkov.users.guest.settings.website')) . '" value="' . htmlentities($data['website']) . '" />';
