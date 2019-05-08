@@ -11,38 +11,6 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var hasCurrentUser = false;
 
-    EventTarget = window.EventTarget || function () {
-        var listeners = {};
-        this.addEventListener = function (type, callback) {
-            if (typeof listeners[type] === 'undefined') {
-                listeners[type] = [];
-            }
-            listeners[type].push(callback);
-        };
-        this.removeEventListener = function (type, callback) {
-            if (typeof listeners[type] === 'undefined') {
-                return;
-            }
-            var callbacks = listeners[type];
-            for (var i = 0; i < callbacks.length; i++) {
-                if (callbacks[i] === callback) {
-                    callbacks.splice(i, 1);
-                    return;
-                }
-            }
-        };
-        this.dispatchEvent = function (event) {
-            if (typeof listeners[event.type] === 'undefined') {
-                return true;
-            }
-            var callbacks = listeners[event.type];
-            for (var i = 0; i < callbacks.length; i++) {
-                callbacks[i].call(this, event);
-            }
-            return !event.defaultPrevented;
-        };
-    };
-
     var initialize = function (currentUserExists) {
         hasCurrentUser = typeof currentUserExists !== 'undefined' ? currentUserExists > 0 : false;
     };
@@ -189,6 +157,38 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
             });
         });
+    };
+
+    var EventTarget = function () { // window.EventTarget || // Edge does not support the constructor
+        var listeners = {};
+        this.addEventListener = function (type, callback) {
+            if (typeof listeners[type] === 'undefined') {
+                listeners[type] = [];
+            }
+            listeners[type].push(callback);
+        };
+        this.removeEventListener = function (type, callback) {
+            if (typeof listeners[type] === 'undefined') {
+                return;
+            }
+            var callbacks = listeners[type];
+            for (var i = 0; i < callbacks.length; i++) {
+                if (callbacks[i] === callback) {
+                    callbacks.splice(i, 1);
+                    return;
+                }
+            }
+        };
+        this.dispatchEvent = function (event) {
+            if (typeof listeners[event.type] === 'undefined') {
+                return true;
+            }
+            var callbacks = listeners[event.type];
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i].call(this, event);
+            }
+            return !event.defaultPrevented;
+        };
     };
 
     var currentUserEventTarget = new EventTarget();
