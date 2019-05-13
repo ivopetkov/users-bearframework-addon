@@ -197,7 +197,8 @@ $app->serverRequests
                     if ($provider->hasSettings) {
                         $template = '<html><head>
         <style>
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-textbox-element-input, .ivopetkov-users-settings-form .ivopetkov-form-elements-textarea-element-textarea{
+            .ivopetkov-users-settings-form [data-form-element="textbox"]>[data-form-element-component="input"],
+            .ivopetkov-users-settings-form [data-form-element="textarea"]>[data-form-element-component="textarea"]{
                 width:250px;
                 font-size:15px;
                 padding:13px 15px;
@@ -210,10 +211,10 @@ $app->serverRequests
                 margin-bottom: 21px;
                 border:0;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-textarea-element-textarea{
+            .ivopetkov-users-settings-form [data-form-element="textarea"]>[data-form-element-component="textarea"]{
                 height:100px;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-element-label{
+            .ivopetkov-users-settings-form [data-form-element]>[data-form-element-component="label"]{
                 font-family:Arial,Helvetica,sans-serif;
                 font-size:15px;
                 color:#fff;
@@ -221,7 +222,7 @@ $app->serverRequests
                 cursor: default;
                 display:block;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-image-element-button{
+            .ivopetkov-users-settings-form [data-form-element="image"]>[data-form-element-component="button"]{
                 width:250px;
                 height:250px;
                 border-radius:2px;
@@ -231,7 +232,7 @@ $app->serverRequests
                 font-size:15px;
                 margin-bottom: 21px;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-submit-button-element-button{
+            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]{
                 box-sizing: border-box;
                 width:250px;
                 font-family:Arial,Helvetica,sans-serif;
@@ -244,13 +245,13 @@ $app->serverRequests
                 display:block;
                 text-align:center;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-submit-button-element-button[disabled]{
+            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"][disabled]{
                 background-color:#ddd;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-submit-button-element-button:not([disabled]):hover{
+            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]:not([disabled]):hover{
                 background-color:#f5f5f5;
             }
-            .ivopetkov-users-settings-form .ivopetkov-form-elements-submit-button-element-button:not([disabled]):active{
+            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]:not([disabled]):active{
                 background-color:#eeeeee;
             }
         </style>
