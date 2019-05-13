@@ -37,11 +37,11 @@ if ($app->currentUser->exists()) {
     if ($app->currentUser->provider === $user->provider && $app->currentUser->id === $user->id) {
         $hasSettingsButton = $provider !== null && $provider->hasSettings;
         if ($hasSettingsButton) {
-            $onClick = 'clientShortcuts.get("users").then(function(users){users.openSettings();});';
+            $onClick = 'clientPackages.get("users").then(function(users){users.openSettings();});';
             echo '<div><a class="ivopetkov-guest-settings-button" onclick="' . htmlspecialchars($onClick) . '">' . __('ivopetkov.users.profileSettings') . '</a></div>';
         }
         if ($provider !== null && $provider->hasLogout) {
-            $onClick = 'clientShortcuts.get("users").then(function(users){users.logout();});';
+            $onClick = 'clientPackages.get("users").then(function(users){users.logout();});';
             echo '<div><a class="ivopetkov-users-account-logout-button" onclick="' . htmlspecialchars($onClick) . '" ' . ($hasSettingsButton ? ' style="margin-top:0;"' : '') . '>' . __('ivopetkov.users.logoutButton') . '</a></div>';
         }
     }

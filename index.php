@@ -260,7 +260,7 @@ $app->serverRequests
                         $html = $provider->getSettingsForm();
                         $formDom = new HTML5DOMDocument();
                         $formDom->loadHTML($html, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-                        $onSubmitSuccess = 'clientShortcuts.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");users._updateBadge();});';
+                        $onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");users._updateBadge();});';
                         $formDom->querySelector('form')->setAttribute('onsubmitsuccess', $onSubmitSuccess);
                         $dom->querySelector('div')->appendChild($dom->createInsertTarget('form-content'));
                         $dom->insertHTML($formDom->saveHTML(), 'form-content');
@@ -324,18 +324,11 @@ $app
             }
         });
 
-$app->clientShortcuts
-        ->add('users', function(IvoPetkov\BearFrameworkAddons\ClientShortcut $shortcut) use ($app, $context) {
-            $shortcut->requirements[] = [
-                'type' => 'file',
-                'url' => $context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 6, 'robotsNoIndex' => true]),
-                'mimeType' => 'text/javascript'
-            ];
-            $shortcut->requirements[] = [
-                'type' => 'file',
-                'url' => $context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]),
-                'mimeType' => 'text/javascript'
-            ];
-            $shortcut->init = 'ivoPetkov.bearFrameworkAddons.users.initialize(' . (int) $app->currentUser->exists() . ');';
-            $shortcut->get = 'return ivoPetkov.bearFrameworkAddons.users;';
+$app->clientPackages
+        ->add('users', 1, function(IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
+            $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 7, 'robotsNoIndex' => true]));
+            $package->addJSFile($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]));
+            $package->preparePackage('lightbox');
+            $package->preparePackage('serverRequests');
+            $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';
         });

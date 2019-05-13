@@ -10,7 +10,7 @@ $html = '';
 foreach ($providers as $providerData) {
     $provider = $app->users->getProvider($providerData['id']);
     if ($provider->hasLogin) {
-        $onClick = 'clientShortcuts.get("users").then(function(users){users.login("'.$providerData['id'].'");});';
+        $onClick = 'clientPackages.get("users").then(function(users){users.login("'.$providerData['id'].'");});';
         $html .= '<div><a class="ivopetkov-users-login-option-button" onclick="'. htmlentities($onClick).'">' . htmlspecialchars($provider->loginText) . '</a></div>';
     }
 }
