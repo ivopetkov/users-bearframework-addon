@@ -326,10 +326,9 @@ $app
         });
 
 $app->clientPackages
-        ->add('users', 1, function(IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
+        ->add('users', function(IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
             $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 7, 'robotsNoIndex' => true]));
             $package->addJSFile($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]));
-            $package->preparePackage('lightbox');
-            $package->preparePackage('serverRequests');
+            $package->embedPackage('lightbox');
             $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';
         });
