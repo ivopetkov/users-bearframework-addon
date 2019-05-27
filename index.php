@@ -284,6 +284,9 @@ $app->serverRequests
             $id = isset($data['id']) ? (string) $data['id'] : '';
             $html = $app->components->process('<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($provider) . '" id="' . htmlentities($id) . '"/>');
             return json_encode(['html' => $html]);
+        })
+        ->add('ivopetkov-users-currentuser-exists', function() use ($app) {
+            return json_encode(['status' => '1', 'exists' => $app->currentUser->exists() ? '1' : '0']);
         });
 
 $app
@@ -327,7 +330,8 @@ $app
 
 $app->clientPackages
         ->add('users', function(IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
-            $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 7, 'robotsNoIndex' => true]));
+            //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
+            $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 8, 'robotsNoIndex' => true]));
             $package->addJSFile($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]));
             $package->embedPackage('lightbox');
             $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

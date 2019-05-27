@@ -11,7 +11,7 @@ var ivoPetkov = ivoPetkov || {};
 ivoPetkov.bearFrameworkAddons = ivoPetkov.bearFrameworkAddons || {};
 ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (function () {
 
-    var hasCurrentUser = false;
+    var hasCurrentUser = null;
 
     var makeEvent = function (name) {
         if (typeof Event === 'function') {
@@ -186,10 +186,53 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var currentUserEventTarget = new EventTarget();
 
+    Promise = window.Promise || function (callback) {
+        var thenCallbacks = [];
+        var catchCallback = null;
+        this.then = function (f) {
+            thenCallbacks.push(f);
+            return this;
+        };
+        this.catch = function (f) {
+            if (catchCallback === null) {
+                catchCallback = f;
+            }
+            return this;
+        };
+        var resolve = function () {
+            for (var i in thenCallbacks) {
+                thenCallbacks[i].apply(null, arguments);
+            }
+        };
+        var reject = function () {
+            if (catchCallback !== null) {
+                catchCallback.apply(null, arguments);
+            }
+        };
+        window.setTimeout(function () {
+            callback(resolve, reject);
+        }, 16);
+    };
+
     return {
         'currentUser': {
             'exists': function () {
-                return hasCurrentUser;
+                return new Promise(function (resolve, reject) {
+                    if (hasCurrentUser === null) {
+                        clientPackages.get('serverRequests').then(function (serverRequests) {
+                            serverRequests.send('ivopetkov-users-currentuser-exists').then(function (responseText) {
+                                var result = JSON.parse(responseText);
+                                if (result.status === '1') {
+                                    hasCurrentUser = result.exists === '1';
+                                    onCurrentUserChange();
+                                    resolve(hasCurrentUser);
+                                }
+                            });
+                        });
+                    } else {
+                        resolve(hasCurrentUser);
+                    }
+                });
             },
             'addEventListener': function (type, listener) {
                 currentUserEventTarget.addEventListener(type, listener);
@@ -203,10 +246,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         'openLogin': openLogin,
         'openSettings': openSettings,
         'openPreview': openPreview,
-        '_updateBadge': updateBadge,
-        '_setHasCurrentUser': function () {
-            hasCurrentUser = true;
-        }
+        '_updateBadge': updateBadge
     };
 
 }());
