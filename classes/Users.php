@@ -173,7 +173,7 @@ class Users
     public function saveUserFile(string $provider, string $sourceFileName, string $extension): string
     {
         $app = App::get();
-        $key = md5(uniqid() . $sourceFileName) . '.' . $extension;
+        $key = md5(uniqid() . $sourceFileName) . '.' . preg_replace('/[^a-z0-9]/', '', strtolower($extension));
         $dataItem = $app->data->make('users/' . md5($provider) . '-files/' . $key, file_get_contents($sourceFileName));
         $app->data->set($dataItem);
         return $key;
