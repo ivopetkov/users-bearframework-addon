@@ -35,7 +35,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                     var result = JSON.parse(responseText);
                     if (result.status === '1') {
                         hasCurrentUser = false;
-                        removeBadge('');
+                        removeBadge();
                         context.close();
                         onCurrentUserChange();
                     }
