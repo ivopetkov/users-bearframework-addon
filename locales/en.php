@@ -19,4 +19,5 @@ return [
     'ivopetkov.users.guest.settings.save' => 'Save changes',
     'ivopetkov.users.guest.settings.saving' => 'Saving ...',
     'ivopetkov.users.guest.settings.image' => 'Image',
+    'ivopetkov.users.guest.settings.invalidImageFormat' => 'Invalid image format! The allowed formats are png, gif and jpg.',
 ];

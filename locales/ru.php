@@ -19,4 +19,5 @@ return [
     'ivopetkov.users.guest.settings.save' => 'Сохранить изменения',
     'ivopetkov.users.guest.settings.saving' => 'Сохранение ...',
     'ivopetkov.users.guest.settings.image' => 'Фото',
+    'ivopetkov.users.guest.settings.invalidImageFormat' => 'Неверный формат изображения! Допустимые форматы: png, gif и jpg.',
 ];
