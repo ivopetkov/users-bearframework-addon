@@ -43,77 +43,67 @@ $app->assets
     ->addEventListener('beforePrepare', function (\BearFramework\App\Assets\BeforePrepareEventDetails $eventDetails) use ($app, $context) {
         $matchingDir = $context->dir . '/assets/u/';
         if (strpos($eventDetails->filename, $matchingDir) === 0) {
+            $newFilename = null;
             $parts = explode('/', $eventDetails->filename);
             $providerID = $parts[sizeof($parts) - 2];
-            $userID = $parts[sizeof($parts) - 1];
-            $user = $app->users->getUser($providerID, $userID);
-            $newFilename = null;
-            if (strlen($user->image) > 0) {
-                if (strpos($user->image, 'https://') === 0 || strpos($user->image, 'http://') === 0) {
-                    $download = false;
-                    $tempFileDataKey = '.temp/users/images/' . md5($user->image); // here is stored information about the last download
-                    $tempFileData = $app->data->getValue($tempFileDataKey);
-                    $tempFilename = null;
-                    if ($tempFileData !== null) {
-                        $tempFileData = json_decode($tempFileData, true);
-                        if ((int) $tempFileData['lastUpdateTime'] + 86400 < time()) { // is expired
-                            $download = true;
-                        } else {
-                            if ($tempFileData['status'] !== 'empty') { // the url returns a valid image
-                                $tempFilename = $app->data->getFilename('.temp/users/images/' . md5($user->image) . '.' . $tempFileData['extension']); // file down not exists
-                                if (!is_file($tempFilename)) {
+            $provider = $app->users->getProvider($providerID);
+            if ($provider !== null) {
+                $userID = $parts[sizeof($parts) - 1];
+                $user = $app->users->getUser($providerID, $userID);
+                if (strlen($user->image) > 0) {
+                    $cacheKey = floor(time() / ((int) $provider->imageMaxAge === 0 ? 60 : (int) $provider->imageMaxAge));
+                    if (strpos($user->image, 'https://') === 0 || strpos($user->image, 'http://') === 0) {
+                        $download = false;
+                        $tempDataPrefix = '.temp/users/images/' . md5(md5($providerID) . md5($userID) . md5($user->image));
+                        $tempImageDataKey = null;
+                        $tempImageExtensionDataKey =  $tempDataPrefix . '-' . $cacheKey;
+                        $extension = $app->data->getValue($tempImageExtensionDataKey);
+                        if ($extension !== null) {
+                            if (array_search($extension, ['jpg', 'png', 'gif']) !== false) {
+                                $tempImageDataKey = $tempDataPrefix . '.' . $extension;
+                                if (!$app->data->exists($tempImageDataKey)) {
                                     $download = true;
                                 }
                             }
+                        } else {
+                            $download = true;
                         }
-                        unset($tempFileData);
+                        if ($download) {
+                            $ch = curl_init();
+                            curl_setopt($ch, CURLOPT_URL, $user->image);
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                            $response = curl_exec($ch);
+                            $isValid = false;
+                            if ((int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) {
+                                $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+                                $extension = null;
+                                if ($contentType === 'image/jpeg') {
+                                    $extension = 'jpg';
+                                } elseif ($contentType === 'image/png') {
+                                    $extension = 'png';
+                                } elseif ($contentType === 'image/gif') {
+                                    $extension = 'gif';
+                                }
+                                if ($extension !== null && strlen($response) > 0) {
+                                    $tempImageDataKey = $tempDataPrefix . '.' . $extension;
+                                    $app->data->setValue($tempImageDataKey, $response);
+                                    $app->data->setValue($tempImageExtensionDataKey, $extension);
+                                    $isValid = true;
+                                }
+                            }
+                            curl_close($ch);
+                            if (!$isValid) {
+                                $app->data->setValue($tempImageExtensionDataKey, 'invalid');
+                            }
+                        }
+                        if ($tempImageDataKey !== null && $app->data->exists($tempImageDataKey)) {
+                            $newFilename = $app->data->getFilename($tempImageDataKey);
+                        }
                     } else {
-                        $download = true;
-                    }
-                    if ($download) {
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, $user->image);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                        $response = curl_exec($ch);
-                        $isValid = false;
-                        if ((int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) {
-                            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-                            $extension = null;
-                            if ($contentType === 'image/jpeg') {
-                                $extension = 'jpg';
-                            } elseif ($contentType === 'image/png') {
-                                $extension = 'png';
-                            } elseif ($contentType === 'image/gif') {
-                                $extension = 'gif';
-                            }
-                            if ($extension !== null && strlen($response) > 0) {
-                                $app->data->set($app->data->make($tempFileDataKey, json_encode([
-                                    'extension' => $extension,
-                                    'lastUpdateTime' => time(),
-                                    'status' => 'ok'
-                                ])));
-                                $tempFileKey = '.temp/users/images/' . md5($user->image) . '.' . $extension;
-                                $app->data->set($app->data->make($tempFileKey, $response));
-                                $tempFilename = $app->data->getFilename($tempFileKey);
-                                $isValid = true;
-                            }
+                        if (is_file($user->image)) {
+                            $newFilename = $user->image;
                         }
-                        curl_close($ch);
-                        if (!$isValid) {
-                            $app->data->set($app->data->make($tempFileDataKey, json_encode([
-                                'extension' => '',
-                                'lastUpdateTime' => time(),
-                                'status' => 'empty'
-                            ])));
-                        }
-                    }
-                    if ($tempFilename !== null && is_file($tempFilename)) {
-                        $newFilename = $tempFilename;
-                    }
-                } else {
-                    if (is_file($user->image)) {
-                        $newFilename = $user->image;
                     }
                 }
             }

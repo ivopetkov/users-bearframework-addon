@@ -26,6 +26,7 @@ class GuestLoginProvider extends LoginProvider
         $this->loginText = __('ivopetkov.users.loginAsGuest');
         $this->hasLogout = true;
         $this->hasSettings = true;
+        $this->imageMaxAge = 999999999;
     }
 
     /**

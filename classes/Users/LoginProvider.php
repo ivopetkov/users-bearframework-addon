@@ -37,6 +37,12 @@ class LoginProvider
     public $hasSettings = false;
 
     /**
+     *
+     * @var int 
+     */
+    public $imageMaxAge = 86400;
+
+    /**
      * 
      * @return string
      * @throws \Exception

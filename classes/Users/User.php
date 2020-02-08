@@ -95,6 +95,8 @@ class User
     {
         $app = App::get();
         $context = $app->contexts->get(__FILE__);
-        return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 86400, 'robotsNoIndex' => true, 'version' => md5($this->image)]);
+        $provider = $app->users->getProvider($this->provider);
+        $cacheMaxAge = $provider !== null ? (int) $provider->imageMaxAge : 99999;
+        return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => $cacheMaxAge, 'robotsNoIndex' => true, 'version' => md5($this->image)]);
     }
 }

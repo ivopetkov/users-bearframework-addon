@@ -35,7 +35,7 @@ class Users
      */
     public function addProvider(string $id, string $class): self
     {
-        $this->providers[$id] = $class;
+        $this->providers[$id] = [$class, false];
         return $this;
     }
 
@@ -46,10 +46,10 @@ class Users
     public function getProviders(): array
     {
         $result = [];
-        foreach ($this->providers as $id => $class) {
+        foreach ($this->providers as $id => $data) {
             $result[] = [
                 'id' => $id,
-                'class' => $class,
+                'class' => $data[0],
             ];
         }
         return $result;
@@ -65,11 +65,12 @@ class Users
         if (!isset($this->providers[$id])) {
             return null;
         }
-        if (!class_exists($this->providers[$id])) {
-            return null;
+        $providerData = $this->providers[$id];
+        if ($providerData[1] === false) {
+            $class = $providerData[0];
+            $providerData[1] = class_exists($class) ?  new $class() : null;
         }
-        $class = $this->providers[$id];
-        return new $class();
+        return $providerData[1];
     }
 
     /**
