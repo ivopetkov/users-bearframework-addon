@@ -47,5 +47,4 @@ class CurrentUser extends User
         $this->provider = null;
         $this->id = null;
     }
-
 }

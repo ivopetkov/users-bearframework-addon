@@ -26,5 +26,4 @@ class LoginResponse
      * @var string|null 
      */
     public $jsCode = null;
-
 }

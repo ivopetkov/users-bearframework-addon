@@ -77,5 +77,4 @@ class GuestLoginProvider extends LoginProvider
         }
         return $properties;
     }
-
 }

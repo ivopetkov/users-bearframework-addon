@@ -40,7 +40,7 @@ class User
     public function __construct()
     {
         $cache = [];
-        $getUserData = function($property) use (&$cache) {
+        $getUserData = function ($property) use (&$cache) {
             $app = App::get();
             if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
                 return null;
@@ -56,35 +56,34 @@ class User
             return isset($cache[$cacheKey][$property]) ? $cache[$cacheKey][$property] : null;
         };
         $this
-                ->defineProperty('name', [
-                    'get' => function() use (&$getUserData) {
-                        $value = $getUserData('name');
-                        if (strlen($value) === 0) {
-                            return __('ivopetkov.users.anonymous');
-                        }
-                        return $value;
-                    },
-                    'readonly' => true
-                ])
-                ->defineProperty('description', [
-                    'get' => function() use (&$getUserData) {
-                        return $getUserData('description');
-                    },
-                    'readonly' => true
-                ])
-                ->defineProperty('url', [
-                    'get' => function() use (&$getUserData) {
-                        return $getUserData('url');
-                    },
-                    'readonly' => true
-                ])
-                ->defineProperty('image', [
-                    'get' => function() use (&$getUserData) {
-                        return $getUserData('image');
-                    },
-                    'readonly' => true
-                ])
-        ;
+            ->defineProperty('name', [
+                'get' => function () use (&$getUserData) {
+                    $value = $getUserData('name');
+                    if (strlen($value) === 0) {
+                        return __('ivopetkov.users.anonymous');
+                    }
+                    return $value;
+                },
+                'readonly' => true
+            ])
+            ->defineProperty('description', [
+                'get' => function () use (&$getUserData) {
+                    return $getUserData('description');
+                },
+                'readonly' => true
+            ])
+            ->defineProperty('url', [
+                'get' => function () use (&$getUserData) {
+                    return $getUserData('url');
+                },
+                'readonly' => true
+            ])
+            ->defineProperty('image', [
+                'get' => function () use (&$getUserData) {
+                    return $getUserData('image');
+                },
+                'readonly' => true
+            ]);
     }
 
     /**
@@ -98,5 +97,4 @@ class User
         $context = $app->contexts->get(__FILE__);
         return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => 86400, 'robotsNoIndex' => true, 'version' => md5($this->image)]);
     }
-
 }

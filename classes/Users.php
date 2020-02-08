@@ -90,11 +90,11 @@ class Users
     {
         return new User();
         // $this in defineProperty does not work well
-//        if (self::$newUserCache === null) {
-//            self::$newUserCache = new User();
-//        }
-//        $object = clone(self::$newUserCache);
-//        return $object;
+        //        if (self::$newUserCache === null) {
+        //            self::$newUserCache = new User();
+        //        }
+        //        $object = clone(self::$newUserCache);
+        //        return $object;
     }
 
     /**
@@ -225,14 +225,13 @@ class Users
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
             $dom->insertHTML($app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>'), 'afterBodyBegin');
-//            $dom->insertHTML('<html>'
-//                    . '<head>'
-//                    . '<link rel="client-package-embed" name="users">'
-//                    . '<script>clientPackages.get("users").then(function(users){users._setHasCurrentUser();});</script>'
-//                    . '</head>'
-//                    . '</html>');
+            //            $dom->insertHTML('<html>'
+            //                    . '<head>'
+            //                    . '<link rel="client-package-embed" name="users">'
+            //                    . '<script>clientPackages.get("users").then(function(users){users._setHasCurrentUser();});</script>'
+            //                    . '</head>'
+            //                    . '</html>');
             $response->content = $dom->saveHTML();
         }
     }
-
 }

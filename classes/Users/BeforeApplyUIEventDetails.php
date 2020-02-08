@@ -25,17 +25,15 @@ class BeforeApplyUIEventDetails
     public function __construct(\BearFramework\App\Response $response)
     {
         $this
-                ->defineProperty('response', [
-                    'type' => \BearFramework\App\Response::class
-                ])
-                ->defineProperty('preventDefault', [
-                    'type' => 'bool',
-                    'init' => function() {
-                        return false;
-                    }
-                ])
-        ;
+            ->defineProperty('response', [
+                'type' => \BearFramework\App\Response::class
+            ])
+            ->defineProperty('preventDefault', [
+                'type' => 'bool',
+                'init' => function () {
+                    return false;
+                }
+            ]);
         $this->response = $response;
     }
-
 }
