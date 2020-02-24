@@ -29,6 +29,12 @@ class Users
 
     /**
      * 
+     * @var
+     */
+    static private $newUserCache = null;
+
+    /**
+     * 
      * @param string $id
      * @param string $class
      * @return self
@@ -89,13 +95,10 @@ class Users
      */
     public function make(): \IvoPetkov\BearFrameworkAddons\Users\User
     {
-        return new User();
-        // $this in defineProperty does not work well
-        //        if (self::$newUserCache === null) {
-        //            self::$newUserCache = new User();
-        //        }
-        //        $object = clone(self::$newUserCache);
-        //        return $object;
+        if (self::$newUserCache === null) {
+            self::$newUserCache = new User();
+        }
+        return clone (self::$newUserCache);
     }
 
     /**

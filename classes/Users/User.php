@@ -36,29 +36,19 @@ class User
 
     /**
      * 
+     * @var array
+     */
+    private $cache = [];
+
+    /**
+     * 
      */
     public function __construct()
     {
-        $cache = [];
-        $getUserData = function ($property) use (&$cache) {
-            $app = App::get();
-            if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
-                return null;
-            }
-            if (!$app->users->providerExists($this->provider)) {
-                return null;
-            }
-            $cacheKey = md5($this->provider) . md5($this->id);
-            if (!isset($cache[$cacheKey])) {
-                $providerObject = $app->users->getProvider($this->provider);
-                $cache[$cacheKey] = $providerObject->getUserProperties($this->id);
-            }
-            return isset($cache[$cacheKey][$property]) ? $cache[$cacheKey][$property] : null;
-        };
         $this
             ->defineProperty('name', [
-                'get' => function () use (&$getUserData) {
-                    $value = $getUserData('name');
+                'get' => function () {
+                    $value = $this->getUserData('name');
                     if (strlen($value) === 0) {
                         return __('ivopetkov.users.anonymous');
                     }
@@ -67,23 +57,40 @@ class User
                 'readonly' => true
             ])
             ->defineProperty('description', [
-                'get' => function () use (&$getUserData) {
-                    return $getUserData('description');
+                'get' => function () {
+                    return $this->getUserData('description');
                 },
                 'readonly' => true
             ])
             ->defineProperty('url', [
-                'get' => function () use (&$getUserData) {
-                    return $getUserData('url');
+                'get' => function () {
+                    return $this->getUserData('url');
                 },
                 'readonly' => true
             ])
             ->defineProperty('image', [
-                'get' => function () use (&$getUserData) {
-                    return $getUserData('image');
+                'get' => function () {
+                    return $this->getUserData('image');
                 },
                 'readonly' => true
             ]);
+    }
+
+    private function getUserData(string $property)
+    {
+        if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
+            return null;
+        }
+        $app = App::get();
+        if (!$app->users->providerExists($this->provider)) {
+            return null;
+        }
+        $cacheKey = md5($this->provider) . md5($this->id);
+        if (!isset($this->cache[$cacheKey])) {
+            $providerObject = $app->users->getProvider($this->provider);
+            $this->cache[$cacheKey] = $providerObject->getUserProperties($this->id);
+        }
+        return isset($this->cache[$cacheKey][$property]) ? $this->cache[$cacheKey][$property] : null;
     }
 
     /**
