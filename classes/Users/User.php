@@ -101,7 +101,7 @@ class User
     public function getImageUrl(int $size): string
     {
         $app = App::get();
-        $context = $app->contexts->get(__FILE__);
+        $context = $app->contexts->get(__DIR__);
         $provider = $app->users->getProvider($this->provider);
         $cacheMaxAge = $provider !== null ? (int) $provider->imageMaxAge : 99999;
         return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => $cacheMaxAge, 'robotsNoIndex' => true, 'version' => md5($this->image)]);

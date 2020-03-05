@@ -225,7 +225,7 @@ class Users
         }
 
         if ($app->currentUser->exists()) {
-            $context = $app->contexts->get(__FILE__);
+            $context = $app->contexts->get(__DIR__);
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
             $dom->insertHTML($app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>'), 'afterBodyBegin');
