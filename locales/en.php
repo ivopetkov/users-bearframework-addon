@@ -36,5 +36,10 @@ return [
     'ivopetkov.users.username.signup.Password' => 'Password',
     'ivopetkov.users.username.signup.Repeat password' => 'Repeat password',
     'ivopetkov.users.username.signup.Sign up' => 'Sign up',
-    'ivopetkov.users.username.signup.Signing up ...' => 'Signing up ...'
+    'ivopetkov.users.username.signup.Signing up ...' => 'Signing up ...',
+    'ivopetkov.users.username.changepassword.The new passwords does not match!' => 'The new passwords does not match!',
+    'ivopetkov.users.username.changepassword.The current password is not valid!' => 'The current password is not valid!',
+    'ivopetkov.users.username.login.The password provided is not valid!' => 'The password provided is not valid!',
+    'ivopetkov.users.username.The passwords does not match!' => 'The passwords does not match!',
+    'ivopetkov.users.username.This username is taken!' => 'This username is taken!'
 ];

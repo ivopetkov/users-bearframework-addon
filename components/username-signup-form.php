@@ -23,11 +23,11 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
     $userID = md5($username);
 
     if ($password !== $password2) {
-        $form->throwElementError('password2', 'The passwords does not match!');
+        $form->throwElementError('password2', __('ivopetkov.users.username.The passwords does not match!'));
     }
 
     if ($app->users->getUserData($providerID, $userID) !== null) {
-        $form->throwElementError('username', 'This username is taken!');
+        $form->throwElementError('username', __('ivopetkov.users.username.This username is taken!'));
     }
 
     $app->users->saveUserData($providerID, $userID, [

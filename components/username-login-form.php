@@ -32,7 +32,7 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
             return '';
         }
     }
-    $form->throwElementError('password', 'The password provided is not valid!');
+    $form->throwElementError('password', __('ivopetkov.users.username.login.The password provided is not valid!'));
 };
 
 echo '<form onsubmitsuccess="var r=event.result;if(r.length>0){window.location=r;}">';

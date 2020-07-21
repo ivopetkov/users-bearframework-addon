@@ -36,5 +36,10 @@ return [
     'ivopetkov.users.username.signup.Password' => 'Парола',
     'ivopetkov.users.username.signup.Repeat password' => 'Парола (още веднъж)',
     'ivopetkov.users.username.signup.Sign up' => 'Регистрация',
-    'ivopetkov.users.username.signup.Signing up ...' => 'Регистрация ...'
+    'ivopetkov.users.username.signup.Signing up ...' => 'Регистрация ...',
+    'ivopetkov.users.username.changepassword.The new passwords does not match!' => 'Паролите не съвпадат!',
+    'ivopetkov.users.username.changepassword.The current password is not valid!' => 'Текущата парола е различна от посочената!',
+    'ivopetkov.users.username.login.The password provided is not valid!' => 'Паролата не е коректна!',
+    'ivopetkov.users.username.The passwords does not match!' => 'Паролите не съвпадат!',
+    'ivopetkov.users.username.This username is taken!' => 'Потребителското име е заето!'
 ];

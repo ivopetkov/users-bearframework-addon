@@ -22,19 +22,19 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
         $userID = $app->currentUser->id;
 
         if ($newPassword !== $newPassword2) {
-            $form->throwError('The new passwords does not match!');
+            $form->throwError(__('ivopetkov.users.username.changepassword.The new passwords does not match!'));
         }
 
         $userData = $app->users->getUserData($providerID, $userID);
         if ($userData === null) {
-            $form->throwError('This user cannot be found!');
+            $form->throwError('Error occured!');
         }
 
         if (password_verify($oldPassword, $userData['p'])) {
             $userData['p'] = password_hash($newPassword, PASSWORD_DEFAULT);
             $app->users->saveUserData($providerID, $userID, $userData);
         } else {
-            $form->throwError('The current password is not valid!');
+            $form->throwError(__('ivopetkov.users.username.changepassword.The current password is not valid!'));
         }
     }
 };
