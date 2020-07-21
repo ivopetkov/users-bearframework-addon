@@ -9,8 +9,14 @@
 
 namespace IvoPetkov\BearFrameworkAddons\Users;
 
-class LoginProvider
+class Provider
 {
+
+    /**
+     *
+     * @var string 
+     */
+    public $id = null;
 
     /**
      *
@@ -34,7 +40,13 @@ class LoginProvider
      *
      * @var bool 
      */
-    public $hasSettings = false;
+    //public $hasSettings = false;
+
+    /**
+     *
+     * @var array 
+     */
+    public $screens = [];
 
     /**
      *
@@ -44,10 +56,16 @@ class LoginProvider
 
     /**
      * 
+     * @var array
+     */
+    public $options = [];
+
+    /**
+     * 
      * @return string
      * @throws \Exception
      */
-    public function getSettingsForm(): string
+    public function getScreenContent(string $id): string
     {
         throw new \Exception('Not implemented!');
     }
@@ -67,7 +85,7 @@ class LoginProvider
      * @param string $id
      * @return array
      */
-    public function getUserProperties(string $id): array
+    public function getProfileData(string $id): array
     {
         return [];
     }

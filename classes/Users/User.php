@@ -48,7 +48,7 @@ class User
         $this
             ->defineProperty('name', [
                 'get' => function () {
-                    $value = $this->getUserData('name');
+                    $value = $this->getProfileData('name');
                     if (strlen($value) === 0) {
                         return __('ivopetkov.users.anonymous');
                     }
@@ -58,25 +58,25 @@ class User
             ])
             ->defineProperty('description', [
                 'get' => function () {
-                    return $this->getUserData('description');
+                    return $this->getProfileData('description');
                 },
                 'readonly' => true
             ])
             ->defineProperty('url', [
                 'get' => function () {
-                    return $this->getUserData('url');
+                    return $this->getProfileData('url');
                 },
                 'readonly' => true
             ])
             ->defineProperty('image', [
                 'get' => function () {
-                    return $this->getUserData('image');
+                    return $this->getProfileData('image');
                 },
                 'readonly' => true
             ]);
     }
 
-    private function getUserData(string $property)
+    private function getProfileData(string $property)
     {
         if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
             return null;
@@ -88,7 +88,7 @@ class User
         $cacheKey = md5($this->provider) . md5($this->id);
         if (!isset($this->cache[$cacheKey])) {
             $providerObject = $app->users->getProvider($this->provider);
-            $this->cache[$cacheKey] = $providerObject->getUserProperties($this->id);
+            $this->cache[$cacheKey] = $providerObject->getProfileData($this->id);
         }
         return isset($this->cache[$cacheKey][$property]) ? $this->cache[$cacheKey][$property] : null;
     }

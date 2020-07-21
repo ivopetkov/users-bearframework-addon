@@ -14,7 +14,7 @@ use BearFramework\App;
 /**
  * 
  */
-class GuestLoginProvider extends LoginProvider
+class GuestProvider extends Provider
 {
 
     /**
@@ -23,9 +23,11 @@ class GuestLoginProvider extends LoginProvider
     public function __construct()
     {
         $this->hasLogin = true;
-        $this->loginText = __('ivopetkov.users.loginAsGuest');
+        $this->loginText = __('ivopetkov.users.guest.loginButton');
         $this->hasLogout = true;
-        $this->hasSettings = true;
+        $this->screens = [
+            ['id' => 'settings', 'name' => __('ivopetkov.users.guest.settingsButton'), 'showInProfile' => true]
+        ];
         $this->imageMaxAge = 999999999;
     }
 
@@ -33,11 +35,16 @@ class GuestLoginProvider extends LoginProvider
      * 
      * @return string
      */
-    public function getSettingsForm(): string
+    public function getScreenContent(string $id): string
     {
-        $app = App::get();
-        $context = $app->contexts->get();
-        return $app->components->process('<component src="form" filename="' . $context->dir . '/components/guest-settings-form.php"/>');
+        if ($id === 'settings') {
+            $app = App::get();
+            $context = $app->contexts->get();
+            if ($app->currentUser->exists()) {
+                return $app->components->process('<component src="form" filename="' . $context->dir . '/components/guest-settings-form.php"/>');
+            }
+        }
+        return '';
     }
 
     /**
@@ -49,7 +56,7 @@ class GuestLoginProvider extends LoginProvider
     {
         $app = App::get();
         $id = md5(uniqid() . rand(0, 999999999));
-        $app->currentUser->login('guest', $id);
+        $app->currentUser->login($this->id, $id);
         return parent::login($context);
     }
 
@@ -58,17 +65,17 @@ class GuestLoginProvider extends LoginProvider
      * @param string $id
      * @return array
      */
-    public function getUserProperties(string $id): array
+    public function getProfileData(string $id): array
     {
         $app = App::get();
         $properties = [];
-        $userData = $app->users->getUserData('guest', $id);
+        $userData = $app->users->getUserData($this->id, $id);
         if (empty($userData)) {
             $userData = [];
         }
         $properties['name'] = isset($userData['name']) && strlen($userData['name']) > 0 ? $userData['name'] : __('ivopetkov.users.guest');
         if (isset($userData['image']) && strlen($userData['image']) > 0) {
-            $properties['image'] = $app->users->getUserFilePath('guest', $userData['image']);
+            $properties['image'] = $app->users->getUserFilePath($this->id, $userData['image']);
         }
         if (isset($userData['website'])) {
             $properties['url'] = $userData['website'];

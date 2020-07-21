@@ -114,9 +114,6 @@ $app->assets
         }
     });
 
-$app->users
-    ->addProvider('guest', 'IvoPetkov\BearFrameworkAddons\Users\GuestLoginProvider');
-
 $cookieKey = 'ip-users-cuk-' . md5($app->request->base);
 
 $localCache = [];
@@ -180,18 +177,18 @@ $app->serverRequests
         $app->currentUser->logout();
         return json_encode(['status' => '1']);
     })
-    ->add('ivopetkov-users-settings-window', function () use ($app) {
-        if ($app->currentUser->exists()) {
-            $provider = $app->users->getProvider($app->currentUser->provider);
-            if ($provider !== null) {
-                if ($provider->hasSettings) {
-                    $template = '<html><head>
+    ->add('ivopetkov-users-screen-window', function ($data) use ($app) {
+        $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
+        $screenID = isset($data['id']) ? (string) $data['id'] : null;
+        $template = '<html><head>
         <style>
-            .ivopetkov-users-settings-form [data-form-element="textbox"]>[data-form-element-component="input"],
-            .ivopetkov-users-settings-form [data-form-element="textarea"]>[data-form-element-component="textarea"]{
+            .ivopetkov-users-screen-form [data-form-element-type="textbox"] [data-form-element-component="input"],
+            .ivopetkov-users-screen-form [data-form-element-type="password"] [data-form-element-component="input"],
+            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
                 width:250px;
                 font-size:15px;
-                padding:13px 15px;
+                padding:0 23px;
+                line-height:50px;
                 font-family:Arial,Helvetica,sans-serif;
                 background-color:#eee;
                 border-radius:2px;
@@ -201,10 +198,14 @@ $app->serverRequests
                 margin-bottom: 21px;
                 border:0;
             }
-            .ivopetkov-users-settings-form [data-form-element="textarea"]>[data-form-element-component="textarea"]{
+            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
+                padding:12px 23px;
+                line-height:28px;
+            }
+            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
                 height:100px;
             }
-            .ivopetkov-users-settings-form [data-form-element]>[data-form-element-component="label"]{
+            .ivopetkov-users-screen-form [data-form-element-type] [data-form-element-component="label"]{
                 font-family:Arial,Helvetica,sans-serif;
                 font-size:15px;
                 color:#fff;
@@ -212,7 +213,7 @@ $app->serverRequests
                 cursor: default;
                 display:block;
             }
-            .ivopetkov-users-settings-form [data-form-element="image"]>[data-form-element-component="button"]{
+            .ivopetkov-users-screen-form [data-form-element-type="image"] [data-form-element-component="button"]{
                 width:250px;
                 height:250px;
                 border-radius:2px;
@@ -222,44 +223,41 @@ $app->serverRequests
                 font-size:15px;
                 margin-bottom: 21px;
             }
-            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]{
+            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]{
                 box-sizing: border-box;
                 width:250px;
                 font-family:Arial,Helvetica,sans-serif;
                 background-color:#fff;
                 font-size:15px;
                 border-radius:2px;
-                padding:13px 15px;
+                padding:0 23px;
+                line-height:50px;
                 color:#000;
                 margin-top:25px;
                 display:block;
                 text-align:center;
             }
-            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"][disabled]{
+            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"][disabled]{
                 background-color:#ddd;
             }
-            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]:not([disabled]):hover{
+            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]:not([disabled]):hover{
                 background-color:#f5f5f5;
             }
-            .ivopetkov-users-settings-form [data-form-element="submit-button"]>[data-form-element-component="button"]:not([disabled]):active{
+            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]:not([disabled]):active{
                 background-color:#eeeeee;
             }
         </style>
-    </head><body><div class="ivopetkov-users-settings-form"></div></body></html>';
-                    $dom = new HTML5DOMDocument();
-                    $dom->loadHTML($template);
-                    $html = $provider->getSettingsForm();
-                    $formDom = new HTML5DOMDocument();
-                    $formDom->loadHTML($html, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-                    $onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");users._updateBadge();});';
-                    $formDom->querySelector('form')->setAttribute('onsubmitsuccess', $onSubmitSuccess);
-                    $dom->querySelector('div')->appendChild($dom->createInsertTarget('form-content'));
-                    $dom->insertHTML($formDom->saveHTML(), 'form-content');
-                    return json_encode(['html' => $dom->saveHTML()]);
-                }
-            }
-        }
-        return '0';
+    </head><body><div class="ivopetkov-users-screen-form"></div></body></html>';
+        $dom = new HTML5DOMDocument();
+        $dom->loadHTML($template);
+        $html = $provider->getScreenContent($screenID);
+        $formDOM = new HTML5DOMDocument();
+        $formDOM->loadHTML($html, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
+        // $onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");users._updateBadge();});';
+        // $formDOM->querySelector('form')->setAttribute('onsubmitsuccess', $onSubmitSuccess);
+        $dom->querySelector('div')->appendChild($dom->createInsertTarget('form-content'));
+        $dom->insertHTML($formDOM->saveHTML(), 'form-content');
+        return json_encode(['html' => $dom->saveHTML()]);
     })
     ->add('ivopetkov-users-badge', function () use ($app, $context) {
         $html = $app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>');
@@ -285,7 +283,7 @@ $app
         if ($app->currentUser->exists()) {
             $currentCookieUserData = $getCurrentCookieUserData();
             $currentUserCookieData = $getCurrentUserCookieData();
-            if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) {
+            if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) { // not an asset request
                 if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
                     $generateCookieKeyValue = function () use ($app) {
                         for ($i = 0; $i < 100; $i++) {
@@ -320,8 +318,8 @@ $app
 
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
-        //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 8, 'robotsNoIndex' => true]));
+        $package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
+        //$package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 8, 'robotsNoIndex' => true]));
         $package->addJSFile($context->assets->getURL('assets/HTML5DOMDocument.min.js', ['cacheMaxAge' => 999999999, 'version' => 1, 'robotsNoIndex' => true]));
         $package->embedPackage('lightbox');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

@@ -37,11 +37,12 @@ class Users
      * 
      * @param string $id
      * @param string $class
+     * @param array $options
      * @return self
      */
-    public function addProvider(string $id, string $class): self
+    public function addProvider(string $id, string $class, array $options = []): self
     {
-        $this->providers[$id] = [$class, false];
+        $this->providers[$id] = [$class, false, $options];
         return $this;
     }
 
@@ -64,9 +65,9 @@ class Users
     /**
      * 
      * @param string $id
-     * @return \IvoPetkov\BearFrameworkAddons\Users\LoginProvider|null
+     * @return \IvoPetkov\BearFrameworkAddons\Users\Provider|null
      */
-    public function getProvider(string $id): ?\IvoPetkov\BearFrameworkAddons\Users\LoginProvider
+    public function getProvider(string $id): ?\IvoPetkov\BearFrameworkAddons\Users\Provider
     {
         if (!isset($this->providers[$id])) {
             return null;
@@ -74,7 +75,9 @@ class Users
         $providerData = $this->providers[$id];
         if ($providerData[1] === false) {
             $class = $providerData[0];
-            $providerData[1] = class_exists($class) ?  new $class() : null;
+            $providerData[1] = class_exists($class) ? new $class() : null;
+            $providerData[1]->id = $id;
+            $providerData[1]->options = $providerData[2];
         }
         return $providerData[1];
     }

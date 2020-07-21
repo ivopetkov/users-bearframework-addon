@@ -3,10 +3,10 @@
 use BearFramework\App;
 
 $app = App::get();
-$providerID = 'guest';
+$providerID = $app->currentUser->provider;
 $userID = $app->currentUser->id;
 
-$getUserData = function() use ($app, $providerID, $userID) {
+$getUserData = function () use ($app, $providerID, $userID) {
     $data = $app->users->getUserData($providerID, $userID);
     if (empty($data)) {
         $data = [];
@@ -26,7 +26,7 @@ $getUserData = function() use ($app, $providerID, $userID) {
     return $data;
 };
 
-$form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserData, $form) {
+$form->onSubmit = function ($values) use ($app, $providerID, $userID, $getUserData, $form) {
     $data = $getUserData();
     $data['name'] = isset($values['name']) ? trim((string) $values['name']) : '';
     $data['website'] = isset($values['website']) ? trim((string) $values['website']) : '';
@@ -59,7 +59,8 @@ $form->onSubmit = function($values) use ($app, $providerID, $userID, $getUserDat
 
 $data = $getUserData();
 
-echo '<form>';
+$onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");});';
+echo '<form onsubmitsuccess="' . htmlentities($onSubmitSuccess) . '">';
 echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.guest.settings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'image.jpg' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageUrl(500) : '') . '" />';
 echo '<form-element-textbox name="name" label="' . htmlentities(__('ivopetkov.users.guest.settings.name')) . '" value="' . htmlentities($data['name']) . '" />';
 echo '<form-element-textbox name="website" label="' . htmlentities(__('ivopetkov.users.guest.settings.website')) . '" value="' . htmlentities($data['website']) . '" />';
