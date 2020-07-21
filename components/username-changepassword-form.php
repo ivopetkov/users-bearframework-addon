@@ -22,7 +22,7 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
         $userID = $app->currentUser->id;
 
         if ($newPassword !== $newPassword2) {
-            $form->throwError(__('ivopetkov.users.username.changepassword.The new passwords does not match!'));
+            $form->throwElementError('newpassword2', __('ivopetkov.users.username.changepassword.The new passwords does not match!'));
         }
 
         $userData = $app->users->getUserData($providerID, $userID);
@@ -34,7 +34,7 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
             $userData['p'] = password_hash($newPassword, PASSWORD_DEFAULT);
             $app->users->saveUserData($providerID, $userID, $userData);
         } else {
-            $form->throwError(__('ivopetkov.users.username.changepassword.The current password is not valid!'));
+            $form->throwElementError('oldpassword', __('ivopetkov.users.username.changepassword.The current password is not valid!'));
         }
     }
 };
