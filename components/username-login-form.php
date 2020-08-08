@@ -22,6 +22,7 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
     if ($userData !== null && $userData['u'] === $username) {
         if (password_verify($password, $userData['p'])) {
             $app->currentUser->login($providerID, $userID);
+            $app->users->dispatchLoginEvent($providerID, $userID);
             $provider = $app->users->getProvider($providerID);
             if (isset($provider->options['onLogin'])) {
                 $onLogin = call_user_func($provider->options['onLogin']);

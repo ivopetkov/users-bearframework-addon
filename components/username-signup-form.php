@@ -35,7 +35,9 @@ $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
         'd' => time(),
         'p' => password_hash($password, PASSWORD_DEFAULT)
     ]);
+    $app->users->dispatchSignupEvent($providerID, $userID);
     $app->currentUser->login($providerID, $userID);
+    $app->users->dispatchLoginEvent($providerID, $userID);
     $provider = $app->users->getProvider($providerID);
     if (isset($provider->options['onSignup'])) {
         $onSignup = call_user_func($provider->options['onSignup']);

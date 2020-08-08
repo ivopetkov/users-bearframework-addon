@@ -56,7 +56,9 @@ class GuestProvider extends Provider
     {
         $app = App::get();
         $id = md5(uniqid() . rand(0, 999999999));
+        $app->users->dispatchSignupEvent($this->id, $id);
         $app->currentUser->login($this->id, $id);
+        $app->users->dispatchLoginEvent($this->id, $id);
         return parent::login($context);
     }
 

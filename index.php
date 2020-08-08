@@ -174,7 +174,10 @@ $app->serverRequests
         return json_encode($result);
     })
     ->add('ivopetkov-users-logout', function () use ($app) {
-        $app->currentUser->logout();
+        if ($app->currentUser->exists()) {
+            $app->users->dispatchLogoutEvent($app->currentUser->provider, $app->currentUser->id);
+            $app->currentUser->logout();
+        }
         return json_encode(['status' => '1']);
     })
     ->add('ivopetkov-users-screen-window', function ($data) use ($app) {

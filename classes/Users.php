@@ -232,13 +232,46 @@ class Users
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
             $dom->insertHTML($app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>'), 'afterBodyBegin');
-            //            $dom->insertHTML('<html>'
-            //                    . '<head>'
-            //                    . '<link rel="client-package-embed" name="users">'
-            //                    . '<script>clientPackages.get("users").then(function(users){users._setHasCurrentUser();});</script>'
-            //                    . '</head>'
-            //                    . '</html>');
             $response->content = $dom->saveHTML();
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @return void
+     */
+    public function dispatchSignupEvent(string $providerID, string $userID)
+    {
+        if ($this->hasEventListeners('userSignup')) {
+            $this->dispatchEvent('userSignup', new \IvoPetkov\BearFrameworkAddons\Users\UserSignupEventDetails($providerID, $userID));
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @return void
+     */
+    public function dispatchLoginEvent(string $providerID, string $userID)
+    {
+        if ($this->hasEventListeners('userLogin')) {
+            $this->dispatchEvent('userLogin', new \IvoPetkov\BearFrameworkAddons\Users\UserLoginEventDetails($providerID, $userID));
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @return void
+     */
+    public function dispatchLogoutEvent(string $providerID, string $userID)
+    {
+        if ($this->hasEventListeners('userLogout')) {
+            $this->dispatchEvent('userLogout', new \IvoPetkov\BearFrameworkAddons\Users\UserLogoutEventDetails($providerID, $userID));
         }
     }
 }
