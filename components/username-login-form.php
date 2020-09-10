@@ -7,7 +7,7 @@ $providerID = $component->providerID;
 
 $form->constraints
     ->setRequired('username')
-    ->setMinLength('username', 6)
+    ->setMinLength('username', 1)
     ->setMaxLength('username', 100)
     ->setRequired('password')
     ->setMinLength('password', 6)
