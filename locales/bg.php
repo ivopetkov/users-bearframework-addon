@@ -41,5 +41,6 @@ return [
     'ivopetkov.users.username.changepassword.The current password is not valid!' => 'Текущата парола е различна от посочената!',
     'ivopetkov.users.username.login.The password provided is not valid!' => 'Паролата не е коректна!',
     'ivopetkov.users.username.The passwords does not match!' => 'Паролите не съвпадат!',
-    'ivopetkov.users.username.This username is taken!' => 'Потребителското име е заето!'
+    'ivopetkov.users.username.This username is taken!' => 'Потребителското име е заето!',
+    'ivopetkov.users.username.The username may contain letters and numbers only!' => 'Потребителското име може да съдържа само букви и цифри!'
 ];

@@ -7,7 +7,6 @@ $providerID = $component->providerID;
 
 $form->constraints
     ->setRequired('username')
-    ->setMinLength('username', 1)
     ->setMaxLength('username', 100)
     ->setRequired('password')
     ->setMinLength('password', 6)
@@ -18,6 +17,9 @@ $form->constraints
 
 $form->onSubmit = function ($values) use ($app, $providerID,  $form) {
     $username = strtolower(trim((string) $values['username']));
+    if (preg_match('/^[a-z0-9]*$/', $username) !== 1) {
+        $form->throwElementError('username', __('ivopetkov.users.username.The username may contain letters and numbers only!'));
+    }
     $password = trim((string) $values['password']);
     $password2 = trim((string) $values['password2']);
     $userID = md5($username);
