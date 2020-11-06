@@ -122,6 +122,42 @@ class Users
      * 
      * @param string $provider
      * @param string $id
+     * @return boolean
+     */
+    public function userExists(string $provider, string $id): bool
+    {
+        return $this->getUserData($provider,  $id) !== null;
+    }
+
+    /**
+     * 
+     * @return \IvoPetkov\DataList
+     */
+    public function getList(): \IvoPetkov\DataList
+    {
+        return new \IvoPetkov\DataList(function (\IvoPetkov\DataListContext $context) {
+            // Optimize for $context
+            $result = [];
+            $app = App::get();
+            $providers = $this->getProviders();
+            foreach ($providers as $provider) {
+                $providerID = $provider['id'];
+                $list = $app->data->getList()->filterBy('key', 'users/' . md5($providerID) . '/', 'startWith')->sliceProperties(['value']);
+                foreach ($list as $item) {
+                    $data = json_decode($item->value, true);
+                    if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $providerID) {
+                        $result[] = $this->getUser($providerID, $data['id']);
+                    }
+                }
+            }
+            return $result;
+        });
+    }
+
+    /**
+     * 
+     * @param string $provider
+     * @param string $id
      * @return array|null
      */
     public function getUserData(string $provider, string $id): ?array
