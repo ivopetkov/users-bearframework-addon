@@ -10,5 +10,5 @@ echo '<style>.ivopetkov-users-badge{cursor:pointer;width:48px;height:48px;positi
 echo '</head><body>';
 $styles = 'background-image:url(' . $app->currentUser->getImageUrl(100) . ');';
 $onClick = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");});';
-echo '<div class="ivopetkov-users-badge" style="' . htmlentities($styles) . '" onclick="' . htmlentities($onClick) . '"></div>';
+echo '<div class="ivopetkov-users-badge" role="button" tabindex="0" onkeydown="if(event.keyCode===13){this.click();}" style="' . htmlentities($styles) . '" onclick="' . htmlentities($onClick) . '"></div>';
 echo '</body></html>';
