@@ -14,6 +14,9 @@ use BearFramework\App;
 class UsernameProvider extends Provider
 {
 
+    /**
+     * 
+     */
     public function __construct()
     {
         $this->hasLogin = true;
@@ -37,13 +40,18 @@ class UsernameProvider extends Provider
         if (array_search($id, ['signup', 'login']) !== false) {
             return $app->components->process('<component src="form" filename="' . $context->dir . '/components/username-' . $id . '-form.php" providerID="' . htmlentities($this->id) . '"/>');
         } elseif ($id === 'changepassword') {
-            if ($app->currentUser->exists()) {
+            if ($app->currentUser->exists() && $app->currentUser->provider === $this->id) {
                 return $app->components->process('<component src="form" filename="' . $context->dir . '/components/username-' . $id . '-form.php" providerID="' . htmlentities($this->id) . '"/>');
             }
         }
         return '';
     }
 
+    /**
+     * 
+     * @param string $id
+     * @return array
+     */
     public function getProfileData(string $id): array
     {
         $app = App::get();
@@ -52,7 +60,7 @@ class UsernameProvider extends Provider
         if (is_array($userData)) {
             $properties['name'] = $userData['u'];
         } else {
-            $properties['name'] = 'Anonymous'; // just in case it's missing
+            $properties['name'] = __('ivopetkov.users.anonymous'); // just in case it's missing
         }
         return $properties;
     }

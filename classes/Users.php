@@ -15,6 +15,10 @@ use IvoPetkov\HTML5DOMDocument;
 
 /**
  * Users
+ * @event \IvoPetkov\BearFrameworkAddons\Users\BeforeApplyUIEventDetails beforeApplyUI
+ * @event \IvoPetkov\BearFrameworkAddons\Users\UserSignupEventDetails userSignup
+ * @event \IvoPetkov\BearFrameworkAddons\Users\UserLoginEventDetails userLogin
+ * @event \IvoPetkov\BearFrameworkAddons\Users\UserLogoutEventDetails userLogout
  */
 class Users
 {

@@ -38,12 +38,6 @@ class Provider
 
     /**
      *
-     * @var bool 
-     */
-    //public $hasSettings = false;
-
-    /**
-     *
      * @var array 
      */
     public $screens = [];

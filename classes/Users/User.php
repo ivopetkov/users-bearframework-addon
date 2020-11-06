@@ -76,6 +76,11 @@ class User
             ]);
     }
 
+    /**
+     * 
+     * @param string $property
+     * @return void
+     */
     private function getProfileData(string $property)
     {
         if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
