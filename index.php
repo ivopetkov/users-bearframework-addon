@@ -108,7 +108,7 @@ $app->assets
                 }
             }
             if ($newFilename === null) {
-                $newFilename = $context->dir . '/assets/profile.png';
+                $newFilename = $context->dir . '/assets/profile2.png';
             }
             $eventDetails->filename = $newFilename;
         }
