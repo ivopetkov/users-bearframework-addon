@@ -119,7 +119,7 @@ $cookieKey = 'ip-users-cuk-' . md5($app->request->base);
 $localCache = [];
 $getCurrentCookieUserData = function () use ($app, $cookieKey, &$localCache): ?array {
     $cookieValue = $app->request->cookies->getValue($cookieKey);
-    if (strlen($cookieValue) > 0) {
+    if ($cookieValue !== null && strlen($cookieValue) > 0) {
         if (isset($localCache[$cookieValue])) {
             return $localCache[$cookieValue];
         }
