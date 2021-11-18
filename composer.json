@@ -26,7 +26,8 @@
         "ivopetkov/form-bearframework-addon": "1.*",
         "ivopetkov/html-server-components-bearframework-addon": "1.*",
         "ivopetkov/client-packages-bearframework-addon": "1.*",
-        "ivopetkov/form-elements-bearframework-addon": "1.*"
+        "ivopetkov/form-elements-bearframework-addon": "1.*",
+        "ivopetkov/html5-dom-document-js-bearframework-addon": "1.*"
     },
     "require-dev": {
         "bearframework/addon-tests": "1.*"
