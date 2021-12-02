@@ -48,7 +48,7 @@ class User
         $this
             ->defineProperty('name', [
                 'get' => function () {
-                    $value = $this->getProfileData('name');
+                    $value = (string)$this->getProfileData('name');
                     if (strlen($value) === 0) {
                         return __('ivopetkov.users.anonymous');
                     }
@@ -83,7 +83,7 @@ class User
      */
     private function getProfileData(string $property)
     {
-        if (strlen($this->provider) === 0 || strlen($this->id) === 0) {
+        if ($this->provider !== null || $this->id !== null) {
             return null;
         }
         $app = App::get();
@@ -109,6 +109,6 @@ class User
         $context = $app->contexts->get(__DIR__);
         $provider = $app->users->getProvider($this->provider);
         $cacheMaxAge = $provider !== null ? (int) $provider->imageMaxAge : 99999;
-        return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => $cacheMaxAge, 'robotsNoIndex' => true, 'version' => md5($this->image)]);
+        return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => $cacheMaxAge, 'robotsNoIndex' => true, 'version' => md5((string)$this->image)]);
     }
 }

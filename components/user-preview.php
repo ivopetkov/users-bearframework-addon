@@ -29,15 +29,17 @@ if ($provider !== null) {
     echo '<div style="text-align:center;">';
     echo '<div><div class="ivopetkov-users-profile-preview-image" style="background-image:url(' . $user->getImageUrl(500) . ');"></div></div>';
     echo '<div><div class="ivopetkov-users-profile-preview-name">' . htmlspecialchars($user->name) . '</div></div>';
-    if (strlen($user->description) > 0) {
-        echo '<div><div class="ivopetkov-users-profile-preview-description">' . nl2br(htmlspecialchars($user->description)) . '</div></div>';
+    $userDescription = (string)$user->description;
+    if (strlen($userDescription) > 0) {
+        echo '<div><div class="ivopetkov-users-profile-preview-description">' . nl2br(htmlspecialchars($userDescription)) . '</div></div>';
     }
-    if (strlen($user->url) > 0) {
-        $url = $user->url;
+    $userURL = $user->url;
+    if (strlen($userURL) > 0) {
+        $url = $userURL;
         if (strpos($url, 'http') !== 0) {
             $url = 'http://' . $url;
         }
-        echo '<div><div class="ivopetkov-users-profile-preview-url"><a href="' . htmlentities($url) . '" target="_blank" rel="noopener">' . htmlspecialchars($user->url) . '</a></div></div>';
+        echo '<div><div class="ivopetkov-users-profile-preview-url"><a href="' . htmlentities($url) . '" target="_blank" rel="noopener">' . htmlspecialchars($userURL) . '</a></div></div>';
     }
     if ($app->currentUser->exists()) {
         if ($app->currentUser->provider === $user->provider && $app->currentUser->id === $user->id) {

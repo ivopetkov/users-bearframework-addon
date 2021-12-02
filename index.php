@@ -50,11 +50,12 @@ $app->assets
             if ($provider !== null) {
                 $userID = $parts[sizeof($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
-                if (strlen($user->image) > 0) {
+                $userImage = (string)$user->image;
+                if (strlen($userImage) > 0) {
                     $cacheKey = floor(time() / ((int) $provider->imageMaxAge === 0 ? 60 : (int) $provider->imageMaxAge));
-                    if (strpos($user->image, 'https://') === 0 || strpos($user->image, 'http://') === 0) {
+                    if (strpos($userImage, 'https://') === 0 || strpos($userImage, 'http://') === 0) {
                         $download = false;
-                        $tempDataPrefix = '.temp/users/images/' . md5(md5($providerID) . md5($userID) . md5($user->image));
+                        $tempDataPrefix = '.temp/users/images/' . md5(md5($providerID) . md5($userID) . md5($userImage));
                         $tempImageDataKey = null;
                         $tempImageExtensionDataKey =  $tempDataPrefix . '-' . $cacheKey;
                         $extension = $app->data->getValue($tempImageExtensionDataKey);
@@ -70,10 +71,10 @@ $app->assets
                         }
                         if ($download) {
                             $ch = curl_init();
-                            curl_setopt($ch, CURLOPT_URL, $user->image);
+                            curl_setopt($ch, CURLOPT_URL, $userImage);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                            $response = curl_exec($ch);
+                            $response = (string)curl_exec($ch);
                             $isValid = false;
                             if ((int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200) {
                                 $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
@@ -101,8 +102,8 @@ $app->assets
                             $newFilename = $app->data->getFilename($tempImageDataKey);
                         }
                     } else {
-                        if (is_file($user->image)) {
-                            $newFilename = $user->image;
+                        if (is_file($userImage)) {
+                            $newFilename = $userImage;
                         }
                     }
                 }
@@ -114,7 +115,7 @@ $app->assets
         }
     });
 
-$cookieKey = 'ip-users-cuk-' . md5($app->request->base);
+$cookieKey = 'ip-users-cuk-' . md5((string)$app->request->base);
 
 $localCache = [];
 $getCurrentCookieUserData = function () use ($app, $cookieKey, &$localCache): ?array {
@@ -163,10 +164,10 @@ $app->serverRequests
         $result = [
             'status' => '1'
         ];
-        if (strlen($loginResponse->jsCode) > 0) {
+        if ($loginResponse->jsCode !== null && strlen($loginResponse->jsCode) > 0) {
             $result['jsCode'] = $loginResponse->jsCode;
         }
-        if (strlen($loginResponse->redirectUrl) > 0) {
+        if ($loginResponse->redirectUrl !== null && strlen($loginResponse->redirectUrl) > 0) {
             $result['redirectUrl'] = $loginResponse->redirectUrl;
         } else {
             $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>');
