@@ -83,7 +83,7 @@ class User
      */
     private function getProfileData(string $property)
     {
-        if ($this->provider !== null || $this->id !== null) {
+        if ($this->provider === null || $this->id === null) {
             return null;
         }
         $app = App::get();
