@@ -33,7 +33,7 @@ if ($provider !== null) {
     if (strlen($userDescription) > 0) {
         echo '<div><div class="ivopetkov-users-profile-preview-description">' . nl2br(htmlspecialchars($userDescription)) . '</div></div>';
     }
-    $userURL = $user->url;
+    $userURL = (string)$user->url;
     if (strlen($userURL) > 0) {
         $url = $userURL;
         if (strpos($url, 'http') !== 0) {

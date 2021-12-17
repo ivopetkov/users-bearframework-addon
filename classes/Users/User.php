@@ -13,9 +13,9 @@ use BearFramework\App;
 
 /**
  * @property-read string $name The name of the user
- * @property-read string $description A description text for the user
- * @property-read string $url The profile URL of the user
- * @property-read string $image The image of the user
+ * @property-read string|null $description A description text for the user
+ * @property-read string|null $url The profile URL of the user
+ * @property-read string|null $image The image of the user
  */
 class User
 {
