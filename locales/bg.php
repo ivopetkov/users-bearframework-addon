@@ -9,10 +9,12 @@
 
 return [
     'ivopetkov.users.logoutButton' => 'Изход',
+    'ivopetkov.users.logoutConfirm' => 'Сигурни ли сте, че искате да излезете от профила си?',
     'ivopetkov.users.anonymous' => 'Анонимен',
     'ivopetkov.users.login' => 'Вход',
     'ivopetkov.users.guest' => 'Гост',
     'ivopetkov.users.guest.loginButton' => 'Продължи като гост',
+    'ivopetkov.users.guest.logoutConfirm' => 'Сигурни ли сте, че искате да излезете от този профил на гост? След това няма да може да влезете отново в него!',
     'ivopetkov.users.guest.settingsButton' => 'Настройки на профила',
     'ivopetkov.users.guest.settings.name' => 'Име',
     'ivopetkov.users.guest.settings.website' => 'Уебсайт',

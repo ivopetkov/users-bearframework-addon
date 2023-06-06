@@ -9,10 +9,12 @@
 
 return [
     'ivopetkov.users.logoutButton' => 'Log out',
+    'ivopetkov.users.logoutConfirm' => 'Are you sure you want to log out this guest profile?',
     'ivopetkov.users.anonymous' => 'Anonymous',
     'ivopetkov.users.login' => 'Login',
     'ivopetkov.users.guest' => 'Guest',
     'ivopetkov.users.guest.loginButton' => 'Continue as a guest',
+    'ivopetkov.users.guest.logoutConfirm' => 'Are you sure you want to log out this guest profile? You will not be able to login again!',
     'ivopetkov.users.guest.settingsButton' => 'Profile settings',
     'ivopetkov.users.guest.settings.name' => 'Name',
     'ivopetkov.users.guest.settings.website' => 'Website',

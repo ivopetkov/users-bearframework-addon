@@ -25,6 +25,7 @@ class GuestProvider extends Provider
         $this->hasLogin = true;
         $this->loginText = __('ivopetkov.users.guest.loginButton');
         $this->hasLogout = true;
+        $this->logoutConfirmText = __('ivopetkov.users.guest.logoutConfirm');
         $this->screens = [
             ['id' => 'settings', 'name' => __('ivopetkov.users.guest.settingsButton'), 'showInProfile' => true]
         ];

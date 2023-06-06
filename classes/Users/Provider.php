@@ -37,6 +37,12 @@ class Provider
     public $hasLogout = false;
 
     /**
+     * 
+     * @var string
+     */
+    public $logoutConfirmText = '';
+
+    /**
      *
      * @var array 
      */

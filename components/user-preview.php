@@ -44,7 +44,11 @@ if ($provider !== null) {
                 }
             }
             if ($provider !== null && $provider->hasLogout) {
-                $onClick = 'clientPackages.get("users").then(function(users){users.logout();});';
+                $logoutConfirmText = (string)$provider->logoutConfirmText;
+                if ($logoutConfirmText === '') {
+                    $logoutConfirmText = __('ivopetkov.users.logoutConfirm');
+                }
+                $onClick = 'if(confirm(' . json_encode($logoutConfirmText) . ')){clientPackages.get("users").then(function(users){users.logout();});};';
                 echo '<form-element-button text="' . htmlentities(__('ivopetkov.users.logoutButton')) . '" onclick="' . htmlentities($onClick) . '"/>';
             }
             echo '</div>';
