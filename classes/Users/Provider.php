@@ -56,10 +56,10 @@ class Provider
 
     /**
      * 
-     * @return string
+     * @return string|array 'content' or ['title'=>'', 'content'=>'', 'width'=>'']
      * @throws \Exception
      */
-    public function getScreenContent(string $id): string
+    public function getScreenContent(string $id)
     {
         throw new \Exception('Not implemented!');
     }

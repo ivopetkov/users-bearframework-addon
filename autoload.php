@@ -10,7 +10,7 @@
 BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__, [
     'require' => [
         'bearframework/localization-addon',
-        'ivopetkov/js-lightbox-bearframework-addon',
+        "ivopetkov/modal-windows-bearframework-addon",
         'ivopetkov/server-requests-bearframework-addon',
         'ivopetkov/form-bearframework-addon',
         'ivopetkov/html-server-components-bearframework-addon',

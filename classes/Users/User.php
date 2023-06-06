@@ -93,7 +93,7 @@ class User
         $cacheKey = md5($this->provider) . md5($this->id);
         if (!isset($this->cache[$cacheKey])) {
             $providerObject = $app->users->getProvider($this->provider);
-            $this->cache[$cacheKey] = $providerObject->getProfileData($this->id);
+            $this->cache[$cacheKey] = $providerObject !== null ? $providerObject->getProfileData($this->id) : null;
         }
         return isset($this->cache[$cacheKey][$property]) ? $this->cache[$cacheKey][$property] : null;
     }

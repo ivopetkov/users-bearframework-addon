@@ -79,9 +79,13 @@ class Users
         $providerData = $this->providers[$id];
         if ($providerData[1] === false) {
             $class = $providerData[0];
-            $providerData[1] = class_exists($class) ? new $class() : null;
-            $providerData[1]->id = $id;
-            $providerData[1]->options = $providerData[2];
+            if (class_exists($class)) {
+                $providerData[1] = new $class();
+                $providerData[1]->id = $id;
+                $providerData[1]->options = $providerData[2];
+            } else {
+                $providerData[1] = null;
+            }
         }
         return $providerData[1];
     }

@@ -35,8 +35,8 @@ $form->onSubmit = function ($values) use ($app, $providerID, $userID, $getUserDa
     $removeOldImageIfExists = isset($values['image']) && strlen($values['image']) === 0;
 
     $newImageKey = null;
-    if (isset($values['image_files'])) {
-        $files = json_decode($values['image_files'], true);
+    if (isset($values['image']) && $values['image'] !== 'img') {
+        $files = json_decode($values['image'], true);
         if (isset($files[0])) {
             $extension = strtolower(pathinfo($files[0]['value'], PATHINFO_EXTENSION));
             if (array_search($extension, ['png', 'gif', 'jpg', 'jpeg']) === false) {
@@ -59,9 +59,9 @@ $form->onSubmit = function ($values) use ($app, $providerID, $userID, $getUserDa
 
 $data = $getUserData();
 
-$onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");});';
+$onSubmitSuccess = 'clientPackages.get("modalWindows").then(function(modalWindows){modalWindows.closeAll();});';
 echo '<form onsubmitsuccess="' . htmlentities($onSubmitSuccess) . '">';
-echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.guest.settings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'image.jpg' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageUrl(500) : '') . '" />';
+echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.guest.settings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'img' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageUrl(500) : '') . '" />';
 echo '<form-element-textbox name="name" label="' . htmlentities(__('ivopetkov.users.guest.settings.name')) . '" value="' . htmlentities($data['name']) . '" />';
 echo '<form-element-textbox name="website" label="' . htmlentities(__('ivopetkov.users.guest.settings.website')) . '" value="' . htmlentities($data['website']) . '" />';
 echo '<form-element-textarea name="description" label="' . htmlentities(__('ivopetkov.users.guest.settings.description')) . '" value="' . htmlentities($data['description']) . '" />';

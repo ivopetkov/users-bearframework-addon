@@ -28,8 +28,9 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     };
 
     var logout = function () {
-        clientPackages.get('lightbox').then(function (lightbox) {
-            var context = lightbox.make();
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.closeAll();
+            modalWindows.showLoading();
             clientPackages.get('serverRequests').then(function (serverRequests) {
                 serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
                     var result = JSON.parse(responseText);
@@ -46,8 +47,9 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     };
 
     var login = function (providerID) {
-        clientPackages.get('lightbox').then(function (lightbox) {
-            var context = lightbox.make();
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.closeAll();
+            modalWindows.showLoading();
             clientPackages.get('serverRequests').then(function (serverRequests) {
                 var data = {
                     'provider': providerID,
@@ -63,8 +65,9 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                         if (typeof result.redirectUrl !== 'undefined') {
                             window.location = result.redirectUrl;
                         } else {
-                            addBadge(result.badgeHTML);
-                            context.close();
+                            html5DOMDocument.insert(result.badgeHTML);
+                            modalWindows.hideLoading();
+                            modalWindows.closeAll();
                             onCurrentUserChange();
                         }
                     }
@@ -73,56 +76,16 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         });
     };
 
-    var removeBadge = function () {
-        var badgeElement = document.querySelector('.ivopetkov-users-badge');
-        if (badgeElement) {
-            badgeElement.parentNode.removeChild(badgeElement);
-        }
-    };
-
-    var addBadge = function (html) {
-        html5DOMDocument.insert(html);
-    };
-
-    var updateBadge = function () {
-        clientPackages.get('serverRequests').then(function (serverRequests) {
-            serverRequests.send('ivopetkov-users-badge').then(function (responseText) {
-                var result = JSON.parse(responseText);
-                if (typeof result.html !== 'undefined') {
-                    removeBadge();
-                    if (result.html !== '') {
-                        addBadge(result.html);
-                    }
-                }
-            });
-        });
-    };
-
-    // var openSettings = function () {
-    //     clientPackages.get('lightbox').then(function (lightbox) {
-    //         var context = lightbox.make();
-    //         clientPackages.get('serverRequests').then(function (serverRequests) {
-    //             serverRequests.send('ivopetkov-users-settings-window').then(function (responseText) {
-    //                 var result = JSON.parse(responseText);
-    //                 if (typeof result.html !== 'undefined') {
-    //                     context.open(result.html);
-    //                 }
-    //             });
-    //         });
-    //     });
+    // var removeBadge = function () {
+    //     var badgeElement = document.querySelector('.ivopetkov-users-badge');
+    //     if (badgeElement) {
+    //         badgeElement.parentNode.removeChild(badgeElement);
+    //     }
     // };
 
     var openLogin = function () {
-        clientPackages.get('lightbox').then(function (lightbox) {
-            var context = lightbox.make();
-            clientPackages.get('serverRequests').then(function (serverRequests) {
-                serverRequests.send('ivopetkov-users-login-screen').then(function (responseText) {
-                    var result = JSON.parse(responseText);
-                    if (typeof result.html !== 'undefined') {
-                        context.open(result.html);
-                    }
-                });
-            });
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.open('ivopetkov-users-login-screen');
         });
     };
 
@@ -130,26 +93,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         if (typeof provider === "undefined" || typeof id === "undefined") {
             return;
         }
-        clientPackages.get('lightbox').then(function (lightbox) {
-            var context = lightbox.make();
-            var data = {
-                'provider': provider,
-                'id': id
-            };
-            clientPackages.get('serverRequests')
-                .then(function (serverRequests) {
-                    serverRequests.send('ivopetkov-users-preview-window', data)
-                        .then(function (responseText) {
-                            var result = JSON.parse(responseText);
-                            if (typeof result.html !== 'undefined') {
-                                context.open(result.html);
-                            }
-                        })
-                        .catch(function () {
-                            context.close();
-                        });
-                });
-
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.open('ivopetkov-users-preview-window', { 'provider': provider, 'id': id });
         });
     };
 
@@ -162,16 +107,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     };
 
     var openProviderScreen = function (provider, id) {
-        clientPackages.get('lightbox').then(function (lightbox) {
-            var context = lightbox.make();
-            clientPackages.get('serverRequests').then(function (serverRequests) {
-                serverRequests.send('ivopetkov-users-screen-window', { 'provider': provider, 'id': id }).then(function (responseText) {
-                    var result = JSON.parse(responseText);
-                    if (typeof result.html !== 'undefined') {
-                        context.open(result.html);
-                    }
-                });
-            });
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.open('ivopetkov-users-screen-window', { 'provider': provider, 'id': id });
         });
     };
 
@@ -267,12 +204,10 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         'login': login,
         'logout': logout,
         'openLogin': openLogin,
-        //'openSettings': openSettings,
         'openPreview': openPreview,
         'openProviderScreen': openProviderScreen,
         'openProviderLogin': openProviderLogin,
-        'openProviderSignup': openProviderSignup,
-        '_updateBadge': updateBadge
+        'openProviderSignup': openProviderSignup
     };
 
 }());

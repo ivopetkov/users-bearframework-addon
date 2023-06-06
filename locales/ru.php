@@ -10,6 +10,7 @@
 return [
     'ivopetkov.users.logoutButton' => 'Исход',
     'ivopetkov.users.anonymous' => 'Aнонимный',
+    'ivopetkov.users.login' => 'Авторизоваться',
     'ivopetkov.users.guest' => 'Гость',
     'ivopetkov.users.guest.loginButton' => 'Продолжить в качестве гостя',
     'ivopetkov.users.guest.settingsButton' => 'Настройки профиля',

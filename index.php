@@ -8,7 +8,6 @@
  */
 
 use BearFramework\App;
-use IvoPetkov\HTML5DOMDocument;
 
 $app = App::get();
 $context = $app->contexts->get(__DIR__);
@@ -181,104 +180,50 @@ $app->serverRequests
         }
         return json_encode(['status' => '1']);
     })
-    ->add('ivopetkov-users-screen-window', function ($data) use ($app) {
-        $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
-        $screenID = isset($data['id']) ? (string) $data['id'] : null;
-        $template = '<html><head>
-        <style>
-            .ivopetkov-users-screen-form [data-form-element-type="textbox"] [data-form-element-component="input"],
-            .ivopetkov-users-screen-form [data-form-element-type="password"] [data-form-element-component="input"],
-            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
-                width:250px;
-                font-size:15px;
-                padding:0 23px;
-                line-height:50px;
-                font-family:Arial,Helvetica,sans-serif;
-                background-color:#eee;
-                border-radius:2px;
-                color:#000;
-                box-sizing: border-box;
-                display:block;
-                margin-bottom: 21px;
-                border:0;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
-                padding:12px 23px;
-                line-height:28px;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="textarea"] [data-form-element-component="textarea"]{
-                height:100px;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type] [data-form-element-component="label"]{
-                font-family:Arial,Helvetica,sans-serif;
-                font-size:15px;
-                color:#fff;
-                padding-bottom: 9px;
-                cursor: default;
-                display:block;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="image"] [data-form-element-component="button"]{
-                width:250px;
-                height:250px;
-                border-radius:2px;
-                background-color:#fff;
-                color:#000;
-                font-family:Arial,Helvetica,sans-serif;
-                font-size:15px;
-                margin-bottom: 21px;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]{
-                box-sizing: border-box;
-                width:250px;
-                font-family:Arial,Helvetica,sans-serif;
-                background-color:#fff;
-                font-size:15px;
-                border-radius:2px;
-                padding:0 23px;
-                line-height:50px;
-                color:#000;
-                margin-top:25px;
-                display:block;
-                text-align:center;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"][disabled]{
-                background-color:#ddd;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]:not([disabled]):hover{
-                background-color:#f5f5f5;
-            }
-            .ivopetkov-users-screen-form [data-form-element-type="submit-button"] [data-form-element-component="button"]:not([disabled]):active{
-                background-color:#eeeeee;
-            }
-        </style>
-    </head><body><div class="ivopetkov-users-screen-form"></div></body></html>';
-        $dom = new HTML5DOMDocument();
-        $dom->loadHTML($template);
-        $html = $provider->getScreenContent($screenID);
-        $formDOM = new HTML5DOMDocument();
-        $formDOM->loadHTML($html, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-        // $onSubmitSuccess = 'clientPackages.get("users").then(function(users){users.openPreview("' . $app->currentUser->provider . '","' . $app->currentUser->id . '");users._updateBadge();});';
-        // $formDOM->querySelector('form')->setAttribute('onsubmitsuccess', $onSubmitSuccess);
-        $dom->querySelector('div')->appendChild($dom->createInsertTarget('form-content'));
-        $dom->insertHTML($formDOM->saveHTML(), 'form-content');
-        return json_encode(['html' => $dom->saveHTML()]);
-    })
-    ->add('ivopetkov-users-badge', function () use ($app, $context) {
-        $html = $app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>');
-        return json_encode(['html' => $html]);
-    })
+    ->add('ivopetkov-users-currentuser-exists', function () use ($app) {
+        return json_encode(['status' => '1', 'exists' => $app->currentUser->exists() ? '1' : '0']);
+    });
+
+$app->modalWindows
     ->add('ivopetkov-users-login-screen', function () use ($app, $context) {
-        $html = $app->components->process('<component src="file:' . $context->dir . '/components/login-screen.php"/>');
-        return json_encode(['html' => $html]);
+        $content = '<component src="file:' . $context->dir . '/components/login-screen.php"/>';
+        $content = $app->components->process($content);
+        $content = $app->clientPackages->process($content);
+        return [
+            'title' => __('ivopetkov.users.login'),
+            'content' => $content,
+            'width' => '400px'
+        ];
     })
     ->add('ivopetkov-users-preview-window', function ($data) use ($app, $context) {
         $provider = isset($data['provider']) ? (string) $data['provider'] : '';
         $id = isset($data['id']) ? (string) $data['id'] : '';
-        $html = $app->components->process('<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($provider) . '" id="' . htmlentities($id) . '"/>');
-        return json_encode(['html' => $html]);
+        $content = '<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($provider) . '" id="' . htmlentities($id) . '"/>';
+        $content = $app->components->process($content);
+        $content = $app->clientPackages->process($content);
+        return [
+            'content' => $content,
+            'width' => '300px'
+        ];
     })
-    ->add('ivopetkov-users-currentuser-exists', function () use ($app) {
-        return json_encode(['status' => '1', 'exists' => $app->currentUser->exists() ? '1' : '0']);
+    ->add('ivopetkov-users-screen-window', function ($data) use ($app) {
+        $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
+        $screenID = isset($data['id']) ? (string) $data['id'] : null;
+        $content = $provider->getScreenContent($screenID);
+        $title = '';
+        $width = '400px';
+        if (is_array($content)) {
+            $title = $content['title'];
+            $width = $content['width'];
+            $content = $content['content'];
+        }
+        $content = $app->components->process($content);
+        $content = $app->clientPackages->process($content);
+        return [
+            'title' => $title,
+            'content' => $content,
+            'width' => $width
+        ];
     });
 
 $app
@@ -323,8 +268,8 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 9, 'robotsNoIndex' => true]));
-        $package->embedPackage('lightbox');
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 10, 'robotsNoIndex' => true]));
+        $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';
     });

@@ -31,17 +31,15 @@ class GuestProvider extends Provider
         $this->imageMaxAge = 999999999;
     }
 
-    /**
-     * 
-     * @return string
-     */
-    public function getScreenContent(string $id): string
+
+    public function getScreenContent(string $id)
     {
         if ($id === 'settings') {
             $app = App::get();
             $context = $app->contexts->get();
             if ($app->currentUser->exists() && $app->currentUser->provider === $this->id) {
-                return $app->components->process('<component src="form" filename="' . $context->dir . '/components/guest-settings-form.php"/>');
+                $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/guest-settings-form.php"/>');
+                return ['title' => __('ivopetkov.users.guest.settingsButton'), 'content' => $content, 'width' => '300px'];
             }
         }
         return '';
