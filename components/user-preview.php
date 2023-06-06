@@ -12,7 +12,7 @@ if ($provider !== null) {
 
     $user = $app->users->getUser($providerID, $userID);
     echo '<html><head><style>';
-    echo '.ivopetkov-users-profile-preview-image{border-radius:4px;background-color:#000;width:100%;aspect-ratio:1/1;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;}';
+    echo '.ivopetkov-users-profile-preview-image{border-radius:4px;background-color:#000;width:100%;aspect-ratio:1/1;background-size:cover;background-repeat:no-repeat;background-position:center center;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,0.2) inset;}';
     echo '.ivopetkov-users-profile-preview-name{font-weight:bold;margin-top:15px;word-break:break-all;text-align:center;}';
     echo '.ivopetkov-users-profile-preview-description{margin-top:15px;word-break:break-all;text-align:center;}';
     echo '.ivopetkov-users-profile-preview-url{margin-top:15px;word-break:break-all;text-align:center;}';
