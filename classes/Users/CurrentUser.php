@@ -9,6 +9,7 @@
 
 namespace IvoPetkov\BearFrameworkAddons\Users;
 
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 use IvoPetkov\BearFrameworkAddons\Users\User;
 
 /**
@@ -28,13 +29,29 @@ class CurrentUser extends User
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
+     * @param string $id
+     * @param boolean $remember
+     * @return void
+     */
+    public function login(string $providerID, string $id, bool $remember = false): void
+    {
+        $this->set($providerID, $id);
+        Utilities::$currentUserCookieAction = 'login';
+        if ($remember) {
+            Utilities::$currentUserCookieAction = 'login-remember';
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
      * @param string $id
      * @return void
      */
-    public function login(string $provider, string $id): void
+    public function set(string $providerID, string $id): void
     {
-        $this->provider = $provider;
+        $this->provider = $providerID;
         $this->id = $id;
     }
 
@@ -46,5 +63,6 @@ class CurrentUser extends User
     {
         $this->provider = null;
         $this->id = null;
+        Utilities::$currentUserCookieAction = 'logout';
     }
 }

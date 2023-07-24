@@ -82,7 +82,7 @@ class Users
             if (class_exists($class)) {
                 $providerData[1] = new $class();
                 $providerData[1]->id = $id;
-                $providerData[1]->options = $providerData[2];
+                $providerData[1]->options = array_merge($providerData[1]->options, $providerData[2]);
             } else {
                 $providerData[1] = null;
             }
@@ -114,27 +114,27 @@ class Users
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $id
      * @return \IvoPetkov\BearFrameworkAddons\Users\User
      */
-    public function getUser(string $provider, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
+    public function getUser(string $providerID, string $id): \IvoPetkov\BearFrameworkAddons\Users\User
     {
         $user = $this->make();
-        $user->provider = $provider;
+        $user->provider = $providerID;
         $user->id = $id;
         return $user;
     }
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $id
      * @return boolean
      */
-    public function userExists(string $provider, string $id): bool
+    public function userExists(string $providerID, string $id): bool
     {
-        return $this->getUserData($provider,  $id) !== null;
+        return $this->getUserData($providerID,  $id) !== null;
     }
 
     /**
@@ -164,27 +164,27 @@ class Users
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $id
      * @return array|null
      */
-    public function getUserData(string $provider, string $id): ?array
+    public function getUserData(string $providerID, string $id): ?array
     {
         $app = App::get();
         $rawUserData = null;
-        $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+        $cacheKey = 'ivopetkov-users-user-data-' . md5($providerID) . '-' . md5($id);
         $rawUserData = $app->cache->getValue($cacheKey);
         if ($rawUserData === '-1') {
             return null;
         }
         $foundInCache = $rawUserData !== null;
         if ($rawUserData === null) {
-            $rawUserData = $app->data->getValue('users/' . md5($provider) . '/' . md5($id) . '.json');
+            $rawUserData = $app->data->getValue($this->getUserDataDataKey($providerID, $id));
         }
         $result = null;
         if ($rawUserData !== null) {
             $data = json_decode($rawUserData, true);
-            if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $provider && $data['id'] === $id) {
+            if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $providerID && $data['id'] === $id) {
                 $result = $data['data'];
             }
         }
@@ -196,63 +196,159 @@ class Users
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $id
      * @param array $data
      * @return void
      */
-    public function saveUserData(string $provider, string $id, array $data): void
+    public function saveUserData(string $providerID, string $id, array $data): void
     {
         $app = App::get();
         $dataToSave = [
-            'provider' => $provider,
+            'provider' => $providerID,
             'id' => $id,
             'data' => $data
         ];
-        $app->data->set($app->data->make('users/' . md5($provider) . '/' . md5($id) . '.json', json_encode($dataToSave)));
-        $cacheKey = 'ivopetkov-users-user-data-' . md5($provider) . '-' . md5($id);
+        $app->data->set($app->data->make($this->getUserDataDataKey($providerID, $id), json_encode($dataToSave)));
+        $cacheKey = 'ivopetkov-users-user-data-' . md5($providerID) . '-' . md5($id);
         $app->cache->delete($cacheKey);
     }
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
+     * @param string $id
+     * @return void
+     */
+    public function deleteUserData(string $providerID, string $id): void
+    {
+        $app = App::get();
+        $app->data->delete($this->getUserDataDataKey($providerID, $id));
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id
+     * @return string
+     */
+    private function getUserDataDataKey(string $providerID, string $id): string
+    {
+        return 'users/' . md5($providerID) . '/' . md5($id) . '.json';
+    }
+
+    /**
+     * 
+     * @param string $providerID
      * @param string $sourceFileName
      * @param string $extension
      * @return string
      */
-    public function saveUserFile(string $provider, string $sourceFileName, string $extension): string
+    public function saveUserFile(string $providerID, string $sourceFileName, string $extension): string
     {
         $app = App::get();
         $key = md5(uniqid() . $sourceFileName) . '.' . preg_replace('/[^a-z0-9]/', '', strtolower($extension));
-        $dataItem = $app->data->make('users/' . md5($provider) . '-files/' . $key, file_get_contents($sourceFileName));
+        $dataItem = $app->data->make($this->getUserFileDataKey($providerID, $key), file_get_contents($sourceFileName));
         $app->data->set($dataItem);
         return $key;
     }
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $key
      * @return void
      */
-    public function deleteUserFile(string $provider, string $key): void
+    public function deleteUserFile(string $providerID, string $key): void
     {
         $app = App::get();
-        $app->data->delete('users/' . md5($provider) . '-files/' . $key);
+        $app->data->delete($this->getUserFileDataKey($providerID, $key));
     }
 
     /**
      * 
-     * @param string $provider
+     * @param string $providerID
      * @param string $key
      * @return string
      */
-    public function getUserFilePath(string $provider, string $key): string
+    public function getUserFilePath(string $providerID, string $key): string
     {
         $app = App::get();
-        return $app->data->getFilename('users/' . md5($provider) . '-files/' . $key);
+        return $app->data->getFilename($this->getUserFileDataKey($providerID, $key));
     }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $key
+     * @return string
+     */
+    private function getUserFileDataKey(string $providerID, string $key): string
+    {
+        return 'users/' . md5($providerID) . '-files/' . $key;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id The data id
+     * @return array|null
+     */
+    public function getTempData(string $providerID, string $id): ?array
+    {
+        $app = App::get();
+        $rawData = $app->data->getValue($this->getTempDataDataKey($providerID, $id));
+        $result = null;
+        if ($rawData !== null) {
+            $data = json_decode($rawData, true);
+            if (is_array($data) && isset($data['provider'], $data['id'], $data['data']) && $data['provider'] === $providerID && $data['id'] === $id) {
+                $result = $data['data'];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id The data id
+     * @param array $data
+     * @return void
+     */
+    public function saveTempData(string $providerID, string $id, array $data): void
+    {
+        $app = App::get();
+        $dataToSave = [
+            'provider' => $providerID,
+            'id' => $id,
+            'data' => $data
+        ];
+        $app->data->set($app->data->make($this->getTempDataDataKey($providerID, $id), json_encode($dataToSave)));
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id
+     * @return void
+     */
+    public function deleteTempData(string $providerID, string $id): void
+    {
+        $app = App::get();
+        $app->data->delete($this->getTempDataDataKey($providerID, $id));
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $key
+     * @return string
+     */
+    private function getTempDataDataKey(string $providerID, string $id): string
+    {
+        return '.temp/users/providers/' . md5($providerID) . '/' . md5($id) . '.json';
+    }
+
 
     /**
      * 

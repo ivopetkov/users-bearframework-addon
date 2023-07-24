@@ -8,6 +8,7 @@
  */
 
 use BearFramework\App;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 $app = App::get();
 $context = $app->contexts->get(__DIR__);
@@ -114,31 +115,28 @@ $app->assets
         }
     });
 
-$cookieKey = 'ip-users-cuk-' . md5((string)$app->request->base);
+$cookieKeySuffix = base_convert(substr(md5((string)$app->request->base), 0, 10), 16, 36);
+$cookieKey = 'ipub-' . $cookieKeySuffix;
 
 $localCache = [];
-$getCurrentCookieUserData = function () use ($app, $cookieKey, &$localCache): ?array {
+$getCookieUserData = function (string $cookieKey) use ($app, &$localCache): ?array {
     $cookieValue = $app->request->cookies->getValue($cookieKey);
     if ($cookieValue !== null && strlen($cookieValue) > 0) {
         if (isset($localCache[$cookieValue])) {
             return $localCache[$cookieValue];
         }
-        $cookieValueMD5 = md5($cookieValue);
-        $result = $app->data->getValue('.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4));
-        if ($result !== null) {
-            $value = json_decode($result, true);
-            if (is_array($value)) {
-                $localCache[$cookieValue] = $value;
-                return $value;
-            }
+        $sessionData = Utilities::getSessionData($cookieValue);
+        if (is_array($sessionData)) {
+            $localCache[$cookieValue] = $sessionData;
+            return $sessionData;
         }
     }
     return null;
 };
 
-$currentCookieUserData = $getCurrentCookieUserData();
-if ($currentCookieUserData !== null) {
-    $app->currentUser->login($currentCookieUserData[0], $currentCookieUserData[1]);
+$cookieUserData = $getCookieUserData($cookieKey);
+if ($cookieUserData !== null) {
+    $app->currentUser->set($cookieUserData[0], $cookieUserData[1]);
 }
 
 $getCurrentUserCookieData = function () use ($app): ?array {
@@ -147,6 +145,13 @@ $getCurrentUserCookieData = function () use ($app): ?array {
     }
     return null;
 };
+
+$app->routes
+    ->add(Utilities::$providerRoutePrefix . '*', function (App\Request $request) {
+        $path = (string)$request->path;
+        $path = substr($path, strlen(Utilities::$providerRoutePrefix));
+        return Utilities::handleCallbackRequest($path);
+    });
 
 $app->serverRequests
     ->add('ivopetkov-users-login', function ($data) use ($app, $context) {
@@ -158,6 +163,7 @@ $app->serverRequests
 
         $provider = $app->users->getProvider($providerID);
         $loginContext = new \IvoPetkov\BearFrameworkAddons\Users\LoginContext();
+        $loginContext->providerID = $providerID;
         $loginContext->locationUrl = $location;
         $loginResponse = $provider->login($loginContext);
         $result = [
@@ -168,8 +174,9 @@ $app->serverRequests
         }
         if ($loginResponse->redirectUrl !== null && strlen($loginResponse->redirectUrl) > 0) {
             $result['redirectUrl'] = $loginResponse->redirectUrl;
-        } else {
-            $result['badgeHTML'] = $app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>');
+        }
+        if ($app->currentUser->exists()) {
+            $result['badgeHTML'] = Utilities::getBadgeHTML();
         }
         return json_encode($result);
     })
@@ -196,9 +203,9 @@ $app->modalWindows
         ];
     })
     ->add('ivopetkov-users-preview-window', function ($data) use ($app, $context) {
-        $provider = isset($data['provider']) ? (string) $data['provider'] : '';
+        $providerID = isset($data['provider']) ? (string) $data['provider'] : '';
         $id = isset($data['id']) ? (string) $data['id'] : '';
-        $content = '<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($provider) . '" id="' . htmlentities($id) . '"/>';
+        $content = '<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($providerID) . '" id="' . htmlentities($id) . '"/>';
         $content = $app->components->process($content);
         $content = $app->clientPackages->process($content);
         return [
@@ -206,12 +213,18 @@ $app->modalWindows
             'width' => '300px'
         ];
     })
-    ->add('ivopetkov-users-screen-window', function ($data) use ($app) {
+    ->add('ivopetkov-users-screen-window', function ($data) use ($app, $context) {
         $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
         $screenID = isset($data['id']) ? (string) $data['id'] : null;
-        $content = $provider->getScreenContent($screenID);
-        $title = '';
-        $width = '400px';
+        if ($screenID === 'user-profile-settings') {
+            $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php" providerID="' . htmlentities($provider->id) . '"/>');
+            $title = __('ivopetkov.users.profileSettingsButton');
+            $width = '300px';
+        } else {
+            $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
+            $title = '';
+            $width = '400px';
+        }
         if (is_array($content)) {
             $title = $content['title'];
             $width = $content['width'];
@@ -227,32 +240,24 @@ $app->modalWindows
     });
 
 $app
-    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCurrentCookieUserData, $getCurrentUserCookieData, $cookieKey) {
+    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCookieUserData, $getCurrentUserCookieData, $cookieKey) {
         $response = $details->response;
         if ($app->currentUser->exists()) {
-            $currentCookieUserData = $getCurrentCookieUserData();
-            $currentUserCookieData = $getCurrentUserCookieData();
             if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) { // not an asset request
-                if ($currentUserCookieData !== null && md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                    $generateCookieKeyValue = function () use ($app) {
-                        for ($i = 0; $i < 100; $i++) {
-                            $cookieValue = md5(uniqid() . $app->request->base . 'salt');
-                            $cookieValueMD5 = md5($cookieValue);
-                            $dataKey = '.temp/users/keys/' . substr(md5($cookieValueMD5), 0, 2) . '/' . substr(md5($cookieValueMD5), 2, 2) . '/' . substr(md5($cookieValueMD5), 4);
-                            $result = $app->data->getValue($dataKey);
-                            if ($result === null) {
-                                return $cookieValue;
-                            }
+                $currentCookieUserData = $getCookieUserData($cookieKey);
+                $currentUserCookieData = $getCurrentUserCookieData();
+                if ($currentUserCookieData !== null) {
+                    if (md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
+                        $cookieKeyValue = Utilities::generateSessionKey();
+                        Utilities::setSessionData($cookieKeyValue, $currentUserCookieData);
+                        $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
+                        $cookie->httpOnly = true;
+                        $cookie->secure = true;
+                        if (Utilities::$currentUserCookieAction === 'login-remember') {
+                            $cookie->expire = time() + 86400 * 90;
                         }
-                        throw new Exception('Too many retries');
-                    };
-                    $cookieKeyValue = $generateCookieKeyValue();
-                    $cookieKeyValueMD5 = md5($cookieKeyValue);
-                    $dataKey = '.temp/users/keys/' . substr(md5($cookieKeyValueMD5), 0, 2) . '/' . substr(md5($cookieKeyValueMD5), 2, 2) . '/' . substr(md5($cookieKeyValueMD5), 4);
-                    $app->data->set($app->data->make($dataKey, json_encode($currentUserCookieData)));
-                    $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
-                    $cookie->httpOnly = true;
-                    $response->cookies->set($cookie);
+                        $response->cookies->set($cookie);
+                    }
                 }
             }
         } else {
@@ -268,7 +273,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 10, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 11, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

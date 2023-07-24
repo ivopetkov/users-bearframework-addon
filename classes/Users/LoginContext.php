@@ -16,6 +16,12 @@ class LoginContext
 {
 
     /**
+     * 
+     * @var string|null 
+     */
+    public $providerID = null;
+
+    /**
      *
      * @var string|null 
      */

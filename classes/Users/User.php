@@ -111,4 +111,13 @@ class User
         $cacheMaxAge = $provider !== null ? (int) $provider->imageMaxAge : 99999;
         return $context->assets->getURL('assets/u/' . $this->provider . '/' . $this->id, ['width' => $size, 'height' => $size, 'cacheMaxAge' => $cacheMaxAge, 'robotsNoIndex' => true, 'version' => md5((string)$this->image)]);
     }
+
+    /**
+     * 
+     * @return void
+     */
+    public function clearCache(): void
+    {
+        $this->cache = [];
+    }
 }

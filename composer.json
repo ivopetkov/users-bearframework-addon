@@ -19,6 +19,7 @@
         "php": "7.1.*|7.2.*|7.3.*|7.4.*|8.0.*|8.1.*",
         "bearframework/bearframework": "1.*",
         "bearframework/localization-addon": "1.*",
+        "bearframework/emails-addon": "1.*",
         "ivopetkov/data-object": "1.*",
         "ivopetkov/html5-dom-document-php": "2.*",
         "ivopetkov/modal-windows-bearframework-addon": "1.*",
@@ -27,7 +28,8 @@
         "ivopetkov/html-server-components-bearframework-addon": "1.*",
         "ivopetkov/client-packages-bearframework-addon": "1.*",
         "ivopetkov/form-elements-bearframework-addon": "2.*",
-        "ivopetkov/html5-dom-document-js-bearframework-addon": "1.*"
+        "ivopetkov/html5-dom-document-js-bearframework-addon": "1.*",
+        "ivopetkov/data-index-bearframework-addon": "1.*"
     },
     "require-dev": {
         "bearframework/addon-tests": "1.*"

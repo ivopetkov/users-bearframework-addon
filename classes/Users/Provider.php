@@ -61,11 +61,12 @@ class Provider
     public $options = [];
 
     /**
-     * 
+     * @param string $id
+     * @param array $data 
      * @return string|array 'content' or ['title'=>'', 'content'=>'', 'width'=>'']
      * @throws \Exception
      */
-    public function getScreenContent(string $id)
+    public function getScreenContent(string $id, array $data = [])
     {
         throw new \Exception('Not implemented!');
     }
@@ -88,5 +89,16 @@ class Provider
     public function getProfileData(string $id): array
     {
         return [];
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $key
+     * @return array|null
+     */
+    public function handleCallback(string $providerID, string $key): ?array
+    {
+        return null;
     }
 }

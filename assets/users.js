@@ -76,12 +76,17 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         });
     };
 
-    // var removeBadge = function () {
-    //     var badgeElement = document.querySelector('.ivopetkov-users-badge');
-    //     if (badgeElement) {
-    //         badgeElement.parentNode.removeChild(badgeElement);
-    //     }
-    // };
+    var removeBadge = function () {
+        var badgeElement = document.querySelector('.ivopetkov-users-badge');
+        if (badgeElement) {
+            badgeElement.parentNode.removeChild(badgeElement);
+        }
+    };
+
+    var updateBadge = function (badgeHTML) {
+        removeBadge();
+        html5DOMDocument.insert(badgeHTML);
+    }
 
     var openLogin = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
@@ -106,9 +111,30 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         openProviderScreen(provider, 'signup');
     };
 
-    var openProviderScreen = function (provider, id) {
+    var openProviderScreen = function (provider, id, data) {
+        if (typeof data === 'undefined') {
+            data = {};
+        }
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.open('ivopetkov-users-screen-window', { 'provider': provider, 'id': id });
+            modalWindows.open('ivopetkov-users-screen-window', { 'provider': provider, 'id': id, 'data': data });
+        });
+    };
+
+    var closeCurrentWindow = function () {
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.closeCurrent();
+        });
+    };
+
+    var closeAllWindows = function () {
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.closeAll();
+        });
+    };
+
+    var showLoading = function () {
+        clientPackages.get('modalWindows').then(function (modalWindows) {
+            modalWindows.showLoading();
         });
     };
 
@@ -174,6 +200,24 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         }, 16);
     };
 
+    var checkHash = function () {
+        var hash = window.location.hash;
+        var prefix = '#/-u/';
+        if (hash.indexOf(prefix) === 0) {
+            history.replaceState('', '', window.location.href.replace(hash, ''));
+            var data = hash.replace(prefix, '');
+            var dataParts = data.split('/');
+            openProviderScreen(dataParts[0], '-hash-callback', { 'path': data.substring(dataParts[0].length + 1) });
+        }
+    };
+
+    document.addEventListener('readystatechange', () => { // interactive or complete
+        checkHash();
+    });
+    if (document.readyState === 'complete') {
+        checkHash();
+    }
+
     return {
         'currentUser': {
             'exists': function () {
@@ -207,7 +251,11 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         'openPreview': openPreview,
         'openProviderScreen': openProviderScreen,
         'openProviderLogin': openProviderLogin,
-        'openProviderSignup': openProviderSignup
+        'openProviderSignup': openProviderSignup,
+        '_closeCurrentWindow': closeCurrentWindow,
+        '_closeAllWindows': closeAllWindows,
+        '_showLoading': showLoading,
+        '_updateBadge': updateBadge
     };
 
 }());
