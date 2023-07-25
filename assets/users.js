@@ -80,12 +80,15 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         var badgeElement = document.querySelector('.ivopetkov-users-badge');
         if (badgeElement) {
             badgeElement.parentNode.removeChild(badgeElement);
+            return true;
         }
+        return false;
     };
 
     var updateBadge = function (badgeHTML) {
-        removeBadge();
-        html5DOMDocument.insert(badgeHTML);
+        if (removeBadge()) {
+            html5DOMDocument.insert(badgeHTML);
+        }
     }
 
     var openLogin = function () {
