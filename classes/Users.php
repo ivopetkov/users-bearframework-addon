@@ -81,9 +81,6 @@ class Users
         if ($providerData[1] === false) {
             $class = $providerData[0];
             if (class_exists($class)) {
-                $providerData[1] = new $class();
-                $providerData[1]->id = $id;
-                $providerData[1]->options = array_merge($providerData[1]->options, $providerData[2]);
                 $providerData[1] = new $class($id, $providerData[2]);
             } else {
                 $providerData[1] = null;

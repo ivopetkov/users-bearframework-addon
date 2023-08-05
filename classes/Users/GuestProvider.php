@@ -21,14 +21,18 @@ class GuestProvider extends Provider
     /**
      * 
      */
-    public function __construct()
+    public function __construct(string $id, array $options = [])
     {
+        parent::__construct($id, $options);
+
         $this->hasLogin = true;
         $this->loginText = __('ivopetkov.users.guest.buttons.login');
         $this->hasLogout = true;
         $this->logoutConfirmText = __('ivopetkov.users.guest.logoutConfirm');
         $this->imageMaxAge = 999999999;
-        $this->options['profileFields'] = ['image', 'name', 'website', 'description'];
+        if (!isset($this->options['profileFields'])) {
+            $this->options['profileFields'] = ['image', 'name', 'website', 'description'];
+        }
     }
 
     /**

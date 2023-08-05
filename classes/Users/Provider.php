@@ -19,6 +19,12 @@ class Provider
     public $id = null;
 
     /**
+     * 
+     * @var array
+     */
+    public $options = [];
+
+    /**
      *
      * @var bool 
      */
@@ -44,21 +50,26 @@ class Provider
 
     /**
      *
-     * @var array 
-     */
-    public $screens = [];
-
-    /**
-     *
      * @var int 
      */
     public $imageMaxAge = 86400;
 
     /**
-     * 
-     * @var array
+     *
+     * @var array 
      */
-    public $options = [];
+    public $screens = [];
+
+    /**
+     * 
+     * @param string $id
+     * @param array $options
+     */
+    public function __construct(string $id, array $options = [])
+    {
+        $this->id = $id;
+        $this->options = $options;
+    }
 
     /**
      * @param string $id

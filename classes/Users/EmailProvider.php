@@ -18,8 +18,10 @@ class EmailProvider extends Provider
     /**
      * 
      */
-    public function __construct()
+    public function __construct(string $id, array $options = [])
     {
+        parent::__construct($id, $options);
+
         $this->hasLogin = true;
         $this->loginText = __('ivopetkov.users.email.buttons.loginWithEmail');
         $this->hasLogout = true;
