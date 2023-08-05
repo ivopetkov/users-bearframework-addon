@@ -19,6 +19,7 @@ use IvoPetkov\HTML5DOMDocument;
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserSignupEventDetails userSignup
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserLoginEventDetails userLogin
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserLogoutEventDetails userLogout
+ * @event \IvoPetkov\BearFrameworkAddons\Users\UserDeleteEventDetails userDelete
  */
 class Users
 {
@@ -83,6 +84,7 @@ class Users
                 $providerData[1] = new $class();
                 $providerData[1]->id = $id;
                 $providerData[1]->options = array_merge($providerData[1]->options, $providerData[2]);
+                $providerData[1] = new $class($id, $providerData[2]);
             } else {
                 $providerData[1] = null;
             }
@@ -425,6 +427,19 @@ class Users
     {
         if ($this->hasEventListeners('userLogout')) {
             $this->dispatchEvent('userLogout', new \IvoPetkov\BearFrameworkAddons\Users\UserLogoutEventDetails($providerID, $userID));
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @return void
+     */
+    public function dispatchDeleteEvent(string $providerID, string $userID)
+    {
+        if ($this->hasEventListeners('userDelete')) {
+            $this->dispatchEvent('userDelete', new \IvoPetkov\BearFrameworkAddons\Users\UserDeleteEventDetails($providerID, $userID));
         }
     }
 }
