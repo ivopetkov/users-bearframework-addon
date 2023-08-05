@@ -172,7 +172,7 @@ class Users
     {
         $app = App::get();
         $rawUserData = null;
-        $cacheKey = 'ivopetkov-users-user-data-' . md5($providerID) . '-' . md5($id);
+        $cacheKey = $this->getUserDataCacheKey($providerID, $id);
         $rawUserData = $app->cache->getValue($cacheKey);
         if ($rawUserData === '-1') {
             return null;
@@ -210,7 +210,7 @@ class Users
             'data' => $data
         ];
         $app->data->set($app->data->make($this->getUserDataDataKey($providerID, $id), json_encode($dataToSave)));
-        $cacheKey = 'ivopetkov-users-user-data-' . md5($providerID) . '-' . md5($id);
+        $cacheKey = $this->getUserDataCacheKey($providerID, $id);
         $app->cache->delete($cacheKey);
     }
 
@@ -224,6 +224,19 @@ class Users
     {
         $app = App::get();
         $app->data->delete($this->getUserDataDataKey($providerID, $id));
+        $cacheKey = $this->getUserDataCacheKey($providerID, $id);
+        $app->cache->delete($cacheKey);
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id
+     * @return string
+     */
+    private function getUserDataCacheKey(string $providerID, string $id): string
+    {
+        return 'ivopetkov-users-user-data-' . md5($providerID) . '-' . md5($id);
     }
 
     /**
