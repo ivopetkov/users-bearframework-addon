@@ -213,15 +213,36 @@ $app->modalWindows
             'width' => '300px'
         ];
     })
+    ->add('ivopetkov-users-settings-window', function () use ($app, $context) {
+        $content = '<component src="file:' . $context->dir . '/components/user-settings.php" />';
+        $content = $app->components->process($content);
+        $content = $app->clientPackages->process($content);
+        return [
+            'title' => __('ivopetkov.users.settings'),
+            'content' => $content,
+            'width' => '300px'
+        ];
+    })
     ->add('ivopetkov-users-screen-window', function ($data) use ($app, $context) {
         $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
         $screenID = isset($data['id']) ? (string) $data['id'] : null;
         if ($screenID === 'user-profile-settings') {
-            $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php" providerID="' . htmlentities($provider->id) . '"/>');
+            $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php"/>');
             $title = __('ivopetkov.users.profileSettingsButton');
             $width = '300px';
         } else {
-            $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
+            $screenFound = false;
+            foreach ($provider->screens as $screenData) {
+                if ($screenData['id'] === $screenID) {
+                    $screenFound = true;
+                    break;
+                }
+            }
+            if ($screenFound) {
+                $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
+            } else {
+                $content = '';
+            }
             $title = '';
             $width = '400px';
         }

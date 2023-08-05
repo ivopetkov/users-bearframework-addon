@@ -25,11 +25,16 @@ class EmailProvider extends Provider
         $this->hasLogin = true;
         $this->loginText = __('ivopetkov.users.email.buttons.loginWithEmail');
         $this->hasLogout = true;
-        $this->screens[] = ['id' => 'change-email', 'name' => __('ivopetkov.users.email.buttons.changeEmail'), 'showInProfile' => true];
-        $this->screens[] = ['id' => 'change-password', 'name' => __('ivopetkov.users.email.buttons.changePassword'), 'showInProfile' => true];
+
+        $this->screens[] = ['id' => 'change-email', 'name' => __('ivopetkov.users.email.buttons.changeEmail'), 'showInSettings' => true];
+        $this->screens[] = ['id' => 'change-password', 'name' => __('ivopetkov.users.email.buttons.changePassword'), 'showInSettings' => true];
+        if (isset($this->options['hasDelete']) ? (int)$this->options['hasDelete'] === 1 : true) {
+            $this->screens[] = ['id' => 'delete', 'name' => __('ivopetkov.users.email.buttons.delete'), 'showInSettings' => true];
+        }
         $this->screens[] = ['id' => 'signup', 'name' => __('ivopetkov.users.email.buttons.signUp')];
         $this->screens[] = ['id' => 'login', 'name' => __('ivopetkov.users.email.buttons.login')];
         $this->screens[] = ['id' => 'lost-password', 'name' => __('ivopetkov.users.email.login.lostPassword')];
+
         $this->imageMaxAge = 999999999;
     }
 
@@ -86,6 +91,7 @@ class EmailProvider extends Provider
             'change-email-result-ok' => [false, '', __('ivopetkov.users.email.changeEmailResultOk.screenText'), '300px'],
             'change-email-result-error' => [false, '', __('ivopetkov.users.email.changeEmailResultError.screenText'), '300px'],
             'change-password' => [true, __('ivopetkov.users.email.changePassword.screenTitle'), null, '350px'],
+            'delete' => [true, __('ivopetkov.users.email.delete.screenTitle'), null, '300px']
         ];
 
         if (isset($screens[$id])) {
@@ -146,6 +152,23 @@ class EmailProvider extends Provider
             $properties['name'] = __('ivopetkov.users.anonymous'); // just in case it's missing
         }
         return $properties;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @param string $reason
+     * @return array
+     */
+    static function canDelete(string $providerID, string $userID): array
+    {
+        $app = App::get();
+        $provider = $app->users->getProvider($providerID);
+        if (isset($provider->options['canDelete'])) {
+            return call_user_func($provider->options['canDelete'], $userID);
+        }
+        return ['result' => true, 'reason' => ''];
     }
 
     /**
@@ -418,6 +441,7 @@ class EmailProvider extends Provider
             'version' => Utilities::generateKey(15)
         ]);
         self::updateIndex($providerID, $userID);
+        $app->users->dispatchSignupEvent($providerID, $userID);
         return $userID;
     }
 
@@ -534,6 +558,19 @@ class EmailProvider extends Provider
             }
         }
         return null;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $userID
+     * @return void
+     */
+    static function delete(string $providerID, string $userID): void
+    {
+        $app = App::get();
+        $app->users->deleteUserData($providerID, $userID);
+        self::updateIndex($providerID, $userID);
     }
 
     /**

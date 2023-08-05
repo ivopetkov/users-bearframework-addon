@@ -25,10 +25,11 @@ class UsernameProvider extends Provider
         $this->hasLogin = true;
         $this->loginText = __('ivopetkov.users.username.buttons.loginWithUsername');
         $this->hasLogout = true;
-        $this->screens[] = ['id' => 'change-password', 'name' => __('ivopetkov.users.username.buttons.changePassword'), 'showInProfile' => true];
+        $this->imageMaxAge = 999999999;
+
+        $this->screens[] = ['id' => 'change-password', 'name' => __('ivopetkov.users.username.buttons.changePassword'), 'showInSettings' => true];
         $this->screens[] = ['id' => 'signup', 'name' => __('ivopetkov.users.username.buttons.signUp')];
         $this->screens[] = ['id' => 'login', 'name' => __('ivopetkov.users.username.buttons.login')];
-        $this->imageMaxAge = 999999999;
     }
 
     /**

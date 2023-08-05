@@ -8,6 +8,8 @@
  */
 
 return [
+    'ivopetkov.users.settingsButton' => 'Settings',
+    'ivopetkov.users.settings' => 'Settings',
     'ivopetkov.users.logoutButton' => 'Log out',
     'ivopetkov.users.logoutConfirm' => 'Are you sure you want to log out?',
     'ivopetkov.users.anonymous' => 'Anonymous',
@@ -15,7 +17,7 @@ return [
     'ivopetkov.users.guest' => 'Guest',
     'ivopetkov.users.guest.buttons.login' => 'Continue as a guest',
     'ivopetkov.users.guest.logoutConfirm' => 'Are you sure you want to log out this guest profile? You will not be able to login again!',
-    'ivopetkov.users.profileSettingsButton' => 'Profile settings',
+    'ivopetkov.users.profileSettingsButton' => 'Edit profile',
     'ivopetkov.users.profileSettings.name' => 'Name',
     'ivopetkov.users.profileSettings.website' => 'Website',
     'ivopetkov.users.profileSettings.description' => 'Description',
@@ -57,6 +59,7 @@ return [
     'ivopetkov.users.email.buttons.changePassword' => 'Change password',
     'ivopetkov.users.email.buttons.signUp' => 'Sign up',
     'ivopetkov.users.email.buttons.login' => 'Login with an email',
+    'ivopetkov.users.email.buttons.delete' => 'Delete account',
     'ivopetkov.users.email.signUp.email' => 'Email',
     'ivopetkov.users.email.signUp.emailHint' => 'A confirmation email will be sent',
     'ivopetkov.users.email.signUp.password' => 'Password',
@@ -68,9 +71,9 @@ return [
     'ivopetkov.users.email.signUpEmailSent.screenText' => 'A confirmation email is on your way. Please head on to <strong>%s</strong> to finalize your registration.',
     'ivopetkov.users.email.signUpResultOk.screenText' => 'You\'ve successfully confirmed your email address. Now you can sign in to your account.',
     'ivopetkov.users.email.signUpResultError.screenText' => 'The confirmation link has been used already or has expired. Please, sign up again.',
-    'ivopetkov.users.email.changeEmail.email' => 'Email',
+    'ivopetkov.users.email.changeEmail.email' => 'New email',
     'ivopetkov.users.email.changeEmail.emailHint' => 'A confirmation email will be sent',
-    'ivopetkov.users.email.changeEmail.password' => 'Password',
+    'ivopetkov.users.email.changeEmail.password' => 'Current password',
     'ivopetkov.users.email.changeEmail.save' => 'Change',
     'ivopetkov.users.email.changeEmail.saveWaiting' => 'Change',
     'ivopetkov.users.email.changeEmail.invalidPassword' => 'The password entered is not correct!',
@@ -121,4 +124,10 @@ The link will be active for 24 hours.',
     'ivopetkov.users.email.emails.changeEmail.content.text' => 'Confirm your new email address by visiting %s
 The link will be active for 24 hours.',
     'ivopetkov.users.email.emails.changeEmail.content.html' => 'Confirm your new email address by clicking <a href="%s" target="_blank">here</a>. The link will be active for 24 hours.',
+    'ivopetkov.users.email.delete.screenTitle' => 'Delete account',
+    'ivopetkov.users.email.delete.invalidPassword' => 'The password entered is not correct!',
+    'ivopetkov.users.email.delete.password' => 'Password',
+    'ivopetkov.users.email.delete.delete' => 'Delete forever',
+    'ivopetkov.users.email.delete.deleteWaiting' => 'Delete forever',
+    'ivopetkov.users.email.delete.warningText' => 'Enter your password to delete your %s account forever.',
 ];

@@ -5,7 +5,7 @@ use IvoPetkov\BearFrameworkAddons\Users\EmailProvider;
 use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 $app = App::get();
-$providerID = $component->providerID;
+$providerID = $app->currentUser->provider;
 
 $form->transformers
     ->addToLowerCase('email')

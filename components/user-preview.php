@@ -39,12 +39,20 @@ if ($provider !== null) {
         if (isset($provider->options['profileFields'])) {
             array_unshift($screens, ['id' => 'user-profile-settings', 'name' => __('ivopetkov.users.profileSettingsButton'), 'showInProfile' => true]);
         }
+        $hasShowInSettingsScreens = false;
         foreach ($screens as $screen) {
             if (isset($screen['showInProfile']) && $screen['showInProfile']) {
                 $screenID = $screen['id'];
                 $onClick = 'clientPackages.get("users").then(function(users){users.openProviderScreen("' . $providerID . '","' . $screenID . '");});';
                 $buttonsHTML[] = '<form-element-button text="' . htmlentities($screen['name']) . '" onclick="' . htmlentities($onClick) . '"/>';
             }
+            if (isset($screen['showInSettings']) && $screen['showInSettings']) {
+                $hasShowInSettingsScreens = true;
+            }
+        }
+        if ($hasShowInSettingsScreens) {
+            $onClick = "clientPackages.get('modalWindows').then(function(modalWindows){modalWindows.open('ivopetkov-users-settings-window');});";
+            $buttonsHTML[] = '<form-element-button text="' . htmlentities(__('ivopetkov.users.settingsButton')) . '" onclick="' . htmlentities($onClick) . '"/>';
         }
         if ($provider !== null && $provider->hasLogout) {
             $logoutConfirmText = (string)$provider->logoutConfirmText;

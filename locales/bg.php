@@ -8,6 +8,8 @@
  */
 
 return [
+    'ivopetkov.users.settingsButton' => 'Настройки',
+    'ivopetkov.users.settings' => 'Настройки',
     'ivopetkov.users.logoutButton' => 'Изход',
     'ivopetkov.users.logoutConfirm' => 'Сигурни ли сте, че искате да излезете от профила си?',
     'ivopetkov.users.anonymous' => 'Анонимен',
@@ -57,6 +59,7 @@ return [
     'ivopetkov.users.email.buttons.changePassword' => 'Смяна на имейл адрес',
     'ivopetkov.users.email.buttons.signUp' => 'Регистрация',
     'ivopetkov.users.email.buttons.login' => 'Вход с имейл адрес',
+    'ivopetkov.users.email.buttons.delete' => 'Изтрий акаунта',
     'ivopetkov.users.email.signUp.email' => 'Имейл адрес',
     'ivopetkov.users.email.signUp.emailHint' => 'Ще бъде изпратено писмо за потвърждение',
     'ivopetkov.users.email.signUp.password' => 'Парола',
@@ -68,9 +71,9 @@ return [
     'ivopetkov.users.email.signUpEmailSent.screenText' => 'Съвсем скоро ще получите потвъдително писмо на <strong>%s</strong>. Моля, отворете го за да завършите регистрацията си.',
     'ivopetkov.users.email.signUpResultOk.screenText' => 'Имейл адресът ви е успешно потвърден! Сега можете да влезете в акаунта си.',
     'ivopetkov.users.email.signUpResultError.screenText' => 'Връзката за потвърждение е вече използвана или е изтекла (може да се използва до 24 часа). Моля, регистрирайте се отново.',
-    'ivopetkov.users.email.changeEmail.email' => 'Имейл адрес',
+    'ivopetkov.users.email.changeEmail.email' => 'Нов имейл адрес',
     'ivopetkov.users.email.changeEmail.emailHint' => 'Ще бъде изпратено писмо за потвърждение',
-    'ivopetkov.users.email.changeEmail.password' => 'Парола',
+    'ivopetkov.users.email.changeEmail.password' => 'Текуща парола',
     'ivopetkov.users.email.changeEmail.save' => 'Промени',
     'ivopetkov.users.email.changeEmail.saveWaiting' => 'Промени',
     'ivopetkov.users.email.changeEmail.invalidPassword' => 'Паролата не е коректна!',
@@ -115,4 +118,10 @@ return [
     'ivopetkov.users.email.emails.passwordReset.content' => 'Please, open %s to reset your password.',
     'ivopetkov.users.email.emails.changeEmail.subject' => 'Change email',
     'ivopetkov.users.email.emails.changeEmail.content' => 'Please, open %s to change your email.',
+    'ivopetkov.users.email.delete.screenTitle' => 'Изтрий акаунта',
+    'ivopetkov.users.email.delete.invalidPassword' => 'Паролата не е коректна!',
+    'ivopetkov.users.email.delete.password' => 'Парола',
+    'ivopetkov.users.email.delete.delete' => 'Изтрий завинаги',
+    'ivopetkov.users.email.delete.deleteWaiting' => 'Изтрий завинаги',
+    'ivopetkov.users.email.delete.warningText' => 'Въведете вашата парола, за да изтриете завинаги вашият акаунт в %s',
 ];
