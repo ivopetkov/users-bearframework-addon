@@ -176,6 +176,7 @@ $app->serverRequests
             $result['redirectUrl'] = $loginResponse->redirectUrl;
         }
         if ($app->currentUser->exists()) {
+            $result['exists'] = true;
             $result['badgeHTML'] = Utilities::getBadgeHTML();
         }
         return json_encode($result);
@@ -294,7 +295,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 12, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 13, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

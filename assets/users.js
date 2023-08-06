@@ -58,14 +58,18 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                 serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
                     var result = JSON.parse(responseText);
                     if (result.status === '1') {
-                        hasCurrentUser = true;
+                        if (typeof result.exists !== 'undefined') {
+                            hasCurrentUser = result.exists;
+                        }
                         if (typeof result.jsCode !== 'undefined') {
                             (new Function(result.jsCode))();
                         }
                         if (typeof result.redirectUrl !== 'undefined') {
                             window.location = result.redirectUrl;
                         } else {
-                            html5DOMDocument.insert(result.badgeHTML);
+                            if (typeof result.badgeHTML !== 'undefined') {
+                                html5DOMDocument.insert(result.badgeHTML);
+                            }
                             modalWindows.hideLoading();
                             modalWindows.closeAll();
                             onCurrentUserChange();
