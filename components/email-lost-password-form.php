@@ -19,10 +19,16 @@ $form->constraints
 $form->onSubmit = function ($values) use ($app, $providerID, $form) {
     $email = $values['email'];
 
+    if (!$app->rateLimiter->logIP('ivopetkov-users-email-lost-password-form', ['10/m', '50/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
     $userID = EmailProvider::getUserID($providerID, $email);
     if ($userID !== null) {
-        $key = EmailProvider::generatePasswordResetKey($providerID, $userID);
-        EmailProvider::sendPasswordResetEmail($providerID, $email, $key);
+        if ($app->rateLimiter->log('ivopetkov-users-email-lost-password-send-email', $userID, ['1/h'])) {
+            $key = EmailProvider::generatePasswordResetKey($providerID, $userID);
+            EmailProvider::sendPasswordResetEmail($providerID, $email, $key);
+        }
     }
 
     return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows();users.openProviderScreen("' . $providerID . '","lost-password-email-sent",{"email":"' . $email . '"});});']);

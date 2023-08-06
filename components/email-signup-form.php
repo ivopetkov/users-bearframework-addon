@@ -32,16 +32,18 @@ if ($hasTermsURL) {
         ->setRequired('terms');
 }
 
-$form->onSubmit = function ($values) use ($providerID, $form) {
+$form->onSubmit = function ($values) use ($app, $providerID, $form) {
     $email = $values['email'];
     $password = $values['password'];
 
-    if (EmailProvider::getUserID($providerID, $email) !== null) {
-        $form->throwError(__('ivopetkov.users.email.signUp.emailTaken'));
+    if (!$app->rateLimiter->logIP('ivopetkov-users-email-signup-form', ['10/m', '50/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
     }
 
-    $key = EmailProvider::generateSignupKey($providerID, $email, $password);
-    EmailProvider::sendSignupConfirmEmail($providerID, $email, $key);
+    if ($app->rateLimiter->log('ivopetkov-users-email-signup-send-email', $email, ['1/h'])) {
+        $key = EmailProvider::generateSignupKey($providerID, $email, $password);
+        EmailProvider::sendSignupConfirmEmail($providerID, $email, $key);
+    }
 
     return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows();users.openProviderScreen("' . $providerID . '","signup-email-sent",{"email":"' . $email . '"});});']);
 };

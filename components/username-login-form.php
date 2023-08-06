@@ -23,6 +23,14 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
     $username = $values['username'];
     $password = $values['password'];
 
+    if (!$app->rateLimiter->logIP('ivopetkov-users-username-login-form', ['100/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
+    if (!$app->rateLimiter->log('ivopetkov-users-username-login-form-username', $username, ['10/m', '50/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
     $userID = UsernameProvider::checkUsernamePassword($providerID, $username, $password);
     if ($userID !== null) {
         $app->currentUser->login($providerID, $userID, isset($values['remember']));

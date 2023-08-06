@@ -130,4 +130,5 @@ The link will be active for 24 hours.',
     'ivopetkov.users.email.delete.delete' => 'Delete forever',
     'ivopetkov.users.email.delete.deleteWaiting' => 'Delete forever',
     'ivopetkov.users.email.delete.warningText' => 'Enter your password to delete your %s account forever.',
+    'ivopetkov.users.tryAgainLater' => 'Please, try again later',
 ];

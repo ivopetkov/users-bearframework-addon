@@ -18,6 +18,7 @@ BearFramework\Addons::register('ivopetkov/users-bearframework-addon', __DIR__, [
         'ivopetkov/client-packages-bearframework-addon',
         'ivopetkov/form-elements-bearframework-addon',
         'ivopetkov/html5-dom-document-js-bearframework-addon',
-        'ivopetkov/data-index-bearframework-addon'
+        'ivopetkov/data-index-bearframework-addon',
+        'ivopetkov/rate-limiter-bearframework-addon'
     ]
 ]);

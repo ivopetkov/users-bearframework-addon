@@ -51,6 +51,10 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
         $form->throwElementError('username', __('ivopetkov.users.username.signUp.usernameTaken'));
     }
 
+    if (!$app->rateLimiter->logIP('ivopetkov-users-username-signup-form', ['10/m', '50/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
     $userID = UsernameProvider::create($providerID, $username, $password);
     $app->users->dispatchSignupEvent($providerID, $userID);
 

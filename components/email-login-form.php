@@ -24,8 +24,17 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
     $email = $values['email'];
     $password = $values['password'];
 
+    if (!$app->rateLimiter->logIP('ivopetkov-users-email-login-form', ['100/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
+    if (!$app->rateLimiter->log('ivopetkov-users-email-login-form-email', $email, ['10/m', '50/h'])) {
+        $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
     $userID = EmailProvider::checkEmailPassword($providerID, $email, $password);
     if ($userID !== null) {
+
         $app->currentUser->login($providerID, $userID, isset($values['remember']));
         $app->users->dispatchLoginEvent($providerID, $userID);
 

@@ -43,6 +43,11 @@ class GuestProvider extends Provider
     public function login(\IvoPetkov\BearFrameworkAddons\Users\LoginContext $context): \IvoPetkov\BearFrameworkAddons\Users\LoginResponse
     {
         $app = App::get();
+        if (!$app->rateLimiter->logIP('ivopetkov-users-guest-signup', ['10/m', '50/h'])) {
+            $response = new \IvoPetkov\BearFrameworkAddons\Users\LoginResponse();
+            $response->jsCode .= 'alert("' . __('ivopetkov.users.tryAgainLater') . '")';
+            return $response;
+        }
         $id = md5(uniqid() . rand(0, 999999999));
         $app->users->dispatchSignupEvent($this->id, $id);
         $app->currentUser->login($this->id, $id);

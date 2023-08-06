@@ -124,4 +124,5 @@ return [
     'ivopetkov.users.email.delete.delete' => 'Изтрий завинаги',
     'ivopetkov.users.email.delete.deleteWaiting' => 'Изтрий завинаги',
     'ivopetkov.users.email.delete.warningText' => 'Въведете вашата парола, за да изтриете завинаги вашият акаунт в %s',
+    'ivopetkov.users.tryAgainLater' => 'Моля, опитайте отново по-късно',
 ];
