@@ -64,8 +64,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                         if (typeof result.jsCode !== 'undefined') {
                             (new Function(result.jsCode))();
                         }
-                        if (typeof result.redirectUrl !== 'undefined') {
-                            window.location = result.redirectUrl;
+                        if (typeof result.redirectURL !== 'undefined') {
+                            window.location = result.redirectURL;
                         } else {
                             if (typeof result.badgeHTML !== 'undefined') {
                                 html5DOMDocument.insert(result.badgeHTML);

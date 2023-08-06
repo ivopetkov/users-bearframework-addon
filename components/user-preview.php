@@ -19,7 +19,7 @@ if ($provider !== null) {
     echo '.ivopetkov-users-profile-preview-url a{text-decoration:underline;color:#000;}';
     echo '.ivopetkov-users-profile-preview-buttons{margin-top:30px;}';
     echo '</style></head><body>';
-    echo '<div class="ivopetkov-users-profile-preview-image" style="background-image:url(' . $user->getImageUrl(500) . ');"></div>';
+    echo '<div class="ivopetkov-users-profile-preview-image" style="background-image:url(' . $user->getImageURL(500) . ');"></div>';
     echo '<div class="ivopetkov-users-profile-preview-name">' . htmlspecialchars($user->name) . '</div>';
     $userDescription = (string)$user->description;
     if (strlen($userDescription) > 0) {

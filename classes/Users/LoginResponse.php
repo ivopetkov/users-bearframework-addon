@@ -19,7 +19,7 @@ class LoginResponse
      *
      * @var string|null 
      */
-    public $redirectUrl = null;
+    public $redirectURL = null;
 
     /**
      *

@@ -82,7 +82,7 @@ $data = $getUserData();
 
 echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
 if ($hasImage) {
-    echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.profileSettings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'img' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageUrl(500) : '') . '" />';
+    echo '<form-element-image name="image" label="' . htmlentities(__('ivopetkov.users.profileSettings.image')) . '" value="' . htmlentities(strlen($data['image']) > 0 ? 'img' : '') . '" valuePreviewUrl="' . htmlentities(strlen($data['image']) > 0 ? $app->currentUser->getImageURL(500) : '') . '" />';
 }
 if ($hasName) {
     echo '<form-element-textbox name="name" label="' . htmlentities(__('ivopetkov.users.profileSettings.name')) . '" value="' . htmlentities($data['name']) . '" />';

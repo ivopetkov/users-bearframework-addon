@@ -164,7 +164,7 @@ $app->serverRequests
         $provider = $app->users->getProvider($providerID);
         $loginContext = new \IvoPetkov\BearFrameworkAddons\Users\LoginContext();
         $loginContext->providerID = $providerID;
-        $loginContext->locationUrl = $location;
+        $loginContext->locationURL = $location;
         $loginResponse = $provider->login($loginContext);
         $result = [
             'status' => '1'
@@ -172,8 +172,8 @@ $app->serverRequests
         if ($loginResponse->jsCode !== null && strlen($loginResponse->jsCode) > 0) {
             $result['jsCode'] = $loginResponse->jsCode;
         }
-        if ($loginResponse->redirectUrl !== null && strlen($loginResponse->redirectUrl) > 0) {
-            $result['redirectUrl'] = $loginResponse->redirectUrl;
+        if ($loginResponse->redirectURL !== null && strlen($loginResponse->redirectURL) > 0) {
+            $result['redirectURL'] = $loginResponse->redirectURL;
         }
         if ($app->currentUser->exists()) {
             $result['exists'] = true;
@@ -295,7 +295,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 13, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 14, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

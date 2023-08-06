@@ -103,7 +103,7 @@ class User
      * @param int $size
      * @return string
      */
-    public function getImageUrl(int $size): string
+    public function getImageURL(int $size): string
     {
         $app = App::get();
         $context = $app->contexts->get(__DIR__);

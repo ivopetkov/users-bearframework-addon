@@ -25,5 +25,5 @@ class LoginContext
      *
      * @var string|null 
      */
-    public $locationUrl = null;
+    public $locationURL = null;
 }
