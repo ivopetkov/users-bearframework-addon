@@ -677,9 +677,7 @@ class EmailProvider extends Provider
         if (isset($provider->options['senderReturnPath'])) {
             $email->returnPath = $provider->options['senderReturnPath'];
         }
-        //$app->emails->send($email);
-
-        $app->logs->log('email', print_r($email->toArray(), true));
+        $app->emails->send($email);
     }
 
     /**
