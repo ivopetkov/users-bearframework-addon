@@ -79,7 +79,6 @@ class Utilities
      */
     static function getFormSubmitResult($data): string
     {
-        $result = [];
         if (is_array($data)) {
             if (isset($data['redirectURL'])) {
                 return 'u:' . $data['redirectURL'];
