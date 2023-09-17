@@ -93,7 +93,11 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         if (removeBadge()) {
             html5DOMDocument.insert(badgeHTML);
         }
-    }
+    };
+
+    var dispatchProfileChange = function () {
+        onCurrentUserChange();
+    };
 
     var openLogin = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
@@ -245,6 +249,25 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                     }
                 });
             },
+            'openPreview': function () {
+                clientPackages.get('modalWindows').then(function (modalWindows) {
+                    modalWindows.open('ivopetkov-users-preview-window', { 'current': true });
+                });
+            },
+            'getProfileDetails': function (imageSize) {
+                return new Promise(function (resolve, reject) {
+                    clientPackages.get('serverRequests').then(function (serverRequests) {
+                        serverRequests.send('ivopetkov-users-currentuser-details', { size: imageSize }).then(function (responseText) {
+                            var result = JSON.parse(responseText);
+                            if (result.status === '1') {
+                                resolve(result.details);
+                            } else {
+                                resolve(null);
+                            }
+                        });
+                    });
+                });
+            },
             'addEventListener': function (type, listener) {
                 currentUserEventTarget.addEventListener(type, listener);
             },
@@ -262,7 +285,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         '_closeCurrentWindow': closeCurrentWindow,
         '_closeAllWindows': closeAllWindows,
         '_showLoading': showLoading,
-        '_updateBadge': updateBadge
+        '_updateBadge': updateBadge,
+        '_dispatchProfileChange': dispatchProfileChange
     };
 
 }());

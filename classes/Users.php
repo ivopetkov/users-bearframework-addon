@@ -10,6 +10,7 @@
 namespace IvoPetkov\BearFrameworkAddons;
 
 use BearFramework\App;
+use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 use IvoPetkov\BearFrameworkAddons\Users\User;
 use IvoPetkov\HTML5DOMDocument;
 
@@ -369,8 +370,6 @@ class Users
      */
     public function applyUI(\BearFramework\App\Response $response): void
     {
-        $app = App::get();
-
         if ($this->hasEventListeners('beforeApplyUI')) {
             $eventDetails = new \IvoPetkov\BearFrameworkAddons\Users\BeforeApplyUIEventDetails($response);
             $this->dispatchEvent('beforeApplyUI', $eventDetails);
@@ -379,11 +378,11 @@ class Users
             }
         }
 
-        if ($app->currentUser->exists()) {
-            $context = $app->contexts->get(__DIR__);
+        $badgeHTML = Utilities::getBadgeHTML();
+        if ($badgeHTML !== null) {
             $dom = new HTML5DOMDocument();
             $dom->loadHTML($response->content, HTML5DOMDocument::ALLOW_DUPLICATE_IDS);
-            $dom->insertHTML($app->components->process('<component src="file:' . $context->dir . '/components/user-badge.php"/>'), 'afterBodyBegin');
+            $dom->insertHTML($badgeHTML, 'afterBodyBegin');
             $response->content = $dom->saveHTML();
         }
     }

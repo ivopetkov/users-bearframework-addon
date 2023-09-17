@@ -190,6 +190,15 @@ $app->serverRequests
     })
     ->add('ivopetkov-users-currentuser-exists', function () use ($app) {
         return json_encode(['status' => '1', 'exists' => $app->currentUser->exists() ? '1' : '0']);
+    })
+    ->add('ivopetkov-users-currentuser-details', function ($data) use ($app) {
+        if ($app->currentUser->exists()) {
+            $details['name'] = $app->currentUser->name;
+            $details['image'] = $app->currentUser->getImageURL(isset($data['size']) ? (int)$data['size'] : 100);
+        } else {
+            $details = null;
+        }
+        return json_encode(['status' => '1', 'details' => $details]);
     });
 
 $app->modalWindows
@@ -204,8 +213,16 @@ $app->modalWindows
         ];
     })
     ->add('ivopetkov-users-preview-window', function ($data) use ($app, $context) {
-        $providerID = isset($data['provider']) ? (string) $data['provider'] : '';
-        $id = isset($data['id']) ? (string) $data['id'] : '';
+        if (isset($data['current'])) {
+            if (!$app->currentUser->exists()) {
+                return;
+            }
+            $providerID = $app->currentUser->provider;
+            $id = $app->currentUser->id;
+        } else {
+            $providerID = isset($data['provider']) ? (string) $data['provider'] : '';
+            $id = isset($data['id']) ? (string) $data['id'] : '';
+        }
         $content = '<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($providerID) . '" id="' . htmlentities($id) . '"/>';
         $content = $app->components->process($content);
         $content = $app->clientPackages->process($content);
@@ -295,7 +312,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 14, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 15, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';
