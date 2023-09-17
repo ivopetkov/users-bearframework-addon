@@ -18,6 +18,10 @@ if ($provider !== null) {
     echo '.ivopetkov-users-profile-preview-url{margin-top:15px;word-break:break-all;text-align:center;}';
     echo '.ivopetkov-users-profile-preview-url a{text-decoration:underline;color:#000;}';
     echo '.ivopetkov-users-profile-preview-buttons{margin-top:30px;}';
+    echo '[data-modal-window-component="window"]:has(.ivopetkov-users-profile-preview-image) [data-modal-window-component="header-button-close"]{background-color:rgba(0,0,0,0.5);}';
+    echo '[data-modal-window-component="window"]:has(.ivopetkov-users-profile-preview-image) [data-modal-window-component="header-button-close"]:hover{background-color:rgba(0,0,0,0.6);}';
+    echo '[data-modal-window-component="window"]:has(.ivopetkov-users-profile-preview-image) [data-modal-window-component="header-button-close"]:focus{background-color:rgba(0,0,0,0.6);}';
+    echo '[data-modal-window-component="window"]:has(.ivopetkov-users-profile-preview-image) [data-modal-window-component="header-button-close"]:active{background-color:rgba(0,0,0,0.7);}';
     echo '</style></head><body>';
     echo '<div class="ivopetkov-users-profile-preview-image" style="background-image:url(' . $user->getImageURL(500) . ');"></div>';
     echo '<div class="ivopetkov-users-profile-preview-name">' . htmlspecialchars($user->name) . '</div>';
