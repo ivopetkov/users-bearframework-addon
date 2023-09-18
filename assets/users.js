@@ -29,18 +29,19 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var logout = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll();
-            modalWindows.showLoading();
-            clientPackages.get('serverRequests').then(function (serverRequests) {
-                serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
-                    var result = JSON.parse(responseText);
-                    if (result.status === '1') {
-                        // hasCurrentUser = false;
-                        // removeBadge();
-                        // context.close();
-                        // onCurrentUserChange();
-                        window.location.reload();
-                    }
+            modalWindows.closeAll().then(function () {
+                modalWindows.showLoading();
+                clientPackages.get('serverRequests').then(function (serverRequests) {
+                    serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
+                        var result = JSON.parse(responseText);
+                        if (result.status === '1') {
+                            // hasCurrentUser = false;
+                            // removeBadge();
+                            // context.close();
+                            // onCurrentUserChange();
+                            window.location.reload();
+                        }
+                    });
                 });
             });
         });
@@ -48,33 +49,36 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var login = function (providerID) {
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll();
-            modalWindows.showLoading();
-            clientPackages.get('serverRequests').then(function (serverRequests) {
-                var data = {
-                    'provider': providerID,
-                    'location': window.location.toString()
-                };
-                serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
-                    var result = JSON.parse(responseText);
-                    if (result.status === '1') {
-                        if (typeof result.exists !== 'undefined') {
-                            hasCurrentUser = result.exists;
-                        }
-                        if (typeof result.jsCode !== 'undefined') {
-                            (new Function(result.jsCode))();
-                        }
-                        if (typeof result.redirectURL !== 'undefined') {
-                            window.location = result.redirectURL;
-                        } else {
-                            if (typeof result.badgeHTML !== 'undefined') {
-                                html5DOMDocument.insert(result.badgeHTML);
+            modalWindows.closeAll().then(function () {
+                modalWindows.showLoading().then(function () {
+                    clientPackages.get('serverRequests').then(function (serverRequests) {
+                        var data = {
+                            'provider': providerID,
+                            'location': window.location.toString()
+                        };
+                        serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
+                            var result = JSON.parse(responseText);
+                            if (result.status === '1') {
+                                if (typeof result.exists !== 'undefined') {
+                                    hasCurrentUser = result.exists;
+                                }
+                                if (typeof result.jsCode !== 'undefined') {
+                                    (new Function(result.jsCode))();
+                                }
+                                if (typeof result.redirectURL !== 'undefined') {
+                                    window.location = result.redirectURL;
+                                } else {
+                                    if (typeof result.badgeHTML !== 'undefined') {
+                                        html5DOMDocument.insert(result.badgeHTML);
+                                    }
+                                    modalWindows.hideLoading().then(function () {
+                                        modalWindows.closeAll();
+                                    });
+                                    onCurrentUserChange();
+                                }
                             }
-                            modalWindows.hideLoading();
-                            modalWindows.closeAll();
-                            onCurrentUserChange();
-                        }
-                    }
+                        });
+                    });
                 });
             });
         });
