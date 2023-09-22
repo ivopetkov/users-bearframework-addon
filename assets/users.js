@@ -30,17 +30,18 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     var logout = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
             modalWindows.closeAll().then(function () {
-                modalWindows.showLoading();
-                clientPackages.get('serverRequests').then(function (serverRequests) {
-                    serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
-                        var result = JSON.parse(responseText);
-                        if (result.status === '1') {
-                            // hasCurrentUser = false;
-                            // removeBadge();
-                            // context.close();
-                            // onCurrentUserChange();
-                            window.location.reload();
-                        }
+                modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
+                    clientPackages.get('serverRequests').then(function (serverRequests) {
+                        serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
+                            var result = JSON.parse(responseText);
+                            if (result.status === '1') {
+                                // hasCurrentUser = false;
+                                // removeBadge();
+                                // context.close();
+                                // onCurrentUserChange();
+                                window.location.reload();
+                            }
+                        });
                     });
                 });
             });
@@ -50,7 +51,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     var login = function (providerID) {
         clientPackages.get('modalWindows').then(function (modalWindows) {
             modalWindows.closeAll().then(function () {
-                modalWindows.showLoading().then(function () {
+                modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
                     clientPackages.get('serverRequests').then(function (serverRequests) {
                         var data = {
                             'provider': providerID,
