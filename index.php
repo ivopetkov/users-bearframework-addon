@@ -249,18 +249,7 @@ $app->modalWindows
             $title = __('ivopetkov.users.profileSettingsButton');
             $width = '300px';
         } else {
-            $screenFound = false;
-            foreach ($provider->screens as $screenData) {
-                if ($screenData['id'] === $screenID) {
-                    $screenFound = true;
-                    break;
-                }
-            }
-            if ($screenFound) {
-                $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
-            } else {
-                $content = '';
-            }
+            $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
             $title = '';
             $width = '400px';
         }

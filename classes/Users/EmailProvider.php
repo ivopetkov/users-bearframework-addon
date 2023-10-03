@@ -103,7 +103,7 @@ class EmailProvider extends Provider
                     return '';
                 }
             }
-            if ($screenData[2]) {
+            if ($screenData[2] !== null) {
                 $content = '<div style="text-align:center;padding-bottom:50px;">' . $screenData[2] . '</div>';
                 $onOK = 'clientPackages.get("users").then(function(users){users._closeAllWindows();});';
                 $content .= '<form-element-button text="OK" onclick="' . htmlentities($onOK) . '"/>';
