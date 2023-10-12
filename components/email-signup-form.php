@@ -40,6 +40,10 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
         $form->throwError(__('ivopetkov.users.tryAgainLater'));
     }
 
+    if (EmailProvider::emailExists($providerID, $email)) {
+        $form->throwElementError('email', __('ivopetkov.users.email.signUp.emailTaken'));
+    }
+
     if ($app->rateLimiter->log('ivopetkov-users-email-signup-send-email', $email, ['1/h'])) {
         $key = EmailProvider::generateSignupKey($providerID, $email, $password);
         EmailProvider::sendSignupConfirmEmail($providerID, $email, $key);

@@ -47,12 +47,12 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
         $form->throwElementError('password2', __('ivopetkov.users.username.signUp.passwordsDontMatch'));
     }
 
-    if (UsernameProvider::usernameExists($providerID, $username)) {
-        $form->throwElementError('username', __('ivopetkov.users.username.signUp.usernameTaken'));
-    }
-
     if (!$app->rateLimiter->logIP('ivopetkov-users-username-signup-form', ['10/m', '50/h'])) {
         $form->throwError(__('ivopetkov.users.tryAgainLater'));
+    }
+
+    if (UsernameProvider::usernameExists($providerID, $username)) {
+        $form->throwElementError('username', __('ivopetkov.users.username.signUp.usernameTaken'));
     }
 
     $userID = UsernameProvider::create($providerID, $username, $password);
