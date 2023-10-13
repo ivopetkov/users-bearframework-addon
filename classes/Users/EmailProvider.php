@@ -179,7 +179,11 @@ class EmailProvider extends Provider
      */
     static function emailExists(string $providerID, string $email): bool
     {
-        return self::exists($providerID, self::getUserID($providerID, $email));
+        $userID = self::getUserID($providerID, $email);
+        if ($userID === null) {
+            return false;
+        }
+        return self::exists($providerID, $userID);
     }
 
     /**
