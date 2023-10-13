@@ -21,6 +21,8 @@ use IvoPetkov\HTML5DOMDocument;
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserLoginEventDetails userLogin
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserLogoutEventDetails userLogout
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserDeleteEventDetails userDelete
+ * @event \IvoPetkov\BearFrameworkAddons\Users\BeforeSendEmailEventDetails beforeSendEmail
+ * @event \IvoPetkov\BearFrameworkAddons\Users\SendEmailEventDetails sendEmail
  */
 class Users
 {
@@ -436,6 +438,34 @@ class Users
     {
         if ($this->hasEventListeners('userDelete')) {
             $this->dispatchEvent('userDelete', new \IvoPetkov\BearFrameworkAddons\Users\UserDeleteEventDetails($providerID, $userID));
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param \BearFramework\Emails\Email $email
+     * @return \IvoPetkov\BearFrameworkAddons\Users\BeforeSendEmailEventDetails
+     */
+    public function dispatchBeforeSendEmailEvent(string $providerID, \BearFramework\Emails\Email $email): \IvoPetkov\BearFrameworkAddons\Users\BeforeSendEmailEventDetails
+    {
+        $eventDetails = new \IvoPetkov\BearFrameworkAddons\Users\BeforeSendEmailEventDetails($providerID, $email);
+        if ($this->hasEventListeners('beforeSendEmail')) {
+            $this->dispatchEvent('beforeSendEmail', $eventDetails);
+        }
+        return $eventDetails;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param \BearFramework\Emails\Email $email
+     * @return void
+     */
+    public function dispatchSendEmailEvent(string $providerID, \BearFramework\Emails\Email $email)
+    {
+        if ($this->hasEventListeners('sendEmail')) {
+            $this->dispatchEvent('sendEmail', new \IvoPetkov\BearFrameworkAddons\Users\SendEmailEventDetails($providerID, $email));
         }
     }
 }
