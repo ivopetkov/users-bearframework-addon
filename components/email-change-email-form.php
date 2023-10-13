@@ -34,7 +34,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
             }
             $key = EmailProvider::generateChangeEmailKey($providerID, $userID, $email);
             EmailProvider::sendChangeEmailEmail($providerID, $email, $key);
-            return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows();users.openProviderScreen("' . $providerID . '","change-email-email-sent",{"email":"' . $email . '"});});']);
+            return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows().then(function(){users.openProviderScreen("' . $providerID . '","change-email-email-sent",{"email":"' . $email . '"});})});']);
         }
 
         $form->throwElementError('password', __('ivopetkov.users.email.changeEmail.invalidPassword'));

@@ -137,20 +137,31 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
     };
 
     var closeCurrentWindow = function () {
-        clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeCurrent();
+        return new Promise(function (resolve, reject) {
+            clientPackages.get('modalWindows').then(function (modalWindows) {
+                modalWindows.closeCurrent();
+                resolve();
+            });
         });
     };
 
     var closeAllWindows = function () {
-        clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll();
+        return new Promise(function (resolve, reject) {
+            clientPackages.get('modalWindows').then(function (modalWindows) {
+                modalWindows.closeAll()
+                    .then(resolve)
+                    .catch(reject);
+            });
         });
     };
 
     var showLoading = function () {
-        clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.showLoading();
+        return new Promise(function (resolve, reject) {
+            clientPackages.get('modalWindows').then(function (modalWindows) {
+                modalWindows.showLoading()
+                    .then(resolve)
+                    .catch(reject);
+            });
         });
     };
 

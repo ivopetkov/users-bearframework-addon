@@ -38,7 +38,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $passwordRes
     }
 };
 
-$onSuccess = 'clientPackages.get("users").then(function(users){users._closeAllWindows();users.openProviderScreen("' . $providerID . '","lost-password-new-result");});';
+$onSuccess = 'clientPackages.get("users").then(function(users){users._closeAllWindows().then(function(){users.openProviderScreen("' . $providerID . '","lost-password-new-result");})});';
 echo '<form onsubmitsuccess="' . htmlentities($onSuccess) . '">';
 echo '<form-element-password name="newpassword" label="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.newPassword')) . '"/>';
 echo '<form-element-password name="newpassword2" label="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.repeatNewPassword')) . '"/>';
