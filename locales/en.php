@@ -114,16 +114,22 @@ return [
     'ivopetkov.users.email.lostPasswordNewResult.screenText' => 'You\'ve successfully changed your password. Now you can sign in.',
     'ivopetkov.users.email.emails.signUp.subject' => 'Complete your %s registration',
     'ivopetkov.users.email.emails.signUp.content.text' => 'Complete your registration by visiting %s
-The link will be active for 24 hours.',
-    'ivopetkov.users.email.emails.signUp.content.html' => 'Complete your registration by clicking <a href="%s" target="_blank">here</a>. The link will be active for 24 hours.',
+The link will be active for 24 hours.
+
+Best regards',
+    'ivopetkov.users.email.emails.signUp.content.html' => 'Complete your registration by clicking <a href="%s" target="_blank">here</a>.<br>The link will be active for 24 hours.<br><br>Best regards',
     'ivopetkov.users.email.emails.passwordReset.subject' => 'Restore your access to %s',
     'ivopetkov.users.email.emails.passwordReset.content.text' => 'Restore access to your account by visiting %s
-The link will be active for 24 hours.',
-    'ivopetkov.users.email.emails.passwordReset.content.html' => 'Restore access to your account by clicking <a href="%s" target="_blank">here</a>. The link will be active for 24 hours.',
+The link will be active for 24 hours.
+
+Best regards',
+    'ivopetkov.users.email.emails.passwordReset.content.html' => 'Restore access to your account by clicking <a href="%s" target="_blank">here</a>.<br>The link will be active for 24 hours.<br><br>Best regards',
     'ivopetkov.users.email.emails.changeEmail.subject' => 'Confirm your new email address for %s',
     'ivopetkov.users.email.emails.changeEmail.content.text' => 'Confirm your new email address by visiting %s
-The link will be active for 24 hours.',
-    'ivopetkov.users.email.emails.changeEmail.content.html' => 'Confirm your new email address by clicking <a href="%s" target="_blank">here</a>. The link will be active for 24 hours.',
+The link will be active for 24 hours.
+
+Best regards',
+    'ivopetkov.users.email.emails.changeEmail.content.html' => 'Confirm your new email address by clicking <a href="%s" target="_blank">here</a>.<br>The link will be active for 24 hours.<br><br>Best regards',
     'ivopetkov.users.email.delete.screenTitle' => 'Delete account',
     'ivopetkov.users.email.delete.invalidPassword' => 'The password entered is not correct!',
     'ivopetkov.users.email.delete.password' => 'Password',
