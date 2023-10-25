@@ -137,4 +137,5 @@ Best regards',
     'ivopetkov.users.email.delete.deleteWaiting' => 'Delete forever',
     'ivopetkov.users.email.delete.warningText' => 'Enter your password to delete your %s account forever.',
     'ivopetkov.users.tryAgainLater' => 'Please, try again later',
+    'ivopetkov.users.alreadyLoggedIn' => 'You are already logged in',
 ];

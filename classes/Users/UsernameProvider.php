@@ -46,11 +46,13 @@ class UsernameProvider extends Provider
             (array_search($id, ['signup', 'login']) !== false) ||
             (array_search($id, ['change-password']) !== false && $app->currentUser->exists() && $app->currentUser->provider === $this->id)
         ) {
+            $hasUser = $app->currentUser->exists();
+
             $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/username-' . $id . '-form.php" providerID="' . htmlentities($this->id) . '"/>');
             $titles = [
                 'change-password' => __('ivopetkov.users.username.changePasswordTitle'),
                 'signup' => __('ivopetkov.users.username.signUpTitle'),
-                'login' => __('ivopetkov.users.username.loginTitle'),
+                'login' => $hasUser ? '' : __('ivopetkov.users.username.loginTitle'),
             ];
             return [
                 'width' => '350px',

@@ -7,22 +7,23 @@ use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 $app = App::get();
 $providerID = $app->currentUser->provider;
 
-$form->transformers
-    ->addToLowerCase('email')
-    ->addTrim('email')
-    ->addTrim('password');
+if ($app->currentUser->exists()) {
 
-$form->constraints
-    ->setRequired('email')
-    ->setMaxLength('email', 200)
-    ->setEmail('email')
-    ->setRequired('password');
+    $form->transformers
+        ->addToLowerCase('email')
+        ->addTrim('email')
+        ->addTrim('password');
 
-$form->onSubmit = function ($values) use ($app, $providerID, $form) {
-    $email = $values['email'];
-    $password = $values['password'];
+    $form->constraints
+        ->setRequired('email')
+        ->setMaxLength('email', 200)
+        ->setEmail('email')
+        ->setRequired('password');
 
-    if ($app->currentUser->exists()) {
+    $form->onSubmit = function ($values) use ($app, $providerID, $form) {
+        $email = $values['email'];
+        $password = $values['password'];
+
         $userID = $app->currentUser->id;
 
         if (EmailProvider::checkPassword($providerID, $userID, $password)) {
@@ -38,11 +39,11 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
         }
 
         $form->throwElementError('password', __('ivopetkov.users.email.changeEmail.invalidPassword'));
-    }
-};
+    };
 
-echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-echo '<form-element-textbox name="email" value="' . htmlentities(EmailProvider::getEmail($app->currentUser->provider, $app->currentUser->id)) . '" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.changeEmail.emailHint')) . '" autocomplete="off" />';
-echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.password')) . '"/>';
-echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.changeEmail.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.changeEmail.saveWaiting')) . '" />';
-echo '</form>';
+    echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
+    echo '<form-element-textbox name="email" value="' . htmlentities(EmailProvider::getEmail($app->currentUser->provider, $app->currentUser->id)) . '" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.changeEmail.emailHint')) . '" autocomplete="off" />';
+    echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.password')) . '"/>';
+    echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.changeEmail.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.changeEmail.saveWaiting')) . '" />';
+    echo '</form>';
+}

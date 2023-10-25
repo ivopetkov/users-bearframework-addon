@@ -75,12 +75,14 @@ class EmailProvider extends Provider
             }
         }
 
+        $hasUser = $app->currentUser->exists();
+
         $screens = [ // require logged in user, title, content (look for component if null), width
             'signup' => [false, __('ivopetkov.users.email.signUp.screenTitle'), null, '350px'],
             'signup-email-sent' => [false, '', sprintf(__('ivopetkov.users.email.signUpEmailSent.screenText'), isset($data['email']) ? $data['email'] : ''), '300px'],
             'signup-result-ok' => [false, '', __('ivopetkov.users.email.signUpResultOk.screenText'), '300px'],
             'signup-result-error' => [false, '', __('ivopetkov.users.email.signUpResultError.screenText'), '300px'],
-            'login' => [false, __('ivopetkov.users.email.login.screenTitle'), null, '350px'],
+            'login' => [false, $hasUser ? '' : __('ivopetkov.users.email.login.screenTitle'), null, '350px'],
             'lost-password' => [false, __('ivopetkov.users.email.lostPassword.screenTitle'), null, '350px'],
             'lost-password-email-sent' => [false, '', sprintf(__('ivopetkov.users.email.lostPasswordEmailSent.screenText'), isset($data['email']) ? $data['email'] : ''), '300px'],
             'lost-password-result-error' => [false, '', __('ivopetkov.users.email.lostPasswordResultError.screenText'), '300px'],
@@ -97,7 +99,7 @@ class EmailProvider extends Provider
         if (isset($screens[$id])) {
             $screenData = $screens[$id];
             if ($screenData[0]) {
-                if ($app->currentUser->exists() && $app->currentUser->provider === $this->id) {
+                if ($hasUser && $app->currentUser->provider === $this->id) {
                     // has logged in user
                 } else {
                     return '';
