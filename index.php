@@ -244,22 +244,25 @@ $app->modalWindows
     ->add('ivopetkov-users-screen-window', function ($data) use ($app, $context) {
         $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
         $screenID = isset($data['id']) ? (string) $data['id'] : null;
-        if ($screenID === 'user-profile-settings') {
-            $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php"/>');
-            $title = __('ivopetkov.users.profileSettingsButton');
-            $width = '300px';
-        } else {
-            $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
-            $title = '';
-            $width = '400px';
+        $title = '';
+        $width = '400px';
+        $content = '';
+        if ($provider !== null && $screenID !== null) {
+            if ($screenID === 'user-profile-settings') {
+                $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php"/>');
+                $title = __('ivopetkov.users.profileSettingsButton');
+                $width = '300px';
+            } else {
+                $content = $provider->getScreenContent($screenID, isset($data['data']) && is_array($data['data']) ? $data['data'] : []);
+            }
+            if (is_array($content)) {
+                $title = $content['title'];
+                $width = $content['width'];
+                $content = $content['content'];
+            }
+            $content = $app->components->process($content);
+            $content = $app->clientPackages->process($content);
         }
-        if (is_array($content)) {
-            $title = $content['title'];
-            $width = $content['width'];
-            $content = $content['content'];
-        }
-        $content = $app->components->process($content);
-        $content = $app->clientPackages->process($content);
         return [
             'title' => $title,
             'content' => $content,
