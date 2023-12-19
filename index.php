@@ -155,11 +155,11 @@ $app->routes
 
 $app->serverRequests
     ->add('ivopetkov-users-login', function ($data) use ($app, $context) {
-        $providerID = isset($data['provider']) ? $data['provider'] : null;
-        if (!$app->users->providerExists($providerID)) {
+        $providerID = isset($data['provider']) && is_string($data['provider']) ? $data['provider'] : null;
+        if ($providerID === null || !$app->users->providerExists($providerID)) {
             return;
         }
-        $location = isset($data['location']) ? $data['location'] : null;
+        $location = isset($data['location']) && is_string($data['location']) ? $data['location'] : null;
 
         $provider = $app->users->getProvider($providerID);
         $loginContext = new \IvoPetkov\BearFrameworkAddons\Users\LoginContext();
@@ -194,7 +194,7 @@ $app->serverRequests
     ->add('ivopetkov-users-currentuser-details', function ($data) use ($app) {
         if ($app->currentUser->exists()) {
             $details['name'] = $app->currentUser->name;
-            $details['image'] = $app->currentUser->getImageURL(isset($data['size']) ? (int)$data['size'] : 100);
+            $details['image'] = $app->currentUser->getImageURL(isset($data['size']) && !is_array($data['size']) ? (int)$data['size'] : 100);
         } else {
             $details = null;
         }
@@ -220,8 +220,8 @@ $app->modalWindows
             $providerID = $app->currentUser->provider;
             $id = $app->currentUser->id;
         } else {
-            $providerID = isset($data['provider']) ? (string) $data['provider'] : '';
-            $id = isset($data['id']) ? (string) $data['id'] : '';
+            $providerID = isset($data['provider']) && is_string($data['provider']) ? $data['provider'] : '';
+            $id = isset($data['id']) && is_string($data['id']) ? $data['id'] : '';
         }
         $content = '<component src="file:' . $context->dir . '/components/user-preview.php" provider="' . htmlentities($providerID) . '" id="' . htmlentities($id) . '"/>';
         $content = $app->components->process($content);
@@ -242,8 +242,8 @@ $app->modalWindows
         ];
     })
     ->add('ivopetkov-users-screen-window', function ($data) use ($app, $context) {
-        $provider = isset($data['provider']) ? $app->users->getProvider((string) $data['provider']) : null;
-        $screenID = isset($data['id']) ? (string) $data['id'] : null;
+        $provider = isset($data['provider']) && is_string($data['provider']) ? $app->users->getProvider($data['provider']) : null;
+        $screenID = isset($data['id']) && is_string($data['id']) ? $data['id'] : null;
         $title = '';
         $width = '400px';
         $content = '';

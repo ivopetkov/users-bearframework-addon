@@ -55,7 +55,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $userID, $getUserDa
         $newImageKey = null;
         if (isset($values['image']) && $values['image'] !== 'img') {
             $files = json_decode($values['image'], true);
-            if (isset($files[0])) {
+            if (isset($files[0]) && is_array($files[0]) && isset($files[0]['value'], $files[0]['filename']) && is_string($files[0]['value']) && is_string($files[0]['filename'])) {
                 $extension = strtolower(pathinfo($files[0]['value'], PATHINFO_EXTENSION));
                 if (array_search($extension, ['png', 'gif', 'jpg', 'jpeg']) === false) {
                     $form->throwError(__('ivopetkov.users.profileSettings.invalidImageFormat'));
