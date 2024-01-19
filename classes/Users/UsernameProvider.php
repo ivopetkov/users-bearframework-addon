@@ -85,9 +85,6 @@ class UsernameProvider extends Provider
         $app = App::get();
         $userData = $app->users->getUserData($this->id, $id);
         $properties = Utilities::getProfileDataFromUserData($this, $userData);
-        if (!isset($properties['name']) && is_array($userData)) {
-            $properties['name'] = $userData['u'];
-        }
         if (!isset($properties['name'])) {
             $properties['name'] = __('ivopetkov.users.anonymous'); // just in case it's missing
         }
