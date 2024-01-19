@@ -270,10 +270,10 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                     modalWindows.open('ivopetkov-users-preview-window', { 'current': true });
                 });
             },
-            'getProfileDetails': function (imageSize) {
+            'getProfileDetails': function (imageSizeOrDetailsList) { // { properties:[name, email], images:[100,200] }
                 return new Promise(function (resolve, reject) {
                     clientPackages.get('serverRequests').then(function (serverRequests) {
-                        serverRequests.send('ivopetkov-users-currentuser-details', { size: imageSize }).then(function (responseText) {
+                        serverRequests.send('ivopetkov-users-currentuser-details', { details: JSON.stringify(imageSizeOrDetailsList) }).then(function (responseText) {
                             var result = JSON.parse(responseText);
                             if (result.status === '1') {
                                 resolve(result.details);

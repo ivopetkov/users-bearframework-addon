@@ -150,6 +150,7 @@ class EmailProvider extends Provider
         if (!isset($properties['name'])) {
             $properties['name'] = __('ivopetkov.users.anonymous'); // just in case it's missing
         }
+        $properties['email'] = $userData['email'];
         return $properties;
     }
 

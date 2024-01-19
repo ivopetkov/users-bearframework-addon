@@ -88,6 +88,7 @@ class UsernameProvider extends Provider
         if (!isset($properties['name'])) {
             $properties['name'] = __('ivopetkov.users.anonymous'); // just in case it's missing
         }
+        $properties['username'] = $userData['u'];
         return $properties;
     }
 

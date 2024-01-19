@@ -48,11 +48,7 @@ class User
         $this
             ->defineProperty('name', [
                 'get' => function () {
-                    $value = (string)$this->getProfileData('name');
-                    if (strlen($value) === 0) {
-                        return __('ivopetkov.users.anonymous');
-                    }
-                    return $value;
+                    return (string)$this->getProfileData('name');
                 },
                 'readonly' => true
             ])
@@ -79,23 +75,30 @@ class User
     /**
      * 
      * @param string $property
-     * @return void
+     * @return string|null
      */
-    private function getProfileData(string $property)
+    public function getProfileData(string $property)
     {
-        if ($this->provider === null || $this->id === null) {
-            return null;
+        $get = function () use ($property) {
+            if ($this->provider === null || $this->id === null) {
+                return null;
+            }
+            $app = App::get();
+            if (!$app->users->providerExists($this->provider)) {
+                return null;
+            }
+            $cacheKey = md5($this->provider) . md5($this->id);
+            if (!isset($this->cache[$cacheKey])) {
+                $providerObject = $app->users->getProvider($this->provider);
+                $this->cache[$cacheKey] = $providerObject !== null ? $providerObject->getProfileData($this->id) : null;
+            }
+            return isset($this->cache[$cacheKey][$property]) ? $this->cache[$cacheKey][$property] : null;
+        };
+        $result = $get();
+        if ($property === 'name' && ($result === null || strlen($result) === 0)) {
+            $result = __('ivopetkov.users.anonymous');
         }
-        $app = App::get();
-        if (!$app->users->providerExists($this->provider)) {
-            return null;
-        }
-        $cacheKey = md5($this->provider) . md5($this->id);
-        if (!isset($this->cache[$cacheKey])) {
-            $providerObject = $app->users->getProvider($this->provider);
-            $this->cache[$cacheKey] = $providerObject !== null ? $providerObject->getProfileData($this->id) : null;
-        }
-        return isset($this->cache[$cacheKey][$property]) ? $this->cache[$cacheKey][$property] : null;
+        return $result;
     }
 
     /**

@@ -193,12 +193,35 @@ $app->serverRequests
     })
     ->add('ivopetkov-users-currentuser-details', function ($data) use ($app) {
         if ($app->currentUser->exists()) {
-            $details['name'] = $app->currentUser->name;
-            $details['image'] = $app->currentUser->getImageURL(isset($data['size']) && !is_array($data['size']) ? (int)$data['size'] : 100);
+            $details = isset($data['details']) ? json_decode($data['details'], true) : null;
+            if (is_array($details)) {
+                $result = [];
+                if (isset($details['properties']) && is_array($details['properties'])) {
+                    foreach ($details['properties'] as $property) {
+                        if (is_string($property)) {
+                            $result[$property] = $app->currentUser->getProfileData($property);
+                        }
+                    }
+                }
+                if (isset($details['images']) && is_array($details['images'])) {
+                    foreach ($details['images'] as $imageSize) {
+                        if (is_numeric($imageSize)) {
+                            $imageSize = (int)$imageSize;
+                            if (!isset($result['images'])) {
+                                $result['images'] = [];
+                            }
+                            $result['images'][$imageSize] = $app->currentUser->getImageURL($imageSize);
+                        }
+                    }
+                }
+            } else {
+                $result['name'] = $app->currentUser->name;
+                $result['image'] = $app->currentUser->getImageURL($details !== null ? (int)$details : 100);
+            }
         } else {
-            $details = null;
+            $result = null;
         }
-        return json_encode(['status' => '1', 'details' => $details]);
+        return json_encode(['status' => '1', 'details' => $result]);
     });
 
 $app->modalWindows
@@ -304,7 +327,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 18, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 19, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';
