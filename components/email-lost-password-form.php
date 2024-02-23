@@ -35,6 +35,6 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
 };
 
 echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.lostPassword.email')) . '" autocomplete="off" />';
+echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.lostPassword.email')) . '" autocomplete="off" inputType="email" />';
 echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.lostPassword.continue')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.lostPassword.continueWaiting')) . '" />';
 echo '</form>';

@@ -42,7 +42,7 @@ if ($app->currentUser->exists()) {
     };
 
     echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-    echo '<form-element-textbox name="email" value="' . htmlentities(EmailProvider::getEmail($app->currentUser->provider, $app->currentUser->id)) . '" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.changeEmail.emailHint')) . '" autocomplete="off" />';
+    echo '<form-element-textbox name="email" value="' . htmlentities(EmailProvider::getEmail($app->currentUser->provider, $app->currentUser->id)) . '" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.changeEmail.emailHint')) . '" autocomplete="off" inputType="email" />';
     echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.changeEmail.password')) . '"/>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.changeEmail.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.changeEmail.saveWaiting')) . '" />';
     echo '</form>';

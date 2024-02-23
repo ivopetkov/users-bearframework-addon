@@ -62,7 +62,7 @@ if ($app->currentUser->exists()) {
     echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
 } else {
     echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-    echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.login.email')) . '" autocomplete="off" />';
+    echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.login.email')) . '" autocomplete="off" inputType="email" />';
     echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.login.password')) . '"/>';
     echo '<form-element-checkbox name="remember" label="' . htmlentities(__('ivopetkov.users.email.login.remember')) . '" style="display:inline-block;"/>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.login.login')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.login.loginWaiting')) . '" />';

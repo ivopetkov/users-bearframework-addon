@@ -53,7 +53,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
 };
 
 echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.signUp.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.signUp.emailHint')) . '" autocomplete="off" />';
+echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.signUp.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.signUp.emailHint')) . '" autocomplete="off" inputType="email" />';
 echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.signUp.password')) . '"/>';
 if ($hasTermsURL) {
     echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.email.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
