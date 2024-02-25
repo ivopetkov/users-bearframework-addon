@@ -54,6 +54,15 @@ if ($provider !== null) {
                 $hasShowInSettingsScreens = true;
             }
         }
+        $links = $provider->links;
+        foreach ($links as $link) {
+            if (isset($link['showInProfile']) && $link['showInProfile']) {
+                $buttonsHTML[] = '<form-element-button text="' . htmlentities($link['name']) . '" onclick="' . htmlentities($link['onClick']) . '"/>';
+            }
+            if (isset($link['showInSettings']) && $link['showInSettings']) {
+                $hasShowInSettingsScreens = true;
+            }
+        }
         if ($hasShowInSettingsScreens) {
             $onClick = "clientPackages.get('modalWindows').then(function(modalWindows){modalWindows.open('ivopetkov-users-settings-window');});";
             $buttonsHTML[] = '<form-element-button text="' . htmlentities(__('ivopetkov.users.settingsButton')) . '" onclick="' . htmlentities($onClick) . '"/>';

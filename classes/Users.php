@@ -23,6 +23,7 @@ use IvoPetkov\HTML5DOMDocument;
  * @event \IvoPetkov\BearFrameworkAddons\Users\UserDeleteEventDetails userDelete
  * @event \IvoPetkov\BearFrameworkAddons\Users\BeforeSendEmailEventDetails beforeSendEmail
  * @event \IvoPetkov\BearFrameworkAddons\Users\SendEmailEventDetails sendEmail
+ * @event \IvoPetkov\BearFrameworkAddons\Users\ProviderGetEventDetails providerGet
  */
 class Users
 {
@@ -85,6 +86,7 @@ class Users
             $class = $providerData[0];
             if (class_exists($class)) {
                 $providerData[1] = new $class($id, $providerData[2]);
+                $this->dispatchProviderGetEvent($providerData[1]);
             } else {
                 $providerData[1] = null;
             }
@@ -468,4 +470,19 @@ class Users
             $this->dispatchEvent('sendEmail', new \IvoPetkov\BearFrameworkAddons\Users\SendEmailEventDetails($providerID, $email));
         }
     }
+
+    /**
+     * 
+     * @param \IvoPetkov\BearFrameworkAddons\Users\Provider $provider
+     * @return \IvoPetkov\BearFrameworkAddons\Users\ProviderGetEventDetails
+     */
+    public function dispatchProviderGetEvent(\IvoPetkov\BearFrameworkAddons\Users\Provider $provider): \IvoPetkov\BearFrameworkAddons\Users\ProviderGetEventDetails
+    {
+        $eventDetails = new \IvoPetkov\BearFrameworkAddons\Users\ProviderGetEventDetails($provider);
+        if ($this->hasEventListeners('providerGet')) {
+            $this->dispatchEvent('providerGet', $eventDetails);
+        }
+        return $eventDetails;
+    }
+    
 }

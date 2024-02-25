@@ -62,6 +62,12 @@ class Provider
 
     /**
      * 
+     * @var array 
+     */
+    public $links = []; // [['name'=>'', 'onClick'=>'', 'showInProfile'=>true|false, 'showInSettings'=>true|false], ...]
+
+    /**
+     * 
      * @param string $id
      * @param array $options
      */

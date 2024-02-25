@@ -22,6 +22,12 @@ if ($app->currentUser->exists()) {
                 echo '<form-element-button text="' . htmlentities($screen['name']) . '" onclick="' . htmlentities($onClick) . '"/>';
             }
         }
+        $links = $provider->links;
+        foreach ($links as $link) {
+            if (isset($link['showInSettings']) && $link['showInSettings']) {
+                echo '<form-element-button text="' . htmlentities($link['name']) . '" onclick="' . htmlentities($link['onClick']) . '"/>';
+            }
+        }
         $onClick = 'clientPackages.get("users").then(function(users){users._closeCurrentWindow();});';
         echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
 
