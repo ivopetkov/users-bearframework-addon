@@ -29,7 +29,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var logout = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll().then(function () {
+            modalWindows.closeAll({ expectShowLoading: true }).then(function () {
                 modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
                     clientPackages.get('serverRequests').then(function (serverRequests) {
                         serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
@@ -50,7 +50,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var login = function (providerID) {
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll().then(function () {
+            modalWindows.closeAll({ expectShowLoading: true }).then(function () {
                 modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
                     clientPackages.get('serverRequests').then(function (serverRequests) {
                         var data = {
@@ -136,19 +136,31 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         });
     };
 
-    var closeCurrentWindow = function () {
+    var closeCurrentWindow = function () { // Available options: expectOpen and expectShowLoading
+        if (typeof options === "undefined") {
+            options = {};
+        }
+        var modalOptions = {};
+        modalOptions.expectOpen = typeof options.expectOpen !== "undefined" ? options.expectOpen : false;
+        modalOptions.expectShowLoading = typeof options.expectShowLoading !== "undefined" ? options.expectShowLoading : false;
         return new Promise(function (resolve, reject) {
             clientPackages.get('modalWindows').then(function (modalWindows) {
-                modalWindows.closeCurrent();
+                modalWindows.closeCurrent(modalOptions);
                 resolve();
             });
         });
     };
 
-    var closeAllWindows = function () {
+    var closeAllWindows = function (options) { // Available options: expectOpen and expectShowLoading
+        if (typeof options === "undefined") {
+            options = {};
+        }
+        var modalOptions = {};
+        modalOptions.expectOpen = typeof options.expectOpen !== "undefined" ? options.expectOpen : false;
+        modalOptions.expectShowLoading = typeof options.expectShowLoading !== "undefined" ? options.expectShowLoading : false;
         return new Promise(function (resolve, reject) {
             clientPackages.get('modalWindows').then(function (modalWindows) {
-                modalWindows.closeAll()
+                modalWindows.closeAll(modalOptions)
                     .then(resolve)
                     .catch(reject);
             });
