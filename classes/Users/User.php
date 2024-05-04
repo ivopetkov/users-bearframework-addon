@@ -117,6 +117,23 @@ class User
 
     /**
      * 
+     * @param integer $size
+     * @param array $options Available values: encoding (base64, data-uri, data-uri-base64)
+     * @return string
+     */
+    public function getImageContent(int $size, array $options = []): string
+    {
+        $app = App::get();
+        $context = $app->contexts->get(__DIR__);
+        $assetOptions = ['width' => $size, 'height' => $size];
+        if (isset($options['encoding'])) {
+            $assetOptions['encoding'] = $options['encoding'];
+        }
+        return $context->assets->getContent('assets/u/' . $this->provider . '/' . $this->id, $assetOptions);
+    }
+
+    /**
+     * 
      * @return void
      */
     public function clearCache(): void
