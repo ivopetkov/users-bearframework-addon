@@ -116,25 +116,47 @@ $app->assets
     });
 
 $cookieKeySuffix = base_convert(substr(md5((string)$app->request->base), 0, 10), 16, 36);
-$cookieKey = 'ipub-' . $cookieKeySuffix;
+$cookie1Key = 'ipu1-' . $cookieKeySuffix; // httponly
+$cookie2Key = 'ipu2-' . $cookieKeySuffix;
 
-$localCache = [];
-$getCookieUserData = function (string $cookieKey) use ($app, &$localCache): ?array {
-    $cookieValue = $app->request->cookies->getValue($cookieKey);
-    if ($cookieValue !== null && strlen($cookieValue) > 0) {
-        if (isset($localCache[$cookieValue])) {
-            return $localCache[$cookieValue];
-        }
-        $sessionData = Utilities::getSessionData($cookieValue);
-        if (is_array($sessionData)) {
-            $localCache[$cookieValue] = $sessionData;
-            return $sessionData;
+$sessionKeyPart1Length = (int)floor(Utilities::$sessionKeyLength / 2);
+$sessionKeyPart2Length = (int)(Utilities::$sessionKeyLength - $sessionKeyPart1Length);
+
+$combineSessionKey = function (string $part1, string $part2) use ($sessionKeyPart1Length, $sessionKeyPart2Length): ?string {
+    if (strlen($part1) === $sessionKeyPart1Length && strlen($part2) === $sessionKeyPart2Length) {
+        return $part1 . $part2;
+    }
+    return null;
+};
+
+$splitSessionKey = function (string $sessionKey) use ($sessionKeyPart1Length, $sessionKeyPart2Length): array {
+    return [
+        substr($sessionKey, 0, $sessionKeyPart1Length),
+        substr($sessionKey, $sessionKeyPart1Length)
+    ];
+};
+
+$sessionDataCache = [];
+$getCookieUserData = function () use ($app, &$sessionDataCache, $cookie1Key, $cookie2Key, $combineSessionKey): ?array {
+    $cookie1Value = $app->request->cookies->getValue($cookie1Key);
+    $cookie2Value = $app->request->cookies->getValue($cookie2Key);
+    if ($cookie1Value !== null && strlen($cookie1Value) > 0 && $cookie2Value !== null && strlen($cookie2Value) > 0) {
+        $sessionKey = $combineSessionKey($cookie1Value, $cookie2Value);
+        if ($sessionKey !== null) {
+            if (isset($sessionDataCache[$sessionKey])) {
+                return $sessionDataCache[$sessionKey];
+            }
+            $sessionData = Utilities::getSessionData($sessionKey);
+            if (is_array($sessionData)) {
+                $sessionDataCache[$sessionKey] = $sessionData;
+                return $sessionData;
+            }
         }
     }
     return null;
 };
 
-$cookieUserData = $getCookieUserData($cookieKey);
+$cookieUserData = $getCookieUserData();
 if ($cookieUserData !== null) {
     $app->currentUser->set($cookieUserData[0], $cookieUserData[1]);
 }
@@ -294,19 +316,31 @@ $app->modalWindows
     });
 
 $app
-    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCookieUserData, $getCurrentUserCookieData, $cookieKey) {
+    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCookieUserData, $getCurrentUserCookieData, $cookie1Key, $cookie2Key, $splitSessionKey) {
         $response = $details->response;
         if ($app->currentUser->exists()) {
             if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) { // not an asset request
-                $currentCookieUserData = $getCookieUserData($cookieKey);
+                $currentCookieUserData = $getCookieUserData();
                 $currentUserCookieData = $getCurrentUserCookieData();
                 if ($currentUserCookieData !== null) {
                     if (md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                        $cookieKeyValue = Utilities::generateSessionKey();
-                        Utilities::setSessionData($cookieKeyValue, $currentUserCookieData);
-                        $cookie = $response->cookies->make($cookieKey, $cookieKeyValue);
+                        $sessionKey = Utilities::generateSessionKey();
+                        Utilities::setSessionData($sessionKey, $currentUserCookieData);
+
+                        $sessionKeyParts = $splitSessionKey($sessionKey);
+
+                        $cookie = $response->cookies->make($cookie1Key, $sessionKeyParts[0]);
                         $cookie->httpOnly = true;
                         $cookie->secure = true;
+                        $cookie->path = '/';
+                        if (Utilities::$currentUserCookieAction === 'login-remember') {
+                            $cookie->expire = time() + 86400 * 90;
+                        }
+                        $response->cookies->set($cookie);
+
+                        $cookie = $response->cookies->make($cookie2Key, $sessionKeyParts[1]);
+                        $cookie->secure = true;
+                        $cookie->path = '/';
                         if (Utilities::$currentUserCookieAction === 'login-remember') {
                             $cookie->expire = time() + 86400 * 90;
                         }
@@ -315,10 +349,19 @@ $app
                 }
             }
         } else {
-            if ($app->request->cookies->exists($cookieKey)) {
-                $cookie = $response->cookies->make($cookieKey, '');
-                $cookie->expire = 0;
+            if ($app->request->cookies->exists($cookie1Key)) {
+                $cookie = $response->cookies->make($cookie1Key, '');
                 $cookie->httpOnly = true;
+                $cookie->secure = true;
+                $cookie->path = '/';
+                $cookie->expire = 0;
+                $response->cookies->set($cookie);
+            }
+            if ($app->request->cookies->exists($cookie2Key)) {
+                $cookie = $response->cookies->make($cookie2Key, '');
+                $cookie->secure = true;
+                $cookie->path = '/';
+                $cookie->expire = 0;
                 $response->cookies->set($cookie);
             }
         }
@@ -327,7 +370,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 20, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 21, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

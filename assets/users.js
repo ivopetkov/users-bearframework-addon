@@ -27,61 +27,106 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         currentUserEventTarget.dispatchEvent(makeEvent('change'));
     };
 
-    var logout = function () {
-        clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll({ expectShowLoading: true }).then(function () {
-                modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
-                    clientPackages.get('serverRequests').then(function (serverRequests) {
-                        serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
-                            var result = JSON.parse(responseText);
-                            if (result.status === '1') {
-                                // hasCurrentUser = false;
-                                // removeBadge();
-                                // context.close();
-                                // onCurrentUserChange();
-                                window.location.reload();
-                            }
-                        });
-                    });
-                });
-            });
+    var logout = function (options) {
+        if (typeof options === 'undefined') {
+            options = {};
+        }
+        if (typeof options.reloadWindow === 'undefined') {
+            options.reloadWindow = true;
+        }
+        return new Promise(function (resolve, reject) {
+            var finalizeLogout = function () {
+                hasCurrentUser = false;
+                var cookies = getCookies();
+                for (var cookieKey in cookies) {
+                    if (cookieKey.indexOf('ipu2-') === 0) {
+                        document.cookie = cookieKey + '=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;domain=' + location.host + ';';
+                    }
+                }
+                if (options.reloadWindow) {
+                    window.location.reload();
+                }
+            };
+            var handleError = function () {
+                finalizeLogout();
+                resolve();
+            };
+            clientPackages.get('modalWindows').then(function (modalWindows) {
+                modalWindows.closeAll({ expectShowLoading: true }).then(function () {
+                    modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
+                        clientPackages.get('serverRequests').then(function (serverRequests) {
+                            serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
+                                try {
+                                    var result = JSON.parse(responseText);
+                                } catch (e) {
+                                    handleError();
+                                    return;
+                                }
+                                if (typeof result.status !== "undefined" && result.status === '1') {
+                                    // hasCurrentUser = false;
+                                    // removeBadge();
+                                    // context.close();
+                                    // onCurrentUserChange();
+                                    finalizeLogout();
+                                    resolve();
+                                } else {
+                                    handleError();
+                                }
+                            }).catch(handleError);
+                        }).catch(handleError);
+                    }).catch(handleError);
+                }).catch(handleError);
+            }).catch(handleError);
         });
     };
 
     var login = function (providerID) {
-        clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.closeAll({ expectShowLoading: true }).then(function () {
-                modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
-                    clientPackages.get('serverRequests').then(function (serverRequests) {
-                        var data = {
-                            'provider': providerID,
-                            'location': window.location.toString()
-                        };
-                        serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
-                            var result = JSON.parse(responseText);
-                            if (result.status === '1') {
-                                if (typeof result.exists !== 'undefined') {
-                                    hasCurrentUser = result.exists;
+        return new Promise(function (resolve, reject) {
+            var handleError = function () {
+                reject();
+            };
+            clientPackages.get('modalWindows').then(function (modalWindows) {
+                modalWindows.closeAll({ expectShowLoading: true }).then(function () {
+                    modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
+                        clientPackages.get('serverRequests').then(function (serverRequests) {
+                            var data = {
+                                'provider': providerID,
+                                'location': window.location.toString()
+                            };
+                            serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
+                                try {
+                                    var result = JSON.parse(responseText);
+                                } catch (e) {
+                                    handleError();
+                                    return;
                                 }
-                                if (typeof result.jsCode !== 'undefined') {
-                                    (new Function(result.jsCode))();
-                                }
-                                if (typeof result.redirectURL !== 'undefined') {
-                                    window.location = result.redirectURL;
-                                } else {
-                                    if (typeof result.badgeHTML !== 'undefined') {
-                                        html5DOMDocument.insert(result.badgeHTML);
+                                if (typeof result.status !== "undefined" && result.status === '1') {
+                                    if (typeof result.exists !== 'undefined') {
+                                        hasCurrentUser = result.exists;
                                     }
-                                    modalWindows.hideLoading().then(function () {
-                                        modalWindows.closeAll();
-                                    });
-                                    onCurrentUserChange();
+                                    if (typeof result.jsCode !== 'undefined') {
+                                        (new Function(result.jsCode))();
+                                    }
+                                    if (typeof result.redirectURL !== 'undefined') {
+                                        window.location = result.redirectURL;
+                                    } else {
+                                        if (typeof result.badgeHTML !== 'undefined') {
+                                            html5DOMDocument.insert(result.badgeHTML);
+                                        }
+                                        modalWindows.hideLoading().then(function () {
+                                            modalWindows.closeAll();
+                                        });
+                                        onCurrentUserChange();
+                                    }
+                                    resolve();
+                                } else {
+                                    handleError();
                                 }
-                            }
-                        });
-                    });
-                });
-            });
+                            }).catch(handleError);
+                        }).catch(handleError);
+                    }).catch(handleError);
+                }).catch(handleError);
+            }).catch(handleError);
         });
     };
 
@@ -106,7 +151,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var openLogin = function () {
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.open('ivopetkov-users-login-screen');
+            modalWindows.open('ivopetkov-users-login-screen', {}, { showErrors: true });
         });
     };
 
@@ -115,7 +160,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             return;
         }
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.open('ivopetkov-users-preview-window', { 'provider': provider, 'id': id });
+            modalWindows.open('ivopetkov-users-preview-window', { 'provider': provider, 'id': id }, { showErrors: true });
         });
     };
 
@@ -132,7 +177,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             data = {};
         }
         clientPackages.get('modalWindows').then(function (modalWindows) {
-            modalWindows.open('ivopetkov-users-screen-window', { 'provider': provider, 'id': id, 'data': data });
+            modalWindows.open('ivopetkov-users-screen-window', { 'provider': provider, 'id': id, 'data': data }, { showErrors: true });
         });
     };
 
@@ -250,6 +295,18 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         }
     };
 
+    var getCookies = function () {
+        return document.cookie.split(';').reduce(function (result, value) {
+            var parts = value.split('=');
+            try {
+                result[parts[0].trim()] = decodeURIComponent(parts[1]);
+            } catch (e) {
+                result[parts[0].trim()] = parts[1];
+            }
+            return result;
+        }, {});
+    };
+
     document.addEventListener('readystatechange', () => { // interactive or complete
         checkHash();
     });
@@ -263,14 +320,25 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                 return new Promise(function (resolve, reject) {
                     if (hasCurrentUser === null) {
                         clientPackages.get('serverRequests').then(function (serverRequests) {
-                            serverRequests.send('ivopetkov-users-currentuser-exists').then(function (responseText) {
-                                var result = JSON.parse(responseText);
-                                if (result.status === '1') {
-                                    hasCurrentUser = result.exists === '1';
-                                    onCurrentUserChange();
-                                    resolve(hasCurrentUser);
-                                }
-                            });
+                            serverRequests.send('ivopetkov-users-currentuser-exists')
+                                .then(function (responseText) {
+                                    try {
+                                        var result = JSON.parse(responseText);
+                                    } catch (e) {
+                                        reject();
+                                        return;
+                                    }
+                                    if (typeof result.status !== "undefined" && result.status === '1') {
+                                        hasCurrentUser = result.exists === '1';
+                                        onCurrentUserChange();
+                                        resolve(hasCurrentUser);
+                                    } else {
+                                        reject();
+                                    }
+                                })
+                                .catch(function () {
+                                    reject();
+                                });
                         });
                     } else {
                         resolve(hasCurrentUser);
@@ -279,20 +347,28 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             },
             'openPreview': function () {
                 clientPackages.get('modalWindows').then(function (modalWindows) {
-                    modalWindows.open('ivopetkov-users-preview-window', { 'current': true });
+                    modalWindows.open('ivopetkov-users-preview-window', { 'current': true }, { showErrors: true });
                 });
             },
             'getProfileDetails': function (imageSizeOrDetailsList) { // { properties:[name, email], images:[100,200] }
                 return new Promise(function (resolve, reject) {
                     clientPackages.get('serverRequests').then(function (serverRequests) {
-                        serverRequests.send('ivopetkov-users-currentuser-details', { details: JSON.stringify(imageSizeOrDetailsList) }).then(function (responseText) {
-                            var result = JSON.parse(responseText);
-                            if (result.status === '1') {
-                                resolve(result.details);
-                            } else {
-                                resolve(null);
-                            }
-                        });
+                        serverRequests.send('ivopetkov-users-currentuser-details', { details: JSON.stringify(imageSizeOrDetailsList) })
+                            .then(function (responseText) {
+                                try {
+                                    var result = JSON.parse(responseText);
+                                } catch (e) {
+                                    reject();
+                                    return;
+                                }
+                                if (typeof result.status !== "undefined" && result.status === '1') {
+                                    resolve(result.details);
+                                } else {
+                                    resolve(null);
+                                }
+                            }).catch(function () {
+                                reject();
+                            });
                     });
                 });
             },

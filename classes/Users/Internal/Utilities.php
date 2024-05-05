@@ -18,10 +18,11 @@ use IvoPetkov\BearFrameworkAddons\Users\Provider;
 class Utilities
 {
 
-
     static $providerRoutePrefix = '/-u/';
 
     static $currentUserCookieAction = null;
+
+    static $sessionKeyLength = 88;
 
     /**
      * 
@@ -166,7 +167,7 @@ class Utilities
     static function generateSessionKey(): string
     {
         for ($i = 0; $i < 100; $i++) {
-            $key = self::generateKey(66);
+            $key = self::generateKey(self::$sessionKeyLength);
             if (self::getSessionData($key) === null) {
                 return $key;
             }
