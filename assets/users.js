@@ -54,8 +54,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             clientPackages.get('modalWindows').then(function (modalWindows) {
                 modalWindows.closeAll({ expectShowLoading: true }).then(function () {
                     modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
-                        clientPackages.get('serverRequests').then(function (serverRequests) {
-                            serverRequests.send('ivopetkov-users-logout').then(function (responseText) {
+                        clientPackages.get('serverRequests', { timeout: 15 }).then(function (serverRequests) {
+                            serverRequests.send('ivopetkov-users-logout', {}, { timeout: 15 }).then(function (responseText) {
                                 try {
                                     var result = JSON.parse(responseText);
                                 } catch (e) {
@@ -88,12 +88,12 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             clientPackages.get('modalWindows').then(function (modalWindows) {
                 modalWindows.closeAll({ expectShowLoading: true }).then(function () {
                     modalWindows.showLoading({ closeOnEscKey: false }).then(function () {
-                        clientPackages.get('serverRequests').then(function (serverRequests) {
+                        clientPackages.get('serverRequests', { timeout: 15 }).then(function (serverRequests) {
                             var data = {
                                 'provider': providerID,
                                 'location': window.location.toString()
                             };
-                            serverRequests.send('ivopetkov-users-login', data).then(function (responseText) {
+                            serverRequests.send('ivopetkov-users-login', data, { timeout: 30 }).then(function (responseText) {
                                 try {
                                     var result = JSON.parse(responseText);
                                 } catch (e) {
@@ -319,8 +319,8 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
             'exists': function () {
                 return new Promise(function (resolve, reject) {
                     if (hasCurrentUser === null) {
-                        clientPackages.get('serverRequests').then(function (serverRequests) {
-                            serverRequests.send('ivopetkov-users-currentuser-exists')
+                        clientPackages.get('serverRequests', { timeout: 15 }).then(function (serverRequests) {
+                            serverRequests.send('ivopetkov-users-currentuser-exists', {}, { timeout: 15 })
                                 .then(function (responseText) {
                                     try {
                                         var result = JSON.parse(responseText);
@@ -350,10 +350,15 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                     modalWindows.open('ivopetkov-users-preview-window', { 'current': true }, { showErrors: true });
                 });
             },
+            'openSettings': function () {
+                clientPackages.get('modalWindows').then(function (modalWindows) {
+                    modalWindows.open('ivopetkov-users-settings-window', {}, { showErrors: true });
+                });
+            },
             'getProfileDetails': function (imageSizeOrDetailsList) { // { properties:[name, email], images:[100,200] }
                 return new Promise(function (resolve, reject) {
-                    clientPackages.get('serverRequests').then(function (serverRequests) {
-                        serverRequests.send('ivopetkov-users-currentuser-details', { details: JSON.stringify(imageSizeOrDetailsList) })
+                    clientPackages.get('serverRequests', { timeout: 15 }).then(function (serverRequests) {
+                        serverRequests.send('ivopetkov-users-currentuser-details', { details: JSON.stringify(imageSizeOrDetailsList) }, { timeout: 30 })
                             .then(function (responseText) {
                                 try {
                                     var result = JSON.parse(responseText);

@@ -277,6 +277,9 @@ $app->modalWindows
         ];
     })
     ->add('ivopetkov-users-settings-window', function () use ($app, $context) {
+        if (!$app->currentUser->exists()) {
+            return;
+        }
         $content = '<component src="file:' . $context->dir . '/components/user-settings.php" />';
         $content = $app->components->process($content);
         $content = $app->clientPackages->process($content);
@@ -370,7 +373,7 @@ $app
 $app->clientPackages
     ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
-        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 21, 'robotsNoIndex' => true]));
+        $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 22, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
         $package->embedPackage('html5DOMDocument');
         $package->get = 'return ivoPetkov.bearFrameworkAddons.users;';

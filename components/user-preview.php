@@ -64,7 +64,7 @@ if ($provider !== null) {
             }
         }
         if ($hasShowInSettingsScreens) {
-            $onClick = "clientPackages.get('modalWindows').then(function(modalWindows){modalWindows.open('ivopetkov-users-settings-window');});";
+            $onClick = 'clientPackages.get("users").then(function(users){users.currentUser.openSettings();});';
             $buttonsHTML[] = '<form-element-button text="' . htmlentities(__('ivopetkov.users.settingsButton')) . '" onclick="' . htmlentities($onClick) . '"/>';
         }
         if ($provider !== null && $provider->hasLogout) {
