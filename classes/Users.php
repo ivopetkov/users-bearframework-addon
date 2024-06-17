@@ -257,6 +257,57 @@ class Users
     /**
      * 
      * @param string $providerID
+     * @param string $id
+     * @param string $key
+     * @return mixed
+     */
+    public function getCustomUserData(string $providerID, string $id, string $key)
+    {
+        $app = App::get();
+        $userData = $app->users->getUserData($providerID, $id);
+        if ($userData !== null && isset($userData['cud'], $userData['cud'][$key])) {
+            return $userData['cud'][$key];
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @param string $providerID
+     * @param string $id
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function setCustomUserData(string $providerID, string $id, string $key, $value)
+    {
+        $app = App::get();
+        $userData = $app->users->getUserData($providerID, $id);
+        if ($userData !== null) {
+            if (!isset($userData['cud'])) {
+                $userData['cud'] = [];
+            }
+            $hasChange = false;
+            if ($value === null) {
+                if (isset($userData['cud'][$key])) {
+                    unset($userData['cud'][$key]);
+                    $hasChange = true;
+                }
+            } else {
+                if (!isset($userData['cud'][$key]) || $userData['cud'][$key] !== $value) {
+                    $userData['cud'][$key] = $value;
+                    $hasChange = true;
+                }
+            }
+            if ($hasChange) {
+                $app->users->saveUserData($providerID, $id, $userData);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param string $providerID
      * @param string $sourceFileName
      * @param string $extension
      * @return string
@@ -484,5 +535,4 @@ class Users
         }
         return $eventDetails;
     }
-    
 }

@@ -77,20 +77,7 @@ class CurrentUser extends User
     {
         if ($this->exists()) {
             $app = App::get();
-            $userData = $app->users->getUserData($this->provider, $this->id);
-            if ($userData !== null) {
-                if (!isset($userData['cud'])) {
-                    $userData['cud'] = [];
-                }
-                if ($value === null) {
-                    if (isset($userData['cud'][$key])) {
-                        unset($userData['cud'][$key]);
-                    }
-                } else {
-                    $userData['cud'][$key] = $value;
-                }
-                $app->users->saveUserData($this->provider, $this->id, $userData);
-            }
+            $app->users->setCustomUserData($this->provider, $this->id, $key, $value);
         }
     }
 
@@ -103,10 +90,7 @@ class CurrentUser extends User
     {
         if ($this->exists()) {
             $app = App::get();
-            $userData = $app->users->getUserData($this->provider, $this->id);
-            if ($userData !== null && isset($userData['cud'], $userData['cud'][$key])) {
-                return $userData['cud'][$key];
-            }
+            return $app->users->getCustomUserData($this->provider, $this->id, $key);
         }
         return null;
     }
