@@ -9,7 +9,7 @@
 
 return [
     'ivopetkov.users.settingsButton' => 'Settings',
-    'ivopetkov.users.settings' => 'Settings',
+    'ivopetkov.users.settings' => 'Account settings',
     'ivopetkov.users.logoutButton' => 'Log out',
     'ivopetkov.users.logoutConfirm' => 'Are you sure you want to log out?',
     'ivopetkov.users.anonymous' => 'Anonymous',
@@ -74,8 +74,8 @@ return [
     'ivopetkov.users.email.changeEmail.email' => 'New email',
     'ivopetkov.users.email.changeEmail.emailHint' => 'A confirmation email will be sent',
     'ivopetkov.users.email.changeEmail.password' => 'Current password',
-    'ivopetkov.users.email.changeEmail.save' => 'Change',
-    'ivopetkov.users.email.changeEmail.saveWaiting' => 'Change',
+    'ivopetkov.users.email.changeEmail.save' => 'Continue',
+    'ivopetkov.users.email.changeEmail.saveWaiting' => 'Continue',
     'ivopetkov.users.email.changeEmail.invalidPassword' => 'The password entered is not correct!',
     'ivopetkov.users.email.changeEmail.notChanged' => 'Enter the new email here',
     'ivopetkov.users.email.changeEmail.taken' => 'The email is already used by other account!',
