@@ -108,7 +108,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
                                         (new Function(result.jsCode))();
                                     }
                                     if (typeof result.redirectURL !== 'undefined') {
-                                        window.location = result.redirectURL;
+                                        openURL(result.redirectURL);
                                     } else {
                                         if (typeof result.badgeHTML !== 'undefined') {
                                             html5DOMDocument.insert(result.badgeHTML);
@@ -147,6 +147,21 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
 
     var dispatchProfileChange = function () {
         onCurrentUserChange();
+    };
+
+    var openURL = function (url, closeModalWindows) {
+        if (typeof closeModalWindows === 'undefined') {
+            closeModalWindows = false;
+        }
+        if (closeModalWindows) {
+            closeAllWindows({ expectShowLoading: true }).then(function () {
+                showLoading().then(function () {
+                    window.location.assign(url);
+                });
+            });
+        } else {
+            window.location.assign(url);
+        }
     };
 
     var openLogin = function () {
@@ -391,6 +406,7 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         'openProviderScreen': openProviderScreen,
         'openProviderLogin': openProviderLogin,
         'openProviderSignup': openProviderSignup,
+        '_openURL': openURL,
         '_closeCurrentWindow': closeCurrentWindow,
         '_closeAllWindows': closeAllWindows,
         '_showLoading': showLoading,

@@ -71,7 +71,7 @@ class UsernameProvider extends Provider
     public function login(\IvoPetkov\BearFrameworkAddons\Users\LoginContext $context): \IvoPetkov\BearFrameworkAddons\Users\LoginResponse
     {
         $response = new \IvoPetkov\BearFrameworkAddons\Users\LoginResponse();
-        $response->jsCode = "clientPackages.get('users').then(function(users){users.openProviderLogin('" . $context->providerID . "');});";
+        $response->jsCode = "clientPackages.get('users').then(function(u){u.openProviderLogin('" . $context->providerID . "');});";
         return $response;
     }
 

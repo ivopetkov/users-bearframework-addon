@@ -49,7 +49,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
         EmailProvider::sendSignupConfirmEmail($providerID, $email, $key);
     }
 
-    return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows({expectOpen:true}).then(function(){users.openProviderScreen("' . $providerID . '","signup-email-sent",{"email":"' . $email . '"});})});']);
+    return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(u){u._closeAllWindows({expectOpen:true}).then(function(){u.openProviderScreen("' . $providerID . '","signup-email-sent",{"email":"' . $email . '"});})});']);
 };
 
 echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';

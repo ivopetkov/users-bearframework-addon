@@ -42,7 +42,7 @@ if ($app->currentUser->exists()) {
         }
     };
 
-    $onSubmitSuccess = 'clientPackages.get("users").then(function(users){users._closeAllWindows();});';
+    $onSubmitSuccess = 'clientPackages.get("users").then(function(u){u._closeAllWindows();});';
     echo '<form onsubmitsuccess="' . htmlentities($onSubmitSuccess) . '">';
     echo '<form-element-password name="oldpassword" label="' . htmlentities(__('ivopetkov.users.email.changePassword.currentPassword')) . '"/>';
     echo '<form-element-password name="new-password" label="' . htmlentities(__('ivopetkov.users.email.changePassword.newPassword')) . '"/>';

@@ -58,7 +58,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
 
 if ($app->currentUser->exists()) {
     echo '<div style="text-align:center;padding-bottom:60px;">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
-    $onClick = 'window.location="' . $getOnLoginURL() . '";modalWindows.closeAll();';
+    $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
     echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
 } else {
     echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
@@ -67,7 +67,7 @@ if ($app->currentUser->exists()) {
     echo '<form-element-checkbox name="remember" label="' . htmlentities(__('ivopetkov.users.email.login.remember')) . '" style="display:inline-block;"/>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.login.login')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.login.loginWaiting')) . '" />';
 
-    $onClick = 'clientPackages.get("users").then(function(users){users.openProviderScreen("' . $providerID . '","lost-password");});';
+    $onClick = 'clientPackages.get("users").then(function(u){u.openProviderScreen("' . $providerID . '","lost-password");});';
     echo '<div style="padding-top:20px;text-align:center;"><a onclick="' . htmlentities($onClick) . '" href="javascript:void(0);" style="color:#555;text-decoration:none;">' . __('ivopetkov.users.email.login.lostPassword') . '</a></div>';
 
     echo '</form>';

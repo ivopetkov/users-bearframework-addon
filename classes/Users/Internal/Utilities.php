@@ -98,7 +98,7 @@ class Utilities
     static function getFormSubmitResultHandlerJsCode(): string
     {
         $js = 'var r=event.result;if(r.length>0){' .
-            'if(r.substring(0,2)===\'u:\'){clientPackages.get(\'users\').then(function(users){users._closeAllWindows({expectShowLoading:true}).then(function(){users._showLoading();})});window.location=r.substring(2);}' .
+            'if(r.substring(0,2)===\'u:\'){clientPackages.get(\'users\').then(function(u){u._openURL(r.substring(2),true)});}' .
             'if(r.substring(0,2)===\'j:\'){(new Function(r.substring(2)))();}' .
             '}';
         return $js;

@@ -107,7 +107,7 @@ class EmailProvider extends Provider
             }
             if ($screenData[2] !== null) {
                 $content = '<div style="text-align:center;padding-bottom:50px;">' . $screenData[2] . '</div>';
-                $onOK = 'clientPackages.get("users").then(function(users){users._closeAllWindows();});';
+                $onOK = 'clientPackages.get("users").then(function(u){u._closeAllWindows();});';
                 $content .= '<form-element-button text="OK" onclick="' . htmlentities($onOK) . '"/>';
             } else {
                 $attributes = '';
@@ -133,7 +133,7 @@ class EmailProvider extends Provider
     public function login(\IvoPetkov\BearFrameworkAddons\Users\LoginContext $context): \IvoPetkov\BearFrameworkAddons\Users\LoginResponse
     {
         $response = new \IvoPetkov\BearFrameworkAddons\Users\LoginResponse();
-        $response->jsCode = "clientPackages.get('users').then(function(users){users.openProviderLogin('" . $context->providerID . "');});";
+        $response->jsCode = "clientPackages.get('users').then(function(u){u.openProviderLogin('" . $context->providerID . "');});";
         return $response;
     }
 

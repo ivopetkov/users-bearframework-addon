@@ -17,7 +17,7 @@ if ($provider !== null) {
     foreach ($screens as $screen) {
         if (isset($screen['showInSettings']) && $screen['showInSettings']) {
             $screenID = $screen['id'];
-            $onClick = 'clientPackages.get("users").then(function(users){users.openProviderScreen("' . $providerID . '","' . $screenID . '");});';
+            $onClick = 'clientPackages.get("users").then(function(u){u.openProviderScreen("' . $providerID . '","' . $screenID . '");});';
             echo '<form-element-button text="' . htmlentities($screen['name']) . '" onclick="' . htmlentities($onClick) . '"/>';
         }
     }
@@ -27,7 +27,7 @@ if ($provider !== null) {
             echo '<form-element-button text="' . htmlentities($link['name']) . '" onclick="' . htmlentities($link['onClick']) . '"/>';
         }
     }
-    $onClick = 'clientPackages.get("users").then(function(users){users._closeCurrentWindow();});';
+    $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
     echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
 
     echo '</body></html>';

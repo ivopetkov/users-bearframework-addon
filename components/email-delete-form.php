@@ -52,7 +52,7 @@ if ($app->currentUser->exists()) {
         echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.delete.password')) . '"/>';
         echo '<form-element-submit-button data-email-delete-form-component="delete-button" text="' . htmlentities(__('ivopetkov.users.email.delete.delete')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.delete.deleteWaiting')) . '" />';
     } else {
-        $onClick = 'clientPackages.get("users").then(function(users){users._closeCurrentWindow();});';
+        $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
         echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
     }
     echo '</form>';

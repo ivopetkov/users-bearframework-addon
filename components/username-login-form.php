@@ -56,7 +56,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
 
 if ($app->currentUser->exists()) {
     echo '<div style="text-align:center;padding-bottom:60px;">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
-    $onClick = 'window.location="' . $getOnLoginURL() . '";modalWindows.closeAll();';
+    $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
     echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
 } else {
     echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';

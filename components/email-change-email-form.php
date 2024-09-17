@@ -35,7 +35,7 @@ if ($app->currentUser->exists()) {
             }
             $key = EmailProvider::generateChangeEmailKey($providerID, $userID, $email);
             EmailProvider::sendChangeEmailEmail($providerID, $email, $key);
-            return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(users){users._closeAllWindows({expectOpen:true}).then(function(){users.openProviderScreen("' . $providerID . '","change-email-email-sent",{"email":"' . $email . '"});})});']);
+            return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(u){u._closeAllWindows({expectOpen:true}).then(function(){u.openProviderScreen("' . $providerID . '","change-email-email-sent",{"email":"' . $email . '"});})});']);
         }
 
         $form->throwElementError('password', __('ivopetkov.users.email.changeEmail.invalidPassword'));

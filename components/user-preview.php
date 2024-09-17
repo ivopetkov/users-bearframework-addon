@@ -47,7 +47,7 @@ if ($provider !== null) {
         foreach ($screens as $screen) {
             if (isset($screen['showInProfile']) && $screen['showInProfile']) {
                 $screenID = $screen['id'];
-                $onClick = 'clientPackages.get("users").then(function(users){users.openProviderScreen("' . $providerID . '","' . $screenID . '");});';
+                $onClick = 'clientPackages.get("users").then(function(u){u.openProviderScreen("' . $providerID . '","' . $screenID . '");});';
                 $buttonsHTML[] = '<form-element-button text="' . htmlentities($screen['name']) . '" onclick="' . htmlentities($onClick) . '"/>';
             }
             if (isset($screen['showInSettings']) && $screen['showInSettings']) {
@@ -64,7 +64,7 @@ if ($provider !== null) {
             }
         }
         if ($hasShowInSettingsScreens) {
-            $onClick = 'clientPackages.get("users").then(function(users){users.currentUser.openSettings();});';
+            $onClick = 'clientPackages.get("users").then(function(u){u.currentUser.openSettings();});';
             $buttonsHTML[] = '<form-element-button text="' . htmlentities(__('ivopetkov.users.settingsButton')) . '" onclick="' . htmlentities($onClick) . '"/>';
         }
         if ($provider !== null && $provider->hasLogout) {
@@ -72,12 +72,12 @@ if ($provider !== null) {
             if ($logoutConfirmText === '') {
                 $logoutConfirmText = __('ivopetkov.users.logoutConfirm');
             }
-            $onClick = 'if(confirm(' . json_encode($logoutConfirmText) . ')){clientPackages.get("users").then(function(users){users.logout();});};';
+            $onClick = 'if(confirm(' . json_encode($logoutConfirmText) . ')){clientPackages.get("users").then(function(u){u.logout();});};';
             $buttonsHTML[] = '<form-element-button text="' . htmlentities(__('ivopetkov.users.logoutButton')) . '" onclick="' . htmlentities($onClick) . '"/>';
         }
     }
     if (empty($buttonsHTML)) {
-        $onClick = 'clientPackages.get("users").then(function(users){users._closeAllWindows();});';
+        $onClick = 'clientPackages.get("users").then(function(u){u._closeAllWindows();});';
         $buttonsHTML[] = '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
     }
     echo '<div class="ivopetkov-users-profile-preview-buttons">';
