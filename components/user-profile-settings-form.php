@@ -75,7 +75,7 @@ $form->onSubmit = function ($values) use ($app, $providerID, $userID, $getUserDa
     $app->users->saveUserData($providerID, $userID, $data);
     $app->currentUser->clearCache();
 
-    return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(u){u._updateBadge(' . json_encode(Utilities::getBadgeHTML()) . ');users._closeAllWindows().then(function(){users._dispatchProfileChange();})});']);
+    return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(u){u._updateBadge(' . json_encode(Utilities::getBadgeHTML()) . ');u._closeAllWindows().then(function(){u._dispatchProfileChange();})});']);
 };
 
 $data = $getUserData();
