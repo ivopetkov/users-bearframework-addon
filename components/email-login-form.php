@@ -55,7 +55,10 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
 
     $form->throwElementError('password', __('ivopetkov.users.email.login.invalidPassword'));
 };
-
+echo '<html><head><style>';
+echo '[data-user-email-login-form-component="lost-password-button-container"]{padding-top:20px;text-align:center;}';
+echo '[data-user-email-login-form-component="lost-password-button"]{color:#555;text-decoration:none;}';
+echo '</style></head></html>';
 if ($app->currentUser->exists()) {
     echo '<div style="text-align:center;padding-bottom:60px;">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
     $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
@@ -68,7 +71,7 @@ if ($app->currentUser->exists()) {
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.login.login')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.login.loginWaiting')) . '" />';
 
     $onClick = 'clientPackages.get("users").then(function(u){u.openProviderScreen("' . $providerID . '","lost-password");});';
-    echo '<div style="padding-top:20px;text-align:center;"><a onclick="' . htmlentities($onClick) . '" href="javascript:void(0);" style="color:#555;text-decoration:none;">' . __('ivopetkov.users.email.login.lostPassword') . '</a></div>';
+    echo '<div data-user-email-login-form-component="lost-password-button-container"><a onclick="' . htmlentities($onClick) . '" href="javascript:void(0);" data-user-email-login-form-component="lost-password-button">' . __('ivopetkov.users.email.login.lostPassword') . '</a></div>';
 
     echo '</form>';
 }
