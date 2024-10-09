@@ -58,11 +58,12 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
 echo '<html><head><style>';
 echo '[data-user-email-login-form-component="lost-password-button-container"]{padding-top:20px;text-align:center;}';
 echo '[data-user-email-login-form-component="lost-password-button"]{color:#555;text-decoration:none;}';
+echo '[data-user-email-login-form-component="already-loggedin-message"]{text-align:center;padding-bottom:60px;}';
 echo '</style></head></html>';
 if ($app->currentUser->exists()) {
-    echo '<div style="text-align:center;padding-bottom:60px;">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
+    echo '<div data-user-email-login-form-component="already-loggedin-message">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
     $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
-    echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
+    echo '<form-element-button text="' . __('ivopetkov.users.continue') . '" onclick="' . htmlentities($onClick) . '"/>';
 } else {
     echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
     echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.login.email')) . '" autocomplete="off" inputType="email" />';

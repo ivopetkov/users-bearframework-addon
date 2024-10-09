@@ -28,7 +28,7 @@ if ($provider !== null) {
         }
     }
     $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
-    echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
+    echo '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onClick) . '"/>';
 
     echo '</body></html>';
 }

@@ -52,11 +52,27 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
     return Utilities::getFormSubmitResult(['jsCode' => 'clientPackages.get("users").then(function(u){u._closeAllWindows({expectOpen:true}).then(function(){u.openProviderScreen("' . $providerID . '","signup-email-sent",{"email":"' . $email . '"});})});']);
 };
 
-echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.signUp.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.signUp.emailHint')) . '" autocomplete="off" inputType="email" />';
-echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.signUp.password')) . '"/>';
-if ($hasTermsURL) {
-    echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.email.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
+echo '<html><head><style>';
+echo '[data-user-email-signup-form-component="already-loggedin-message"]{text-align:center;padding-bottom:60px;}';
+echo '</style></head></html>';
+if ($app->currentUser->exists()) {
+    $getOnLoginURL = function () use ($app, $providerID) {
+        $provider = $app->users->getProvider($providerID);
+        if (isset($provider->options['getOnLoginURL'])) {
+            return call_user_func($provider->options['getOnLoginURL']);
+        }
+        return $app->urls->get('/');
+    };
+    echo '<div data-user-email-signup-form-component="already-loggedin-message">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
+    $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
+    echo '<form-element-button text="' . __('ivopetkov.users.continue') . '" onclick="' . htmlentities($onClick) . '"/>';
+} else {
+    echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
+    echo '<form-element-textbox name="email" label="' . htmlentities(__('ivopetkov.users.email.signUp.email')) . '" hintAfter="' . htmlentities(__('ivopetkov.users.email.signUp.emailHint')) . '" autocomplete="off" inputType="email" />';
+    echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.signUp.password')) . '"/>';
+    if ($hasTermsURL) {
+        echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.email.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
+    }
+    echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.signUp.signUp')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.signUp.signUpWaiting')) . '" />';
+    echo '</form>';
 }
-echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.signUp.signUp')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.signUp.signUpWaiting')) . '" />';
-echo '</form>';

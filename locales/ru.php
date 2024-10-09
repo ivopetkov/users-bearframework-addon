@@ -8,6 +8,8 @@
  */
 
 return [
+    'ivopetkov.users.ok' => 'OK',
+    'ivopetkov.users.continue' => 'Продолжать',
     'ivopetkov.users.logoutButton' => 'Исход',
     'ivopetkov.users.anonymous' => 'Aнонимный',
     'ivopetkov.users.login' => 'Авторизоваться',

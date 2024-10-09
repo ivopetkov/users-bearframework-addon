@@ -70,12 +70,28 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form) {
     return Utilities::getFormSubmitResult(['redirectURL' => $url]);
 };
 
-echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
-echo '<form-element-textbox name="username" label="' . htmlentities(__('ivopetkov.users.username.signUp.username')) . '" autocomplete="off" />';
-echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.username.signUp.password')) . '"/>';
-echo '<form-element-password name="password2" label="' . htmlentities(__('ivopetkov.users.username.signUp.repeatPassword')) . '"/>';
-if ($hasTermsURL) {
-    echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.username.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
+echo '<html><head><style>';
+echo '[data-user-username-signup-form-component="already-loggedin-message"]{text-align:center;padding-bottom:60px;}';
+echo '</style></head></html>';
+if ($app->currentUser->exists()) {
+    $getOnLoginURL = function () use ($app, $providerID) {
+        $provider = $app->users->getProvider($providerID);
+        if (isset($provider->options['getOnLoginURL'])) {
+            return call_user_func($provider->options['getOnLoginURL']);
+        }
+        return $app->urls->get('/');
+    };
+    echo '<div data-user-username-signup-form-component="already-loggedin-message">' . __('ivopetkov.users.alreadyLoggedIn') . '</div>';
+    $onClick = 'clientPackages.get("users").then(function(u){u._openURL("' . $getOnLoginURL() . '",true);});';
+    echo '<form-element-button text="' . __('ivopetkov.users.continue') . '" onclick="' . htmlentities($onClick) . '"/>';
+} else {
+    echo '<form onsubmitsuccess="' . Utilities::getFormSubmitResultHandlerJsCode() . '">';
+    echo '<form-element-textbox name="username" label="' . htmlentities(__('ivopetkov.users.username.signUp.username')) . '" autocomplete="off" />';
+    echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.username.signUp.password')) . '"/>';
+    echo '<form-element-password name="password2" label="' . htmlentities(__('ivopetkov.users.username.signUp.repeatPassword')) . '"/>';
+    if ($hasTermsURL) {
+        echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.username.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
+    }
+    echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.username.signUp.signUp')) . '" waitingText="' . htmlentities(__('ivopetkov.users.username.signUp.signUpWaiting')) . '" />';
+    echo '</form>';
 }
-echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.username.signUp.signUp')) . '" waitingText="' . htmlentities(__('ivopetkov.users.username.signUp.signUpWaiting')) . '" />';
-echo '</form>';

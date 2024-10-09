@@ -51,7 +51,7 @@ class UsernameProvider extends Provider
             $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/username-' . $id . '-form.php" providerID="' . htmlentities($this->id) . '"/>');
             $titles = [
                 'change-password' => __('ivopetkov.users.username.changePasswordTitle'),
-                'signup' => __('ivopetkov.users.username.signUpTitle'),
+                'signup' => $hasUser ? '' : __('ivopetkov.users.username.signUpTitle'),
                 'login' => $hasUser ? '' : __('ivopetkov.users.username.loginTitle'),
             ];
             return [

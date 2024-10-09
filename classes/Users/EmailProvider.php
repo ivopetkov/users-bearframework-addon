@@ -78,7 +78,7 @@ class EmailProvider extends Provider
         $hasUser = $app->currentUser->exists();
 
         $screens = [ // require logged in user, title, content (look for component if null), width
-            'signup' => [false, __('ivopetkov.users.email.signUp.screenTitle'), null, '350px'],
+            'signup' => [false, $hasUser ? '' : __('ivopetkov.users.email.signUp.screenTitle'), null, '350px'],
             'signup-email-sent' => [false, '', sprintf(__('ivopetkov.users.email.signUpEmailSent.screenText'), isset($data['email']) ? $data['email'] : ''), '300px'],
             'signup-result-ok' => [false, '', __('ivopetkov.users.email.signUpResultOk.screenText'), '300px'],
             'signup-result-error' => [false, '', __('ivopetkov.users.email.signUpResultError.screenText'), '300px'],
@@ -108,7 +108,7 @@ class EmailProvider extends Provider
             if ($screenData[2] !== null) {
                 $content = '<div style="text-align:center;padding-bottom:50px;">' . $screenData[2] . '</div>';
                 $onOK = 'clientPackages.get("users").then(function(u){u._closeAllWindows();});';
-                $content .= '<form-element-button text="OK" onclick="' . htmlentities($onOK) . '"/>';
+                $content .= '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onOK) . '"/>';
             } else {
                 $attributes = '';
                 foreach ($componentAttributes as $name => $value) {

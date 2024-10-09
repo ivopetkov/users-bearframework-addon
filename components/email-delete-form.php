@@ -53,7 +53,7 @@ if ($app->currentUser->exists()) {
         echo '<form-element-submit-button data-user-email-delete-form-component="delete-button" text="' . htmlentities(__('ivopetkov.users.email.delete.delete')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.delete.deleteWaiting')) . '" />';
     } else {
         $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
-        echo '<form-element-button text="OK" onclick="' . htmlentities($onClick) . '"/>';
+        echo '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onClick) . '"/>';
     }
     echo '</form>';
 }

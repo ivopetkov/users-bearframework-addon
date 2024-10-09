@@ -8,6 +8,8 @@
  */
 
 return [
+    'ivopetkov.users.ok' => 'OK',
+    'ivopetkov.users.continue' => 'Continue',
     'ivopetkov.users.settingsButton' => 'Settings',
     'ivopetkov.users.settings' => 'Account settings',
     'ivopetkov.users.logoutButton' => 'Log out',
