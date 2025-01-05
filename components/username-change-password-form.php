@@ -22,7 +22,7 @@ if ($app->currentUser->exists()) {
         ->setMinLength('newpassword2', 6)
         ->setMaxLength('newpassword2', 100);
 
-    $form->onSubmit = function ($values) use ($app, $providerID, $form) {
+    $form->onSubmit = function ($values) use ($app, $providerID, $form): void {
         $oldPassword = $values['oldpassword'];
         $newPassword = $values['new-password'];
         $newPassword2 = $values['newpassword2'];

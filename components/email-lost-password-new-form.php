@@ -19,7 +19,7 @@ $form->constraints
     ->setMinLength('newpassword2', 6)
     ->setMaxLength('newpassword2', 100);
 
-$form->onSubmit = function ($values) use ($app, $providerID, $form, $passwordResetKey) {
+$form->onSubmit = function ($values) use ($app, $providerID, $form, $passwordResetKey): void {
     $newPassword = $values['newpassword'];
     $newPassword2 = $values['newpassword2'];
 

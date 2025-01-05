@@ -665,7 +665,7 @@ class EmailProvider extends Provider
      * @param string $textContent
      * @return void
      */
-    static function sendEmail(string $providerID, string $recipient, string $subject, string $htmlContent, string $textContent = null): void
+    static function sendEmail(string $providerID, string $recipient, string $subject, string $htmlContent, ?string $textContent = null): void
     {
         $app = App::get();
 

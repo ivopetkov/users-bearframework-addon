@@ -40,15 +40,15 @@ $app->localization
     });
 
 $app->assets
-    ->addEventListener('beforePrepare', function (\BearFramework\App\Assets\BeforePrepareEventDetails $eventDetails) use ($app, $context) {
+    ->addEventListener('beforePrepare', function (\BearFramework\App\Assets\BeforePrepareEventDetails $eventDetails) use ($app, $context): void {
         $matchingDir = $context->dir . '/assets/u/';
         if (strpos($eventDetails->filename, $matchingDir) === 0) {
             $newFilename = null;
             $parts = explode('/', $eventDetails->filename);
-            $providerID = $parts[sizeof($parts) - 2];
+            $providerID = $parts[count($parts) - 2];
             $provider = $app->users->getProvider($providerID);
             if ($provider !== null) {
-                $userID = $parts[sizeof($parts) - 1];
+                $userID = $parts[count($parts) - 1];
                 $user = $app->users->getUser($providerID, $userID);
                 $userImage = (string)$user->image;
                 if (strlen($userImage) > 0) {
@@ -319,7 +319,7 @@ $app->modalWindows
     });
 
 $app
-    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCookieUserData, $getCurrentUserCookieData, $cookie1Key, $cookie2Key, $splitSessionKey) {
+    ->addEventListener('beforeSendResponse', function (\BearFramework\App\BeforeSendResponseEventDetails $details) use ($app, $getCookieUserData, $getCurrentUserCookieData, $cookie1Key, $cookie2Key, $splitSessionKey): void {
         $response = $details->response;
         if ($app->currentUser->exists()) {
             if (strpos((string) $app->request->path, $app->assets->pathPrefix) !== 0) { // not an asset request
@@ -371,7 +371,7 @@ $app
     });
 
 $app->clientPackages
-    ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context) {
+    ->add('users', function (IvoPetkov\BearFrameworkAddons\ClientPackage $package) use ($context): void {
         //$package->addJSCode(file_get_contents(__DIR__ . '/assets/users.js'));
         $package->addJSFile($context->assets->getURL('assets/users.min.js', ['cacheMaxAge' => 999999999, 'version' => 23, 'robotsNoIndex' => true]));
         $package->embedPackage('modalWindows');
