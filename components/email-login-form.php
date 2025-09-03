@@ -7,6 +7,8 @@ use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 $app = App::get();
 $providerID = $component->providerID;
 
+$provider = $app->users->getProvider($providerID);
+
 $getOnLoginURL = function () use ($app, $providerID) {
     $provider = $app->users->getProvider($providerID);
     if (isset($provider->options['getOnLoginURL'])) {
@@ -56,8 +58,10 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
     $form->throwElementError('password', __('ivopetkov.users.email.login.invalidPassword'));
 };
 echo '<html><head><style>';
+echo '[data-user-email-login-form-component="signup-button-container"]{padding-top:20px;text-align:center;}';
 echo '[data-user-email-login-form-component="lost-password-button-container"]{padding-top:20px;text-align:center;}';
 echo '[data-user-email-login-form-component="lost-password-button"]{color:#555;text-decoration:none;}';
+echo '[data-user-email-login-form-component="signup-button"]{color:#555;text-decoration:none;}';
 echo '[data-user-email-login-form-component="already-loggedin-message"]{text-align:center;padding-bottom:60px;}';
 echo '</style></head></html>';
 if ($app->currentUser->exists()) {
@@ -70,6 +74,11 @@ if ($app->currentUser->exists()) {
     echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.login.password')) . '"/>';
     echo '<form-element-checkbox name="remember" label="' . htmlentities(__('ivopetkov.users.email.login.remember')) . '" style="display:inline-block;"/>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.login.login')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.login.loginWaiting')) . '" />';
+
+    if (isset($provider->options['showSignUpInLogin']) && $provider->options['showSignUpInLogin']) {
+        $onClick = 'clientPackages.get("users").then(function(u){u.openProviderSignup("' . $providerID . '");});';
+        echo '<div data-user-email-login-form-component="signup-button-container"><a onclick="' . htmlentities($onClick) . '" href="javascript:void(0);" data-user-email-login-form-component="signup-button">' . __('ivopetkov.users.email.login.signUp') . '</a></div>';
+    }
 
     $onClick = 'clientPackages.get("users").then(function(u){u.openProviderScreen("' . $providerID . '","lost-password");});';
     echo '<div data-user-email-login-form-component="lost-password-button-container"><a onclick="' . htmlentities($onClick) . '" href="javascript:void(0);" data-user-email-login-form-component="lost-password-button">' . __('ivopetkov.users.email.login.lostPassword') . '</a></div>';

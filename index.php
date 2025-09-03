@@ -109,7 +109,11 @@ $app->assets
                 }
             }
             if ($newFilename === null) {
-                $newFilename = $context->dir . '/assets/profile2.png';
+                if (isset($provider->options['defaultImage'])) {
+                    $newFilename = $provider->options['defaultImage'];
+                } else {
+                    $newFilename = $context->dir . '/assets/profile2.png';
+                }
             }
             $eventDetails->filename = $newFilename;
         }
