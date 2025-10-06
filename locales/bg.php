@@ -70,7 +70,7 @@ return [
     'ivopetkov.users.email.signUp.signUpWaiting' => 'Регистрация',
     'ivopetkov.users.email.signUp.emailTaken' => 'Вече има регистрация с този имейл адрес!',
     'ivopetkov.users.email.signUp.screenTitle' => 'Регистрация',
-    'ivopetkov.users.email.signUpEmailSent.screenText' => 'Съвсем скоро ще получите потвъдително писмо на <strong>%s</strong>. Моля, отворете го за да завършите регистрацията си.',
+    'ivopetkov.users.email.signUpEmailSent.screenText' => 'Съвсем скоро ще получите потвърдително писмо на <strong>%s</strong>. Моля, отворете го за да завършите регистрацията си.',
     'ivopetkov.users.email.signUpResultOk.screenText' => 'Имейл адресът ви е успешно потвърден! Сега можете да влезете в профила си.',
     'ivopetkov.users.email.signUpResultError.screenText' => 'Връзката за потвърждение е вече използвана или е изтекла (може да се използва до 24 часа). Моля, регистрирайте се отново.',
     'ivopetkov.users.email.changeEmail.email' => 'Нов имейл адрес',
