@@ -11,7 +11,7 @@ namespace BearFramework {
 
     /**
      * @property-read \IvoPetkov\BearFrameworkAddons\Users $users
-     * @property-read \IvoPetkov\BearFrameworkAddons\CurrentUser $currentUser
+     * @property-read \IvoPetkov\BearFrameworkAddons\Users\CurrentUser $currentUser
      */
     class App
     {
