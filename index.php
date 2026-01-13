@@ -152,8 +152,11 @@ $getCookieUserData = function () use ($app, &$sessionDataCache, $cookie1Key, $co
             }
             $sessionData = Utilities::getSessionData($sessionKey);
             if (is_array($sessionData)) {
-                $sessionDataCache[$sessionKey] = $sessionData;
-                return $sessionData;
+                $sessionDataCache[$sessionKey] = [
+                    'sessionKey' => $sessionKey,
+                    'data' => $sessionData
+                ];
+                return $sessionDataCache[$sessionKey];
             }
         }
     }
@@ -162,7 +165,7 @@ $getCookieUserData = function () use ($app, &$sessionDataCache, $cookie1Key, $co
 
 $cookieUserData = $getCookieUserData();
 if ($cookieUserData !== null) {
-    $app->currentUser->set($cookieUserData[0], $cookieUserData[1]);
+    $app->currentUser->set($cookieUserData['data'][0], $cookieUserData['data'][1]);
 }
 
 $getCurrentUserCookieData = function () use ($app): ?array {
@@ -301,6 +304,9 @@ $app->modalWindows
         $content = '';
         if ($provider !== null && $screenID !== null) {
             if ($screenID === 'user-profile-settings') {
+                if (!$app->currentUser->exists()) {
+                    return;
+                }
                 $content = $app->components->process('<component src="form" filename="' . $context->dir . '/components/user-profile-settings-form.php"/>');
                 $title = __('ivopetkov.users.profileSettingsButton');
                 $width = '300px';
@@ -330,8 +336,21 @@ $app
                 $currentCookieUserData = $getCookieUserData();
                 $currentUserCookieData = $getCurrentUserCookieData();
                 if ($currentUserCookieData !== null) {
-                    if (md5(serialize($currentCookieUserData)) !== md5(serialize($currentUserCookieData))) {
-                        $sessionKey = Utilities::generateSessionKey();
+                    $currentCookieUserDataToCompare = $currentCookieUserData !== null ? [$currentCookieUserData['data'][0], $currentCookieUserData['data'][1]] : ['', ''];
+                    $currentUserCookieDataToCompare = $currentUserCookieData !== null ? $currentUserCookieData : ['', ''];
+                    $hasCookieDataChange = md5(serialize($currentCookieUserDataToCompare)) !== md5(serialize($currentUserCookieDataToCompare));
+                    $extendRememberPeriod = false;
+                    if (!$hasCookieDataChange) {
+                        $extendRememberPeriod = $currentCookieUserData !== null && isset($currentCookieUserData['data'][2]) && $currentCookieUserData['data'][2] + 86400 < time();
+                    }
+                    if ($hasCookieDataChange || $extendRememberPeriod) {
+                        $sessionKey = $extendRememberPeriod && $currentCookieUserData !== null ? $currentCookieUserData['sessionKey'] : Utilities::generateSessionKey();
+                        if (Utilities::$currentUserCookieAction === 'login-remember' || $extendRememberPeriod) {
+                            $currentUserCookieData[2] = time();
+                        }
+                        if (!isset($currentUserCookieData[2])) {
+                            $currentUserCookieData[2] = null;
+                        }
                         Utilities::setSessionData($sessionKey, $currentUserCookieData);
 
                         $sessionKeyParts = $splitSessionKey($sessionKey);
@@ -340,17 +359,13 @@ $app
                         $cookie->httpOnly = true;
                         $cookie->secure = true;
                         $cookie->path = '/';
-                        if (Utilities::$currentUserCookieAction === 'login-remember') {
-                            $cookie->expire = time() + 86400 * 90;
-                        }
+                        $cookie->expire = $currentUserCookieData[2] !== null ? $currentUserCookieData[2] + 86400 * 14 : 0;
                         $response->cookies->set($cookie);
 
                         $cookie = $response->cookies->make($cookie2Key, $sessionKeyParts[1]);
                         $cookie->secure = true;
                         $cookie->path = '/';
-                        if (Utilities::$currentUserCookieAction === 'login-remember') {
-                            $cookie->expire = time() + 86400 * 90;
-                        }
+                        $cookie->expire = $currentUserCookieData[2] !== null ? $currentUserCookieData[2] + 86400 * 14 : 0;
                         $response->cookies->set($cookie);
                     }
                 }
