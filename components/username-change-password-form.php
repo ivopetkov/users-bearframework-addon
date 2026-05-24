@@ -47,6 +47,7 @@ if ($app->currentUser->exists()) {
     echo '<form-element-password name="oldpassword" label="' . htmlentities(__('ivopetkov.users.username.changePassword.currentPassword')) . '"/>';
     echo '<form-element-password name="new-password" label="' . htmlentities(__('ivopetkov.users.username.changePassword.newPassword')) . '"/>';
     echo '<form-element-password name="newpassword2" label="' . htmlentities(__('ivopetkov.users.username.changePassword.repeatNewPassword')) . '"/>';
+    echo '<div class="modal-window-content-separator"></div>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.username.changePassword.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.username.changePassword.saveWaiting')) . '" />';
     echo '</form>';
 }

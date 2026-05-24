@@ -93,5 +93,6 @@ if ($hasWebsite) {
 if ($hasDescription) {
     echo '<form-element-textarea name="description" label="' . htmlentities(__('ivopetkov.users.profileSettings.description')) . '" value="' . htmlentities($data['description']) . '" />';
 }
+echo '<div class="modal-window-content-separator"></div>';
 echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.profileSettings.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.profileSettings.saving')) . '" />';
 echo '</form>';

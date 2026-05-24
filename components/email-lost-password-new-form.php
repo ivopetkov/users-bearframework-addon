@@ -42,5 +42,6 @@ $onSuccess = 'clientPackages.get("users").then(function(u){u._closeAllWindows({e
 echo '<form onsubmitsuccess="' . htmlentities($onSuccess) . '">';
 echo '<form-element-password name="newpassword" label="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.newPassword')) . '"/>';
 echo '<form-element-password name="newpassword2" label="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.repeatNewPassword')) . '"/>';
+echo '<div class="modal-window-content-separator"></div>';
 echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.save')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.lostPasswordNew.saveWaiting')) . '" />';
 echo '</form>';

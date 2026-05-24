@@ -78,6 +78,7 @@ if ($provider !== null) {
     }
     if (empty($buttonsHTML)) {
         $onClick = 'clientPackages.get("users").then(function(u){u._closeAllWindows();});';
+        $buttonsHTML[] = '<div class="modal-window-content-separator"></div>';
         $buttonsHTML[] = '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onClick) . '"/>';
     }
     echo '<div class="ivopetkov-users-profile-preview-buttons">';

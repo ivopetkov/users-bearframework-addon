@@ -66,6 +66,7 @@ if ($app->currentUser->exists()) {
     echo '<form-element-textbox name="username" label="' . htmlentities(__('ivopetkov.users.username.login.username')) . '" autocomplete="off" />';
     echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.username.login.password')) . '"/>';
     echo '<form-element-checkbox name="remember" label="' . htmlentities(__('ivopetkov.users.username.login.remember')) . '" style="display:inline-block;"/>';
+    echo '<div class="modal-window-content-separator"></div>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.username.login.login')) . '" waitingText="' . htmlentities(__('ivopetkov.users.username.login.loginWaiting')) . '" />';
     echo '</form>';
 }

@@ -50,9 +50,11 @@ if ($app->currentUser->exists()) {
     echo '<div style="text-align:center;padding-bottom:20px;">' . ($canDelete && $canDeleteReason === '' ? sprintf(__('ivopetkov.users.email.delete.warningText'), $app->request->host) : $canDeleteReason) . '</div>';
     if ($canDelete) {
         echo '<form-element-password name="password" label="' . htmlentities(__('ivopetkov.users.email.delete.password')) . '"/>';
+        echo '<div class="modal-window-content-separator"></div>';
         echo '<form-element-submit-button data-user-email-delete-form-component="delete-button" text="' . htmlentities(__('ivopetkov.users.email.delete.delete')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.delete.deleteWaiting')) . '" />';
     } else {
         $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
+        echo '<div class="modal-window-content-separator"></div>';
         echo '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onClick) . '"/>';
     }
     echo '</form>';

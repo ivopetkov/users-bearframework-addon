@@ -27,6 +27,7 @@ if ($provider !== null) {
             echo '<form-element-button text="' . htmlentities($link['name']) . '" onclick="' . htmlentities($link['onClick']) . '"/>';
         }
     }
+    echo '<div class="modal-window-content-separator"></div>';
     $onClick = 'clientPackages.get("users").then(function(u){u._closeCurrentWindow();});';
     echo '<form-element-button text="' . __('ivopetkov.users.ok') . '" onclick="' . htmlentities($onClick) . '"/>';
 

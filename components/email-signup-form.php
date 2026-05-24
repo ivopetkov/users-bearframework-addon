@@ -73,6 +73,7 @@ if ($app->currentUser->exists()) {
     if ($hasTermsURL) {
         echo '<form-element-checkbox name="terms" labelHTML="' . htmlentities(sprintf(__('ivopetkov.users.email.signUp.acceptTerms'), $termsURL)) . '" style="display:inline-block;"/>';
     }
+    echo '<div class="modal-window-content-separator"></div>';
     echo '<form-element-submit-button text="' . htmlentities(__('ivopetkov.users.email.signUp.signUp')) . '" waitingText="' . htmlentities(__('ivopetkov.users.email.signUp.signUpWaiting')) . '" />';
     echo '</form>';
 }
