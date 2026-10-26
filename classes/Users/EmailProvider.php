@@ -79,6 +79,10 @@ class EmailProvider extends Provider
         $hasUser = $app->currentUser->exists();
 
         $hasSignUpInLogin = isset($this->options['showSignUpInLogin']) && $this->options['showSignUpInLogin'];
+        $reloadAfterLogin = isset($data['reloadAfterLogin']) && $data['reloadAfterLogin'];
+        if ($reloadAfterLogin) {
+            $componentAttributes['reloadAfterLogin'] = true;
+        }
 
         $screens = [ // require logged in user, title, content (look for component if null), width
             'signup' => [false, $hasUser ? '' : __('ivopetkov.users.email.signUp.screenTitle'), null, '350px'],

@@ -179,8 +179,15 @@ ivoPetkov.bearFrameworkAddons.users = ivoPetkov.bearFrameworkAddons.users || (fu
         });
     };
 
-    var openProviderLogin = function (provider) {
-        openProviderScreen(provider, 'login');
+    var openProviderLogin = function (provider, options) {
+        if (typeof options === 'undefined') {
+            options = {};
+        }
+        var data = {};
+        if (options.reloadAfterLogin !== undefined) {
+            data.reloadAfterLogin = options.reloadAfterLogin;
+        }
+        openProviderScreen(provider, 'login', data);
     };
 
     var openProviderSignup = function (provider) {

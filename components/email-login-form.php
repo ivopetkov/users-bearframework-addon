@@ -6,6 +6,7 @@ use IvoPetkov\BearFrameworkAddons\Users\Internal\Utilities;
 
 $app = App::get();
 $providerID = $component->providerID;
+$reloadAfterLogin = isset($component->reloadAfterLogin) ? $component->reloadAfterLogin : false;
 
 $provider = $app->users->getProvider($providerID);
 
@@ -30,7 +31,7 @@ $form->constraints
     ->setMinLength('password', 6)
     ->setMaxLength('password', 100);
 
-$form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginURL) {
+$form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginURL, $reloadAfterLogin) {
     $email = $values['email'];
     $password = $values['password'];
 
@@ -52,7 +53,13 @@ $form->onSubmit = function ($values) use ($app, $providerID, $form, $getOnLoginU
         $app->currentUser->login($providerID, $userID, isset($values['remember']));
         $app->users->dispatchLoginEvent($providerID, $userID);
 
-        return Utilities::getFormSubmitResult(['redirectURL' => $getOnLoginURL()]);
+        $submitResult = [];
+        if ($reloadAfterLogin) {
+            $submitResult['jsCode'] = 'clientPackages.get("users").then(function(u){u._openURL(window.location.href,true);});';
+        } else {
+            $submitResult['redirectURL'] = $getOnLoginURL();
+        }
+        return Utilities::getFormSubmitResult($submitResult);
     }
 
     $form->throwElementError('password', __('ivopetkov.users.email.login.invalidPassword'));
